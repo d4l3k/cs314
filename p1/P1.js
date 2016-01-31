@@ -119,15 +119,15 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 
 var headMatrix = scale(translate(identity(), 0,-0.125,0.375), 0.75,0.75,0.75);
 var headMatrix2 = scale(translate(identity(), 0,-0.125,0.325), 0.75,0.75,0.75);
-var neckMatrix = scale(translate(identity(), 0,-0.75,4.25), 3.5,3.5,4);
+var neckMatrix = scale(translate(identity(), 0,-0.5,3.25), 3.5,3.5,4);
 var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.25), 1.25,1.25,1);
-var behindMatrix = scale(translate(identity(), 0,-0.5,-3), 4,4,2);
-var behindMatrix2 = scale(translate(identity(), 0,-1,-4), 3,3,2);
-var behindMatrix3 = scale(translate(identity(), 0,-1.5,-5), 2,2,2);
-var behindMatrix4 = scale(translate(identity(), 0,-1.75,-6), 1.5,1.5,2);
-var tailMatrix = scale(translate(identity(), 0,-2,-8), 1,1,2);
-var tailMatrix2 = scale(translate(identity(), 0,-2,-10), 0.75,0.75,2);
-var noseMatrix = scale(translate(identity(), 0,-0.375,0.75), 0.25,0.25,0.25);
+var behindMatrix = scale(translate(identity(), 0,-0.375,-3), 4,4,2);
+var behindMatrix2 = scale(translate(identity(), 0,-0.125,-0.5), 0.75,0.75,1);
+var behindMatrix3 = scale(translate(identity(), 0,-0.25,-1), 0.5,0.5,1);
+var behindMatrix4 = scale(translate(identity(), 0,-0.375,-1.5), 0.25,0.25,1);
+var tailMatrix = scale(translate(identity(), 0,-0.4,-2.25), 0.125,0.125,1);
+var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
+var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
 
 
 
@@ -150,23 +150,23 @@ torso.add(behind);
 
 var behind2 = new THREE.Mesh(behindGeometry2,normalMaterial);
 behind2.setMatrix(behindMatrix2)
-torso.add(behind2);
+behind.add(behind2);
 
 var behind3 = new THREE.Mesh(behindGeometry3,normalMaterial);
 behind3.setMatrix(behindMatrix3)
-torso.add(behind3);
+behind.add(behind3);
 
 var behind4 = new THREE.Mesh(behindGeometry4,normalMaterial);
 behind4.setMatrix(behindMatrix4)
-torso.add(behind4);
+behind.add(behind4);
 
 var tail = new THREE.Mesh(tailGeometry,normalMaterial);
 tail.setMatrix(tailMatrix)
-torso.add(tail);
+behind.add(tail);
 
 var tail2 = new THREE.Mesh(tailGeometry2,normalMaterial);
 tail2.setMatrix(tailMatrix2)
-torso.add(tail2);
+tail.add(tail2);
 
 var head = new THREE.Mesh(headGeometry,normalMaterial);
 head.setMatrix(headMatrix)
@@ -223,11 +223,14 @@ function mul(a, b) {
 var headOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
 
-var neckOriginMatrix = new THREE.Matrix4().set(1,0,0,-0.25, 0,1,0,0, 0,0,1,0.75, 0,0,0,1);
-var neckOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0.25, 0,1,0,0, 0,0,1,-0.75, 0,0,0,1);
+var neckOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,1.125, 0,0,0,1);
+var neckOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-1.125, 0,0,0,1);
 
-var tailOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
-var tailOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
+var tailOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+var tailOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+
+var behindOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+var behindOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
 
 function rotateX(p) {
   return new THREE.Matrix4().set(
@@ -289,9 +292,11 @@ function updateBody() {
       }
 
       var rotate = rotateY(p);
-
-      var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
-      tail.setMatrix(tailRotMatrix);
+      
+      //var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
+      var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotate, behindOriginMatrix)));
+      //tail.setMatrix(tailRotMatrix);
+      behind.setMatrix(behindRotMatrix);
       break
 
     default:
@@ -319,9 +324,9 @@ keyboard.domElement.addEventListener('keydown',function(event){
   } else if(keyboard.eventMatches(event,"E")||keyboard.eventMatches(event,"D")) { // Body down
     (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
   } else if(keyboard.eventMatches(event,"H")) { // Head right
-    (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "H")
+    (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/16,1), key = "H")
   } else if(keyboard.eventMatches(event,"G")) { // Head left
-    (key == "G")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "G")
+    (key == "G")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/16,1), key = "G")
   } else if(keyboard.eventMatches(event,"T")) { // Tail right
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
