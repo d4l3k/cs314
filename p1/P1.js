@@ -86,6 +86,9 @@ var noseGeometry = makeCube();
 // Note: The torso has been done for you (but feel free to modify it!)
 // Hint: Explicity declare new matrices using Matrix4().set
 
+function identity() {
+  return new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
+}
 function scale(m, x, y, z) {
   var scaleMatrix = new THREE.Matrix4().set(x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1);
   return m.clone().multiply(scaleMatrix);
@@ -105,9 +108,9 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 // Hint: Keep hierarchies in mind!
 // Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?
 
-var headMatrix = scale(translate(torsoMatrix, 0,0,6), 3,3,4);
-var tailMatrix = scale(translate(torsoMatrix, 0,0,-6), 1,1,4);
-var noseMatrix = scale(translate(headMatrix, 0,0,0.5), 0.4,0.4,0.3);
+var headMatrix = scale(translate(identity(), 0,0,6), 3,3,4);
+var tailMatrix = scale(translate(identity(), 0,0,-6), 1,1,4);
+var noseMatrix = scale(translate(identity(), 0,0,0.5), 0.4,0.4,0.3);
 
 
 
@@ -118,15 +121,16 @@ scene.add(torso);
 
 var head = new THREE.Mesh(headGeometry,normalMaterial);
 head.setMatrix(headMatrix)
-scene.add(head);
+torso.add(head);
 
 var tail = new THREE.Mesh(tailGeometry,normalMaterial);
 tail.setMatrix(tailMatrix)
-scene.add(tail);
+torso.add(tail);
 
 var nose = new THREE.Mesh(noseGeometry,normalMaterial);
 nose.setMatrix(noseMatrix)
-scene.add(nose);
+head.add(nose);
+
 
 // TO-DO: PUT TOGETHER THE REST OF YOUR STAR-NOSED MOLE AND ADD TO THE SCENE!
 // Hint: Hint: Add one piece of geometry at a time, then implement the motion for that part.
