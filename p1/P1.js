@@ -174,6 +174,8 @@ function mul(a, b) {
 var headOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
 
+var tailOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
+var tailOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 
 function updateBody() {
   if (!animate) {
@@ -181,7 +183,7 @@ function updateBody() {
   }
   var time = clock.getElapsedTime(); // t seconds passed since the clock started.
   switch(true) {
-    case(key == "U"):
+    case(key == "U" || key == "E"):
       if (time > time_end || jumpcut){
         p = p1;
         animate = false;
@@ -198,7 +200,7 @@ function updateBody() {
       torso.setMatrix(torsoRotMatrix);
       break
 
-    case(key == "E"):
+    case(key == "H" || key == "G"):
       if (time > time_end || jumpcut){
         p = p1;
         animate = false;
@@ -206,16 +208,15 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotate = new THREE.Matrix4().set(1,        0,         0,        0,
-                                            0, Math.cos(-p),-Math.sin(-p), 0,
-                                            0, Math.sin(-p), Math.cos(-p), 0,
-                                            0,        0,         0,        1);
+      var rotate = new THREE.Matrix4().set(
+          Math.cos(-p), 0, -Math.sin(-p), 0,
+          0,            1,             0, 0, Math.sin(-p), 0,  Math.cos(-p), 0, 0,            0,             0, 1);
 
-      var torsoRotMatrix = mul(torsoMatrix,rotate);
-      torso.setMatrix(torsoRotMatrix);
+      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
+      head.setMatrix(headRotMatrix);
       break
 
-    case(key == "H"):
+    case(key == "T" || key == "V"):
       if (time > time_end || jumpcut){
         p = p1;
         animate = false;
@@ -229,28 +230,9 @@ function updateBody() {
           Math.sin(-p), 0,  Math.cos(-p), 0,
           0,            0,             0, 1);
 
-      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
-      head.setMatrix(headRotMatrix);
+      var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
+      tail.setMatrix(tailRotMatrix);
       break
-
-    case(key == "G"):
-      if (time > time_end || jumpcut){
-        p = p1;
-        animate = false;
-      } else {
-        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
-      }
-
-      var rotate = new THREE.Matrix4().set(
-          Math.cos(-p), 0, -Math.sin(-p), 0,
-          0,            1,             0, 0,
-          Math.sin(-p), 0,  Math.cos(-p), 0,
-          0,            0,             0, 1);
-
-      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
-      head.setMatrix(headRotMatrix);
-      break
-
 
     default:
       break;
