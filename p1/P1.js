@@ -80,7 +80,11 @@ var neckGeometry = makeCube();
 var neckGeometry2 = makeCube();
 var neckGeometry3 = makeCube();
 var behindGeometry = makeCube();
+var behindGeometry2 = makeCube();
+var behindGeometry3 = makeCube();
+var behindGeometry4 = makeCube();
 var tailGeometry = makeCube();
+var tailGeometry2 = makeCube();
 var noseGeometry = makeCube();
 
 
@@ -113,12 +117,16 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 // Hint: Keep hierarchies in mind!
 // Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?
 
-var headMatrix = scale(translate(identity(), 0,-1,6), 2,2,3);
-var neckMatrix = scale(translate(identity(), 0,-0.75,4.75), 3.25,3.25,4);
-var neckMatrix2 = scale(translate(identity(), 0,-0.5,3.75), 4,4,4);
+var headMatrix = scale(translate(identity(), 0,-1,6.5), 2,2,3);
+var neckMatrix = scale(translate(identity(), 0,-0.75,5), 3.25,3.25,4);
+var neckMatrix2 = scale(translate(identity(), 0,-0.5,4), 4,4,4);
 var neckMatrix3 = scale(translate(identity(), 0,-0.25,3), 4.5,4.5,4);
-var behindMatrix = scale(translate(identity(), 0,-0.25,3), 4.5,4.5,4);
-var tailMatrix = scale(translate(identity(), 0,0,-6), 1,1,4);
+var behindMatrix = scale(translate(identity(), 0,-0.5,-3), 4,4,2);
+var behindMatrix2 = scale(translate(identity(), 0,-1,-4), 3,3,2);
+var behindMatrix3 = scale(translate(identity(), 0,-1.5,-5), 2,2,2);
+var behindMatrix4 = scale(translate(identity(), 0,-1.75,-6), 1.5,1.5,2);
+var tailMatrix = scale(translate(identity(), 0,-2,-8), 1,1,2);
+var tailMatrix2 = scale(translate(identity(), 0,-2,-10), 0.75,0.75,2);
 var noseMatrix = scale(translate(identity(), 0,0,0.5), 0.4,0.4,0.3);
 
 
@@ -148,9 +156,26 @@ var behind = new THREE.Mesh(behindGeometry,normalMaterial);
 behind.setMatrix(behindMatrix)
 torso.add(behind);
 
+var behind2 = new THREE.Mesh(behindGeometry2,normalMaterial);
+behind2.setMatrix(behindMatrix2)
+torso.add(behind2);
+
+var behind3 = new THREE.Mesh(behindGeometry3,normalMaterial);
+behind3.setMatrix(behindMatrix3)
+torso.add(behind3);
+
+var behind4 = new THREE.Mesh(behindGeometry4,normalMaterial);
+behind4.setMatrix(behindMatrix4)
+torso.add(behind4);
+
 var tail = new THREE.Mesh(tailGeometry,normalMaterial);
 tail.setMatrix(tailMatrix)
 torso.add(tail);
+
+var tail2 = new THREE.Mesh(tailGeometry2,normalMaterial);
+tail2.setMatrix(tailMatrix2)
+torso.add(tail2);
+
 
 var nose = new THREE.Mesh(noseGeometry,normalMaterial);
 nose.setMatrix(noseMatrix)
