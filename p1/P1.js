@@ -76,9 +76,9 @@ var torsoGeometry = makeCube();
 torsoGeometry.applyMatrix(non_uniform_scale);
 
 var headGeometry = makeCube();
+var headGeometry2 = makeCube();
 var neckGeometry = makeCube();
 var neckGeometry2 = makeCube();
-var neckGeometry3 = makeCube();
 var behindGeometry = makeCube();
 var behindGeometry2 = makeCube();
 var behindGeometry3 = makeCube();
@@ -117,17 +117,17 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 // Hint: Keep hierarchies in mind!
 // Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?
 
-var headMatrix = scale(translate(identity(), 0,-1,6.5), 2,2,3);
-var neckMatrix = scale(translate(identity(), 0,-0.75,5), 3.25,3.25,4);
-var neckMatrix2 = scale(translate(identity(), 0,-0.5,4), 4,4,4);
-var neckMatrix3 = scale(translate(identity(), 0,-0.25,3), 4.5,4.5,4);
+var headMatrix = scale(translate(identity(), 0,-0.125,0.375), 0.75,0.75,0.75);
+var headMatrix2 = scale(translate(identity(), 0,-0.125,0.325), 0.75,0.75,0.75);
+var neckMatrix = scale(translate(identity(), 0,-0.75,4.25), 3.5,3.5,4);
+var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.25), 1.25,1.25,1);
 var behindMatrix = scale(translate(identity(), 0,-0.5,-3), 4,4,2);
 var behindMatrix2 = scale(translate(identity(), 0,-1,-4), 3,3,2);
 var behindMatrix3 = scale(translate(identity(), 0,-1.5,-5), 2,2,2);
 var behindMatrix4 = scale(translate(identity(), 0,-1.75,-6), 1.5,1.5,2);
 var tailMatrix = scale(translate(identity(), 0,-2,-8), 1,1,2);
 var tailMatrix2 = scale(translate(identity(), 0,-2,-10), 0.75,0.75,2);
-var noseMatrix = scale(translate(identity(), 0,0,0.5), 0.4,0.4,0.3);
+var noseMatrix = scale(translate(identity(), 0,-0.375,0.75), 0.25,0.25,0.25);
 
 
 
@@ -136,21 +136,13 @@ var torso = new THREE.Mesh(torsoGeometry,normalMaterial);
 torso.setMatrix(torsoMatrix)
 scene.add(torso);
 
-var head = new THREE.Mesh(headGeometry,normalMaterial);
-head.setMatrix(headMatrix)
-torso.add(head);
-
 var neck = new THREE.Mesh(neckGeometry,normalMaterial);
 neck.setMatrix(neckMatrix)
 torso.add(neck);
 
 var neck2 = new THREE.Mesh(neckGeometry2,normalMaterial);
 neck2.setMatrix(neckMatrix2)
-torso.add(neck2);
-
-var neck3 = new THREE.Mesh(neckGeometry3,normalMaterial);
-neck3.setMatrix(neckMatrix3)
-torso.add(neck3);
+neck.add(neck2);
 
 var behind = new THREE.Mesh(behindGeometry,normalMaterial);
 behind.setMatrix(behindMatrix)
@@ -176,6 +168,13 @@ var tail2 = new THREE.Mesh(tailGeometry2,normalMaterial);
 tail2.setMatrix(tailMatrix2)
 torso.add(tail2);
 
+var head = new THREE.Mesh(headGeometry,normalMaterial);
+head.setMatrix(headMatrix)
+neck.add(head);
+
+var head2 = new THREE.Mesh(headGeometry2,normalMaterial);
+head2.setMatrix(headMatrix2)
+head.add(head2);
 
 var nose = new THREE.Mesh(noseGeometry,normalMaterial);
 nose.setMatrix(noseMatrix)
@@ -223,6 +222,9 @@ function mul(a, b) {
 
 var headOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
+
+var neckOriginMatrix = new THREE.Matrix4().set(1,0,0,-0.25, 0,1,0,0, 0,0,1,0.75, 0,0,0,1);
+var neckOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0.25, 0,1,0,0, 0,0,1,-0.75, 0,0,0,1);
 
 var tailOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
 var tailOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
@@ -273,7 +275,9 @@ function updateBody() {
       var rotate = rotateY(p);
 
       var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
+      var neckRotMatrix = mul(neckMatrix,mul(neckOriginInvMatrix, mul(rotate, neckOriginMatrix)));
       head.setMatrix(headRotMatrix);
+      neck.setMatrix(neckRotMatrix);
       break
 
     case(key == "T" || key == "V"):
