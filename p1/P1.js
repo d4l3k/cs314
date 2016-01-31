@@ -58,7 +58,7 @@ var grid = new THREE.Line(gridGeometry,gridMaterial,THREE.LinePieces);
 /////////////////////////////////
 
 // MATERIALS
-// Note: Feel free to be creative with this! 
+// Note: Feel free to be creative with this!
 var normalMaterial = new THREE.MeshNormalMaterial();
 
 // function drawCube()
@@ -70,26 +70,44 @@ function makeCube() {
 }
 
 // GEOMETRY
-var torsoGeometry = makeCube();
 var non_uniform_scale = new THREE.Matrix4().set(5,0,0,0, 0,5,0,0, 0,0,8,0, 0,0,0,1);
+
+var torsoGeometry = makeCube();
 torsoGeometry.applyMatrix(non_uniform_scale);
 
-// TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY. 
-// Note: You will be using transformation matrices to set the shape. 
-// Note: You are not allowed to use the tools Three.js provides for 
-//       rotation, translation and scaling.
-// Note: The torso has been done for you (but feel free to modify it!)  
-// Hint: Explicity declare new matrices using Matrix4().set     
+var headGeometry = makeCube();
+var tailGeometry = makeCube();
+var noseGeometry = makeCube();
 
+// TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY.
+// Note: You will be using transformation matrices to set the shape.
+// Note: You are not allowed to use the tools Three.js provides for
+//       rotation, translation and scaling.
+// Note: The torso has been done for you (but feel free to modify it!)
+// Hint: Explicity declare new matrices using Matrix4().set
+
+function scale(m, x, y, z) {
+  var scaleMatrix = new THREE.Matrix4().set(x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1);
+  return m.clone().multiply(scaleMatrix);
+}
+
+function translate(m, x, y, z) {
+  var translateMatrix = new THREE.Matrix4().set(1,0,0,x, 0,1,0,y, 0,0,1,z, 0,0,0,1);
+  return m.clone().multiply(translateMatrix);
+}
 
 
 // MATRICES
 var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 
-// TO-DO: INITIALIZE THE REST OF YOUR MATRICES 
+// TO-DO: INITIALIZE THE REST OF YOUR MATRICES
 // Note: Use of parent attribute is not allowed.
-// Hint: Keep hierarchies in mind!   
-// Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?         
+// Hint: Keep hierarchies in mind!
+// Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?
+
+var headMatrix = scale(translate(torsoMatrix, 0,0,6), 3,3,4);
+var tailMatrix = scale(translate(torsoMatrix, 0,0,-6), 1,1,4);
+var noseMatrix = scale(translate(headMatrix, 0,0,0.5), 0.4,0.4,0.3);
 
 
 
@@ -98,8 +116,20 @@ var torso = new THREE.Mesh(torsoGeometry,normalMaterial);
 torso.setMatrix(torsoMatrix)
 scene.add(torso);
 
+var head = new THREE.Mesh(headGeometry,normalMaterial);
+head.setMatrix(headMatrix)
+scene.add(head);
+
+var tail = new THREE.Mesh(tailGeometry,normalMaterial);
+tail.setMatrix(tailMatrix)
+scene.add(tail);
+
+var nose = new THREE.Mesh(noseGeometry,normalMaterial);
+nose.setMatrix(noseMatrix)
+scene.add(nose);
+
 // TO-DO: PUT TOGETHER THE REST OF YOUR STAR-NOSED MOLE AND ADD TO THE SCENE!
-// Hint: Hint: Add one piece of geometry at a time, then implement the motion for that part. 
+// Hint: Hint: Add one piece of geometry at a time, then implement the motion for that part.
 //             Then you can make sure your hierarchy still works properly after each step.
 
 
@@ -145,20 +175,20 @@ function updateBody() {
         break;
       }
 
-      p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame 
+      p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
 
-      var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0, 
-                                            0, Math.cos(-p),-Math.sin(-p), 0, 
+      var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0,
+                                            0, Math.cos(-p),-Math.sin(-p), 0,
                                             0, Math.sin(-p), Math.cos(-p), 0,
                                             0,        0,         0,        1);
 
       var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotateZ);
-      torso.setMatrix(torsoRotMatrix); 
+      torso.setMatrix(torsoRotMatrix);
       break
 
       // TO-DO: IMPLEMENT JUMPCUT/ANIMATION FOR EACH KEY!
       // Note: Remember spacebar sets jumpcut/animate!
-      
+
 
 
     default:
@@ -176,16 +206,16 @@ keyboard.domElement.addEventListener('keydown',function(event){
     return;
   if(keyboard.eventMatches(event,"Z")){  // Z: Reveal/Hide helper grid
     grid_state = !grid_state;
-    grid_state? scene.add(grid) : scene.remove(grid);}   
+    grid_state? scene.add(grid) : scene.remove(grid);}
   else if(keyboard.eventMatches(event,"0")){    // 0: Set camera to neutral position, view reset
     camera.position.set(45,0,0);
     camera.lookAt(scene.position);}
-  else if(keyboard.eventMatches(event,"U")){ 
-    (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")}  
+  else if(keyboard.eventMatches(event,"U")){
+    (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")}
 
 
   // TO-DO: BIND KEYS TO YOUR JUMP CUTS AND ANIMATIONS
-  // Note: Remember spacebar sets jumpcut/animate! 
+  // Note: Remember spacebar sets jumpcut/animate!
   // Hint: Look up "threex.keyboardstate by Jerome Tienne" for more info.
 
 
