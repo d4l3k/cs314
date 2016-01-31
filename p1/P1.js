@@ -70,14 +70,19 @@ function makeCube() {
 }
 
 // GEOMETRY
-var non_uniform_scale = new THREE.Matrix4().set(5,0,0,0, 0,5,0,0, 0,0,8,0, 0,0,0,1);
+var non_uniform_scale = new THREE.Matrix4().set(5,0,0,0, 0,5,0,0, 0,0,5,0, 0,0,0,1);
 
 var torsoGeometry = makeCube();
 torsoGeometry.applyMatrix(non_uniform_scale);
 
 var headGeometry = makeCube();
+var neckGeometry = makeCube();
+var neckGeometry2 = makeCube();
+var neckGeometry3 = makeCube();
+var behindGeometry = makeCube();
 var tailGeometry = makeCube();
 var noseGeometry = makeCube();
+
 
 // TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY.
 // Note: You will be using transformation matrices to set the shape.
@@ -108,7 +113,11 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 // Hint: Keep hierarchies in mind!
 // Hint: Play around with the headTorsoMatrix values, what changes in the render? Why?
 
-var headMatrix = scale(translate(identity(), 0,0,6), 3,3,4);
+var headMatrix = scale(translate(identity(), 0,-1,6), 2,2,3);
+var neckMatrix = scale(translate(identity(), 0,-0.75,4.75), 3.25,3.25,4);
+var neckMatrix2 = scale(translate(identity(), 0,-0.5,3.75), 4,4,4);
+var neckMatrix3 = scale(translate(identity(), 0,-0.25,3), 4.5,4.5,4);
+var behindMatrix = scale(translate(identity(), 0,-0.25,3), 4.5,4.5,4);
 var tailMatrix = scale(translate(identity(), 0,0,-6), 1,1,4);
 var noseMatrix = scale(translate(identity(), 0,0,0.5), 0.4,0.4,0.3);
 
@@ -122,6 +131,22 @@ scene.add(torso);
 var head = new THREE.Mesh(headGeometry,normalMaterial);
 head.setMatrix(headMatrix)
 torso.add(head);
+
+var neck = new THREE.Mesh(neckGeometry,normalMaterial);
+neck.setMatrix(neckMatrix)
+torso.add(neck);
+
+var neck2 = new THREE.Mesh(neckGeometry2,normalMaterial);
+neck2.setMatrix(neckMatrix2)
+torso.add(neck2);
+
+var neck3 = new THREE.Mesh(neckGeometry3,normalMaterial);
+neck3.setMatrix(neckMatrix3)
+torso.add(neck3);
+
+var behind = new THREE.Mesh(behindGeometry,normalMaterial);
+behind.setMatrix(behindMatrix)
+torso.add(behind);
 
 var tail = new THREE.Mesh(tailGeometry,normalMaterial);
 tail.setMatrix(tailMatrix)
