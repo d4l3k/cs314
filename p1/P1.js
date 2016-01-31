@@ -167,6 +167,14 @@ function init_animation(p_start,p_end,t_length){
   return;
 }
 
+function mul(a, b) {
+  return new THREE.Matrix4().multiplyMatrices(a, b);
+}
+
+var headOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
+var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
+
+
 function updateBody() {
   if (!animate) {
     return;
@@ -186,7 +194,7 @@ function updateBody() {
                                             0, Math.sin(-p), Math.cos(-p), 0,
                                             0,        0,         0,        1);
 
-      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotate);
+      var torsoRotMatrix = mul(torsoMatrix,rotate);
       torso.setMatrix(torsoRotMatrix);
       break
 
@@ -203,7 +211,7 @@ function updateBody() {
                                             0, Math.sin(-p), Math.cos(-p), 0,
                                             0,        0,         0,        1);
 
-      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotate);
+      var torsoRotMatrix = mul(torsoMatrix,rotate);
       torso.setMatrix(torsoRotMatrix);
       break
 
@@ -221,7 +229,7 @@ function updateBody() {
           Math.sin(-p), 0,  Math.cos(-p), 0,
           0,            0,             0, 1);
 
-      var headRotMatrix = new THREE.Matrix4().multiplyMatrices(headMatrix,rotate);
+      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
       head.setMatrix(headRotMatrix);
       break
 
@@ -239,7 +247,7 @@ function updateBody() {
           Math.sin(-p), 0,  Math.cos(-p), 0,
           0,            0,             0, 1);
 
-      var headRotMatrix = new THREE.Matrix4().multiplyMatrices(headMatrix,rotate);
+      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
       head.setMatrix(headRotMatrix);
       break
 
