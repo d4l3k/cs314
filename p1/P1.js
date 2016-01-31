@@ -168,10 +168,12 @@ function init_animation(p_start,p_end,t_length){
 }
 
 function updateBody() {
+  if (!animate) {
+    return;
+  }
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
   switch(true) {
-    case(key == "U" && animate):
-      var time = clock.getElapsedTime(); // t seconds passed since the clock started.
-
+    case(key == "U"):
       if (time > time_end || jumpcut){
         p = p1;
         animate = false;
@@ -179,18 +181,16 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0,
+      var rotate = new THREE.Matrix4().set(1,        0,         0,        0,
                                             0, Math.cos(-p),-Math.sin(-p), 0,
                                             0, Math.sin(-p), Math.cos(-p), 0,
                                             0,        0,         0,        1);
 
-      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotateZ);
+      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotate);
       torso.setMatrix(torsoRotMatrix);
       break
 
-    case(key == "E" && animate):
-      var time = clock.getElapsedTime(); // t seconds passed since the clock started.
-
+    case(key == "E"):
       if (time > time_end || jumpcut){
         p = p1;
         animate = false;
@@ -198,17 +198,50 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0,
+      var rotate = new THREE.Matrix4().set(1,        0,         0,        0,
                                             0, Math.cos(-p),-Math.sin(-p), 0,
                                             0, Math.sin(-p), Math.cos(-p), 0,
                                             0,        0,         0,        1);
 
-      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotateZ);
+      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotate);
       torso.setMatrix(torsoRotMatrix);
       break
 
-      // TO-DO: IMPLEMENT JUMPCUT/ANIMATION FOR EACH KEY!
-      // Note: Remember spacebar sets jumpcut/animate!
+    case(key == "H"):
+      if (time > time_end || jumpcut){
+        p = p1;
+        animate = false;
+      } else {
+        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+      }
+
+      var rotate = new THREE.Matrix4().set(
+          Math.cos(-p), 0, -Math.sin(-p), 0,
+          0,            1,             0, 0,
+          Math.sin(-p), 0,  Math.cos(-p), 0,
+          0,            0,             0, 1);
+
+      var headRotMatrix = new THREE.Matrix4().multiplyMatrices(headMatrix,rotate);
+      head.setMatrix(headRotMatrix);
+      break
+
+    case(key == "G"):
+      if (time > time_end || jumpcut){
+        p = p1;
+        animate = false;
+      } else {
+        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+      }
+
+      var rotate = new THREE.Matrix4().set(
+          Math.cos(-p), 0, -Math.sin(-p), 0,
+          0,            1,             0, 0,
+          Math.sin(-p), 0,  Math.cos(-p), 0,
+          0,            0,             0, 1);
+
+      var headRotMatrix = new THREE.Matrix4().multiplyMatrices(headMatrix,rotate);
+      head.setMatrix(headRotMatrix);
+      break
 
 
     default:
@@ -231,11 +264,19 @@ keyboard.domElement.addEventListener('keydown',function(event){
   else if(keyboard.eventMatches(event,"0")) {    // 0: Set camera to neutral position, view reset
     camera.position.set(45,0,0);
     camera.lookAt(scene.position);}
-  else if(keyboard.eventMatches(event,"U")) {
+  else if(keyboard.eventMatches(event,"U")) { // Body up
     (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")
-  } else if(keyboard.eventMatches(event,"E")) {
+  } else if(keyboard.eventMatches(event,"E")) { // Body down
     (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
-  } else if(keyboard.eventMatches(event,"space")) {
+  } else if(keyboard.eventMatches(event,"H")) { // Head right
+    (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "H")
+  } else if(keyboard.eventMatches(event,"G")) { // Head left
+    (key == "G")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "G")
+  } else if(keyboard.eventMatches(event,"T")) { // Tail right
+    (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
+  } else if(keyboard.eventMatches(event,"V")) { // Tail left
+    (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
+  } else if(keyboard.eventMatches(event,"space")) { // Jumpcut
     jumpcut = !jumpcut;
   }
 
