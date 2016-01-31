@@ -164,18 +164,35 @@ function init_animation(p_start,p_end,t_length){
 }
 
 function updateBody() {
-  switch(true)
-  {
-      case(key == "U" && animate):
+  switch(true) {
+    case(key == "U" && animate):
       var time = clock.getElapsedTime(); // t seconds passed since the clock started.
 
-      if (time > time_end){
+      if (time > time_end || jumpcut){
         p = p1;
         animate = false;
-        break;
+      } else {
+        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+      var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0,
+                                            0, Math.cos(-p),-Math.sin(-p), 0,
+                                            0, Math.sin(-p), Math.cos(-p), 0,
+                                            0,        0,         0,        1);
+
+      var torsoRotMatrix = new THREE.Matrix4().multiplyMatrices(torsoMatrix,rotateZ);
+      torso.setMatrix(torsoRotMatrix);
+      break
+
+    case(key == "E" && animate):
+      var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+
+      if (time > time_end || jumpcut){
+        p = p1;
+        animate = false;
+      } else {
+        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+      }
 
       var rotateZ = new THREE.Matrix4().set(1,        0,         0,        0,
                                             0, Math.cos(-p),-Math.sin(-p), 0,
@@ -190,7 +207,6 @@ function updateBody() {
       // Note: Remember spacebar sets jumpcut/animate!
 
 
-
     default:
       break;
   }
@@ -201,17 +217,23 @@ function updateBody() {
 var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 var key;
+var jumpcut = false;
 keyboard.domElement.addEventListener('keydown',function(event){
   if (event.repeat)
     return;
-  if(keyboard.eventMatches(event,"Z")){  // Z: Reveal/Hide helper grid
+  if(keyboard.eventMatches(event,"Z")) {  // Z: Reveal/Hide helper grid
     grid_state = !grid_state;
     grid_state? scene.add(grid) : scene.remove(grid);}
-  else if(keyboard.eventMatches(event,"0")){    // 0: Set camera to neutral position, view reset
+  else if(keyboard.eventMatches(event,"0")) {    // 0: Set camera to neutral position, view reset
     camera.position.set(45,0,0);
     camera.lookAt(scene.position);}
-  else if(keyboard.eventMatches(event,"U")){
-    (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")}
+  else if(keyboard.eventMatches(event,"U")) {
+    (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")
+  } else if(keyboard.eventMatches(event,"E")) {
+    (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
+  } else if(keyboard.eventMatches(event,"space")) {
+    jumpcut = !jumpcut;
+  }
 
 
   // TO-DO: BIND KEYS TO YOUR JUMP CUTS AND ANIMATIONS
