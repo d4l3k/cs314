@@ -256,7 +256,7 @@ keyboard.domElement.addEventListener('keydown',function(event){
     camera.lookAt(scene.position);}
   else if(keyboard.eventMatches(event,"U")) { // Body up
     (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")
-  } else if(keyboard.eventMatches(event,"E")) { // Body down
+  } else if(keyboard.eventMatches(event,"E")||keyboard.eventMatches(event,"D")) { // Body down
     (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
   } else if(keyboard.eventMatches(event,"H")) { // Head right
     (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "H")
