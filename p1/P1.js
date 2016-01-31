@@ -177,6 +177,22 @@ var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 
 var tailOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
 var tailOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 
+function rotateX(p) {
+  return new THREE.Matrix4().set(
+      1,        0,         0,        0,
+      0, Math.cos(-p),-Math.sin(-p), 0,
+      0, Math.sin(-p), Math.cos(-p), 0,
+      0,        0,         0,        1);
+}
+
+function rotateY(p) {
+  return new THREE.Matrix4().set(
+      Math.cos(-p), 0, -Math.sin(-p), 0,
+      0,            1,             0, 0,
+      Math.sin(-p), 0,  Math.cos(-p), 0,
+      0,            0,             0, 1);
+}
+
 function updateBody() {
   if (!animate) {
     return;
@@ -191,11 +207,7 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotate = new THREE.Matrix4().set(1,        0,         0,        0,
-                                            0, Math.cos(-p),-Math.sin(-p), 0,
-                                            0, Math.sin(-p), Math.cos(-p), 0,
-                                            0,        0,         0,        1);
-
+      var rotate = rotateX(p);
       var torsoRotMatrix = mul(torsoMatrix,rotate);
       torso.setMatrix(torsoRotMatrix);
       break
@@ -208,9 +220,7 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotate = new THREE.Matrix4().set(
-          Math.cos(-p), 0, -Math.sin(-p), 0,
-          0,            1,             0, 0, Math.sin(-p), 0,  Math.cos(-p), 0, 0,            0,             0, 1);
+      var rotate = rotateY(p);
 
       var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
       head.setMatrix(headRotMatrix);
@@ -224,11 +234,7 @@ function updateBody() {
         p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
       }
 
-      var rotate = new THREE.Matrix4().set(
-          Math.cos(-p), 0, -Math.sin(-p), 0,
-          0,            1,             0, 0,
-          Math.sin(-p), 0,  Math.cos(-p), 0,
-          0,            0,             0, 1);
+      var rotate = rotateY(p);
 
       var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
       tail.setMatrix(tailRotMatrix);
