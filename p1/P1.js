@@ -86,7 +86,27 @@ var behindGeometry4 = makeCube();
 var tailGeometry = makeCube();
 var tailGeometry2 = makeCube();
 var noseGeometry = makeCube();
-
+var nostrilGeometry = makeCube();
+var nostrilGeometry2 = makeCube();
+var nostrilGeometry3 = makeCube();
+var nostrilGeometry4 = makeCube();
+var nostrilGeometry5 = makeCube();
+var nostrilGeometry6 = makeCube();
+var rArmGeometry = makeCube();
+var rArmGeometry2 = makeCube();
+var rArmGeometry3 = makeCube();
+var rFingerGeometry = makeCube();
+var rFingerGeometry2 = makeCube();
+var rFingerGeometry3 = makeCube();
+var rFingerGeometry4 = makeCube();
+var rFingerGeometry5 = makeCube();
+var rLegGeometry = makeCube();
+var rLegGeometry2 = makeCube();
+var rToeGeometry = makeCube();
+var rToeGeometry2 = makeCube();
+var rToeGeometry3 = makeCube();
+var rToeGeometry4 = makeCube();
+var rToeGeometry5 = makeCube();
 
 // TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY.
 // Note: You will be using transformation matrices to set the shape.
@@ -100,6 +120,12 @@ function identity() {
 }
 function scale(m, x, y, z) {
   var scaleMatrix = new THREE.Matrix4().set(x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1);
+  return m.clone().multiply(scaleMatrix);
+}
+
+function rotateAngle(m, a) {
+  // var scaleMatrix = new THREE.Matrix4().set(1,0,0,0, 0,Math.cos(a),-Math.sin(a),0, 0,Math.sin(a),Math.cos(a),0, 0,0,0,1);
+  var scaleMatrix = new THREE.Matrix4().set(Math.cos(-a),0,Math.sin(-a),0, 0,1,0,0, -Math.sin(-a),0,Math.cos(-a),0, 0,0,0,1);
   return m.clone().multiply(scaleMatrix);
 }
 
@@ -128,8 +154,27 @@ var behindMatrix4 = scale(translate(identity(), 0,-0.375,-1.5), 0.25,0.25,1);
 var tailMatrix = scale(translate(identity(), 0,-0.4,-2.25), 0.125,0.125,1);
 var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
 var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
-
-
+var nostrilMatrix = scale(translate(identity(), 0.25,0.375,0.75), 0.125,0.125,0.75);
+var nostrilMatrix2 = scale(translate(identity(), 0.375,0.25,0.75), 0.125,0.125,0.75);
+var nostrilMatrix3 = scale(translate(identity(), 0.375,0.1,0.75), 0.125,0.125,0.75);
+var nostrilMatrix4 = scale(translate(identity(), 0.375,-0.1,0.75), 0.125,0.125,0.75);
+var nostrilMatrix5 = scale(translate(identity(), 0.375,-0.25,0.75), 0.125,0.125,0.75);
+var nostrilMatrix6 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.75);
+var rArmMatrix = scale(translate(identity(), 3,-2,2.5), 1,1,2);
+var rArmMatrix2 = scale(translate(identity(), 0.5,0,0.75), 1.5,1.25,1.5);
+var rArmMatrix3 = scale(translate(identity(), 0.5,-0.5,1.5), 1,1,1);
+var rFingerMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.75);
+var rFingerMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.75);
+var rFingerMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.75);
+var rFingerMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.75);
+var rFingerMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.75);
+var rLegMatrix = scale(translate(identity(), 2.75,-2.25,-1.75), 0.75,0.75,1.5);
+var rLegMatrix2 = scale(translate(identity(), 0.75,-0.5,0.375), 0.75,0.75,1);
+var rToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
+var rToeMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.5);
+var rToeMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.5);
+var rToeMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.5);
+var rToeMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.5);
 
 // CREATE BODY
 var torso = new THREE.Mesh(torsoGeometry,normalMaterial);
@@ -180,6 +225,93 @@ var nose = new THREE.Mesh(noseGeometry,normalMaterial);
 nose.setMatrix(noseMatrix)
 head.add(nose);
 
+var nostril = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril.setMatrix(nostrilMatrix)
+nose.add(nostril);
+
+var nostril2 = new THREE.Mesh(nostrilGeometry2,normalMaterial);
+nostril2.setMatrix(nostrilMatrix2)
+nose.add(nostril2);
+
+var nostril3 = new THREE.Mesh(nostrilGeometry3,normalMaterial);
+nostril3.setMatrix(nostrilMatrix3)
+nose.add(nostril3);
+
+var nostril4 = new THREE.Mesh(nostrilGeometry4,normalMaterial);
+nostril4.setMatrix(nostrilMatrix4)
+nose.add(nostril4);
+
+var nostril5 = new THREE.Mesh(nostrilGeometry5,normalMaterial);
+nostril5.setMatrix(nostrilMatrix5)
+nose.add(nostril5);
+
+var nostril6 = new THREE.Mesh(nostrilGeometry6,normalMaterial);
+nostril6.setMatrix(nostrilMatrix6)
+nose.add(nostril6);
+
+var rArm = new THREE.Mesh(rArmGeometry,normalMaterial);
+rArm.setMatrix(rArmMatrix)
+torso.add(rArm);
+
+var rArm2 = new THREE.Mesh(rArmGeometry2,normalMaterial);
+rArm2.setMatrix(rArmMatrix2)
+rArm.add(rArm2);
+
+var rArm3 = new THREE.Mesh(rArmGeometry3,normalMaterial);
+rArm3.setMatrix(rArmMatrix3)
+rArm.add(rArm3);
+
+var rFinger = new THREE.Mesh(rFingerGeometry,normalMaterial);
+rFinger.setMatrix(rFingerMatrix)
+rArm3.add(rFinger);
+
+var rFinger2 = new THREE.Mesh(rFingerGeometry2,normalMaterial);
+rFinger2.setMatrix(rFingerMatrix2)
+rArm3.add(rFinger2);
+
+var rFinger3 = new THREE.Mesh(rFingerGeometry3,normalMaterial);
+rFinger3.setMatrix(rFingerMatrix3)
+rArm3.add(rFinger3);
+
+var rFinger4 = new THREE.Mesh(rFingerGeometry4,normalMaterial);
+rFinger4.setMatrix(rFingerMatrix4)
+rArm3.add(rFinger4);
+
+var rFinger5 = new THREE.Mesh(rFingerGeometry5,normalMaterial);
+rFinger5.setMatrix(rFingerMatrix5)
+rArm3.add(rFinger5);
+
+var rLeg = new THREE.Mesh(rLegGeometry,normalMaterial);
+rLeg.setMatrix(rLegMatrix)
+torso.add(rLeg);
+
+var rLeg2 = new THREE.Mesh(rLegGeometry2,normalMaterial);
+rLeg2.setMatrix(rLegMatrix2)
+rLeg.add(rLeg2);
+
+var rToe = new THREE.Mesh(rToeGeometry,normalMaterial);
+rToe.setMatrix(rToeMatrix)
+rLeg2.add(rToe);
+
+var rToe = new THREE.Mesh(rToeGeometry,normalMaterial);
+rToe.setMatrix(rToeMatrix)
+rLeg2.add(rToe);
+
+var rToe2 = new THREE.Mesh(rToeGeometry2,normalMaterial);
+rToe2.setMatrix(rToeMatrix2)
+rLeg2.add(rToe2);
+
+var rToe3 = new THREE.Mesh(rToeGeometry3,normalMaterial);
+rToe3.setMatrix(rToeMatrix3)
+rLeg2.add(rToe3);
+
+var rToe4 = new THREE.Mesh(rToeGeometry4,normalMaterial);
+rToe4.setMatrix(rToeMatrix4)
+rLeg2.add(rToe4);
+
+var rToe5 = new THREE.Mesh(rToeGeometry5,normalMaterial);
+rToe5.setMatrix(rToeMatrix5)
+rLeg2.add(rToe5);
 
 // TO-DO: PUT TOGETHER THE REST OF YOUR STAR-NOSED MOLE AND ADD TO THE SCENE!
 // Hint: Hint: Add one piece of geometry at a time, then implement the motion for that part.
