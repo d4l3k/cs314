@@ -658,7 +658,8 @@ function updateBody() {
       break
 
     case(key == "S"):
-      rotateHand(time_start, time_length, p0, p1);
+      rotateLHand(time_start, time_length, p0, p1);
+      rotateRHand(time_start, time_length, -p0/4, -p1/4);
       rotateTail(time_start, time_length, p0, p1);
       rotateHead(time_start, time_length, p0, p1);
       break
@@ -674,6 +675,7 @@ var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 var key;
 var jumpcut = false;
+var swimState = 0;
 keyboard.domElement.addEventListener('keydown',function(event){
   if (event.repeat)
     return;
@@ -698,7 +700,18 @@ keyboard.domElement.addEventListener('keydown',function(event){
   } else if(keyboard.eventMatches(event,"D")) { //
     (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
   } else if(keyboard.eventMatches(event,"S")) { // Tail left
-    (key == "S")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "S")
+    swimState += 1;
+    if (key !== "S" || swimState > 2) {
+      swimState = 0;
+    }
+    if (swimState === 0) {
+      init_animation(0,-Math.PI/4,1);
+    } else if (swimState === 1) {
+      init_animation(-Math.PI/4,Math.PI/4,2);
+    } else if (swimState === 2) {
+      init_animation(Math.PI/4,0,1)
+    }
+    key = "S";
   } else if(keyboard.eventMatches(event,"space")) { // Jumpcut
     jumpcut = !jumpcut;
   }
