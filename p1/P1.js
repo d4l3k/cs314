@@ -99,12 +99,10 @@ var lArmGeometry2 = makeCube();
 var lArmGeometry3 = makeCube();
 var lFingerGeometry = makeCube();
 lFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
-var rLegGeometry = makeCube();
-var rLegGeometry2 = makeCube();
-var rToeGeometry = makeCube();
-var lLegGeometry = makeCube();
-var lLegGeometry2 = makeCube();
-var lToeGeometry = makeCube();
+var legGeometry = makeCube();
+legGeometry.applyMatrix(scale(identity(), 0.75,0.75,1.5));
+var legGeometry2 = makeCube();
+var toeGeometry = makeCube();
 
 // TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY.
 // Note: You will be using transformation matrices to set the shape.
@@ -193,14 +191,14 @@ var lFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
 var lFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
 var lFingerMatrix4 = translate(identity(), 0.25,-0.375,0.75);
 var lFingerMatrix5 = translate(identity(), 0.5,-0.375,0.75);
-var rLegMatrix = scale(translate(identity(), 2.75,-2.25,-1.75), 0.75,0.75,1.5);
+var rLegMatrix = translate(identity(), 2.75,-2.25,-1.75);
 var rLegMatrix2 = scale(translate(identity(), 0.75,-0.5,0.375), 0.75,0.75,1);
 var rToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.5);
-var lLegMatrix = scale(translate(identity(), -2.75,-2.25,-1.75), 0.75,0.75,1.5);
+var lLegMatrix = translate(identity(), -2.75,-2.25,-1.75);
 var lLegMatrix2 = scale(translate(identity(), -0.75,-0.5,0.375), 0.75,0.75,1);
 var lToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
 var lToeMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.5);
@@ -409,59 +407,59 @@ var lFinger5 = new THREE.Mesh(lFingerGeometry,normalMaterial);
 lFinger5.setMatrix(lFingerMatrix5)
 lArm3.add(lFinger5);
 
-var rLeg = new THREE.Mesh(rLegGeometry,normalMaterial);
+var rLeg = new THREE.Mesh(legGeometry,normalMaterial);
 rLeg.setMatrix(rLegMatrix)
 torso.add(rLeg);
 
-var rLeg2 = new THREE.Mesh(rLegGeometry2,normalMaterial);
+var rLeg2 = new THREE.Mesh(legGeometry2,normalMaterial);
 rLeg2.setMatrix(rLegMatrix2)
 rLeg.add(rLeg2);
 
-var rToe = new THREE.Mesh(rToeGeometry,normalMaterial);
+var rToe = new THREE.Mesh(toeGeometry,normalMaterial);
 rToe.setMatrix(rToeMatrix)
 rLeg2.add(rToe);
 
-var rToe2 = new THREE.Mesh(rToeGeometry,normalMaterial);
+var rToe2 = new THREE.Mesh(toeGeometry,normalMaterial);
 rToe2.setMatrix(rToeMatrix2)
 rLeg2.add(rToe2);
 
-var rToe3 = new THREE.Mesh(rToeGeometry,normalMaterial);
+var rToe3 = new THREE.Mesh(toeGeometry,normalMaterial);
 rToe3.setMatrix(rToeMatrix3)
 rLeg2.add(rToe3);
 
-var rToe4 = new THREE.Mesh(rToeGeometry,normalMaterial);
+var rToe4 = new THREE.Mesh(toeGeometry,normalMaterial);
 rToe4.setMatrix(rToeMatrix4)
 rLeg2.add(rToe4);
 
-var rToe5 = new THREE.Mesh(rToeGeometry,normalMaterial);
+var rToe5 = new THREE.Mesh(toeGeometry,normalMaterial);
 rToe5.setMatrix(rToeMatrix5)
 rLeg2.add(rToe5);
 
-var lLeg = new THREE.Mesh(lLegGeometry,normalMaterial);
+var lLeg = new THREE.Mesh(legGeometry,normalMaterial);
 lLeg.setMatrix(lLegMatrix)
 torso.add(lLeg);
 
-var lLeg2 = new THREE.Mesh(lLegGeometry2,normalMaterial);
+var lLeg2 = new THREE.Mesh(legGeometry2,normalMaterial);
 lLeg2.setMatrix(lLegMatrix2)
 lLeg.add(lLeg2);
 
-var lToe = new THREE.Mesh(lToeGeometry,normalMaterial);
+var lToe = new THREE.Mesh(toeGeometry,normalMaterial);
 lToe.setMatrix(lToeMatrix)
 lLeg2.add(lToe);
 
-var lToe2 = new THREE.Mesh(lToeGeometry,normalMaterial);
+var lToe2 = new THREE.Mesh(toeGeometry,normalMaterial);
 lToe2.setMatrix(lToeMatrix2)
 lLeg2.add(lToe2);
 
-var lToe3 = new THREE.Mesh(lToeGeometry,normalMaterial);
+var lToe3 = new THREE.Mesh(toeGeometry,normalMaterial);
 lToe3.setMatrix(lToeMatrix3)
 lLeg2.add(lToe3);
 
-var lToe4 = new THREE.Mesh(lToeGeometry,normalMaterial);
+var lToe4 = new THREE.Mesh(toeGeometry,normalMaterial);
 lToe4.setMatrix(lToeMatrix4)
 lLeg2.add(lToe4);
 
-var lToe5 = new THREE.Mesh(lToeGeometry,normalMaterial);
+var lToe5 = new THREE.Mesh(toeGeometry,normalMaterial);
 lToe5.setMatrix(lToeMatrix5)
 lLeg2.add(lToe5);
 
@@ -576,22 +574,22 @@ function rotateTail(time_start, time_length, p0, p1) {
   behind.setMatrix(behindRotMatrix);
 }
 
-var handP;
+var handPL, handPR;
 function rotateLHand(time_start, time_length, p0, p1) {
   var time = clock.getElapsedTime(); // t seconds passed since the clock started.
   var time_end = time_start + time_length;
 
   if (time > time_end || jumpcut){
-    if (handP == p1) {
+    if (handPL == p1) {
       return;
     }
-    handP = p1;
+    handPL = p1;
     animate = false;
   } else {
-    handP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+    handPL = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
-  var rotate = rotateX(handP);
+  var rotate = rotateX(handPL);
 
   rArm.setMatrix(mul(rArmMatrix, rotate));
   rFinger.setMatrix(translate(mul(translate(rFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
@@ -606,16 +604,16 @@ function rotateRHand(time_start, time_length, p0, p1) {
   var time_end = time_start + time_length;
 
   if (time > time_end || jumpcut){
-    if (handP == p1) {
+    if (handPR == p1) {
       return;
     }
-    handP = p1;
+    handPR = p1;
     animate = false;
   } else {
-    handP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+    handPR = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
-  var rotate = rotateX(handP);
+  var rotate = rotateX(handPR);
 
   lArm.setMatrix(mul(lArmMatrix, rotate));
   lFinger.setMatrix(translate(mul(translate(lFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
@@ -623,6 +621,44 @@ function rotateRHand(time_start, time_length, p0, p1) {
   lFinger3.setMatrix(translate(mul(translate(lFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
   lFinger4.setMatrix(translate(mul(translate(lFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
   lFinger5.setMatrix(translate(mul(translate(lFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
+}
+
+var footPL, footPR;
+function rotateLFoot(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+
+  if (time > time_end || jumpcut){
+    if (footPL == p1) {
+      return;
+    }
+    footPL = p1;
+    animate = false;
+  } else {
+    footPL = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateX(footPL);
+
+  rLeg.setMatrix(mul(rLegMatrix, rotate));
+}
+function rotateRFoot(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+
+  if (time > time_end || jumpcut){
+    if (footPR == p1) {
+      return;
+    }
+    footPR = p1;
+    animate = false;
+  } else {
+    footPR = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateX(footPR);
+
+  lLeg.setMatrix(mul(lLegMatrix, rotate));
 }
 
 function updateBody() {
@@ -659,7 +695,9 @@ function updateBody() {
 
     case(key == "S"):
       rotateLHand(time_start, time_length, p0, p1);
-      rotateRHand(time_start, time_length, -p0/4, -p1/4);
+      rotateRHand(time_start, time_length, -p0, -p1);
+      rotateRFoot(time_start, time_length, p0, p1);
+      rotateLFoot(time_start, time_length, -p0, -p1);
       rotateTail(time_start, time_length, p0, p1);
       rotateHead(time_start, time_length, p0, p1);
       break
