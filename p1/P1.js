@@ -80,6 +80,7 @@ var headGeometry2 = makeCube();
 var neckGeometry = makeCube();
 var neckGeometry2 = makeCube();
 var behindGeometry = makeCube();
+behindGeometry.applyMatrix(scale(identity(), 3,3,2));
 var behindGeometry2 = makeCube();
 var behindGeometry3 = makeCube();
 var behindGeometry4 = makeCube();
@@ -93,13 +94,11 @@ var nostrilGeometry4 = makeCube();
 var nostrilGeometry5 = makeCube();
 var nostrilGeometry6 = makeCube();
 var rArmGeometry = makeCube();
+torsoGeometry.applyMatrix(scale(identity(), 1,1,2));
 var rArmGeometry2 = makeCube();
 var rArmGeometry3 = makeCube();
 var rFingerGeometry = makeCube();
-var rFingerGeometry2 = makeCube();
-var rFingerGeometry3 = makeCube();
-var rFingerGeometry4 = makeCube();
-var rFingerGeometry5 = makeCube();
+rFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
 var rLegGeometry = makeCube();
 var rLegGeometry2 = makeCube();
 var rToeGeometry = makeCube();
@@ -147,11 +146,11 @@ var headMatrix = scale(translate(identity(), 0,-0.125,0.375), 0.75,0.75,0.75);
 var headMatrix2 = scale(translate(identity(), 0,-0.125,0.325), 0.75,0.75,0.75);
 var neckMatrix = scale(translate(identity(), 0,-0.5,3.25), 3.5,3.5,4);
 var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.25), 1.25,1.25,1);
-var behindMatrix = scale(translate(identity(), 0,-0.375,-3), 4,4,2);
-var behindMatrix2 = scale(translate(identity(), 0,-0.125,-0.5), 0.75,0.75,1);
-var behindMatrix3 = scale(translate(identity(), 0,-0.25,-1), 0.5,0.5,1);
-var behindMatrix4 = scale(translate(identity(), 0,-0.375,-1.5), 0.25,0.25,1);
-var tailMatrix = scale(translate(identity(), 0,-0.4,-2.25), 0.125,0.125,1);
+var behindMatrix = translate(identity(), 0,-0.375,-5);
+var behindMatrix2 = scale(translate(identity(), 0,-0.125,-1), 0.75,0.75,1);
+var behindMatrix3 = scale(translate(identity(), 0,-0.25,-1.5), 0.5,0.5,1);
+var behindMatrix4 = scale(translate(identity(), 0,-0.375,-2), 0.25,0.25,1);
+var tailMatrix = scale(translate(identity(), 0,-0.4,-2.75), 0.125,0.125,1);
 var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
 var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
 var nostrilMatrix = scale(translate(identity(), 0.25,0.375,0.75), 0.125,0.125,0.75);
@@ -160,14 +159,14 @@ var nostrilMatrix3 = scale(translate(identity(), 0.375,0.1,0.75), 0.125,0.125,0.
 var nostrilMatrix4 = scale(translate(identity(), 0.375,-0.1,0.75), 0.125,0.125,0.75);
 var nostrilMatrix5 = scale(translate(identity(), 0.375,-0.25,0.75), 0.125,0.125,0.75);
 var nostrilMatrix6 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.75);
-var rArmMatrix = scale(translate(identity(), 3,-2,2.5), 1,1,2);
+var rArmMatrix = translate(identity(), 3,-2,2.5);
 var rArmMatrix2 = scale(translate(identity(), 0.5,0,0.75), 1.5,1.25,1.5);
 var rArmMatrix3 = scale(translate(identity(), 0.5,-0.5,1.5), 1,1,1);
-var rFingerMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.75);
-var rFingerMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.75);
-var rFingerMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.75);
-var rFingerMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.75);
-var rFingerMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.75);
+var rFingerMatrix = translate(identity(), -0.5,-0.375,0.75);
+var rFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
+var rFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
+var rFingerMatrix4 = translate(identity(), 0.25,-0.375,0.75);
+var rFingerMatrix5 = translate(identity(), 0.5,-0.375,0.75);
 var rLegMatrix = scale(translate(identity(), 2.75,-2.25,-1.75), 0.75,0.75,1.5);
 var rLegMatrix2 = scale(translate(identity(), 0.75,-0.5,0.375), 0.75,0.75,1);
 var rToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
@@ -265,19 +264,19 @@ var rFinger = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger.setMatrix(rFingerMatrix)
 rArm3.add(rFinger);
 
-var rFinger2 = new THREE.Mesh(rFingerGeometry2,normalMaterial);
+var rFinger2 = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger2.setMatrix(rFingerMatrix2)
 rArm3.add(rFinger2);
 
-var rFinger3 = new THREE.Mesh(rFingerGeometry3,normalMaterial);
+var rFinger3 = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger3.setMatrix(rFingerMatrix3)
 rArm3.add(rFinger3);
 
-var rFinger4 = new THREE.Mesh(rFingerGeometry4,normalMaterial);
+var rFinger4 = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger4.setMatrix(rFingerMatrix4)
 rArm3.add(rFinger4);
 
-var rFinger5 = new THREE.Mesh(rFingerGeometry5,normalMaterial);
+var rFinger5 = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger5.setMatrix(rFingerMatrix5)
 rArm3.add(rFinger5);
 
@@ -288,10 +287,6 @@ torso.add(rLeg);
 var rLeg2 = new THREE.Mesh(rLegGeometry2,normalMaterial);
 rLeg2.setMatrix(rLegMatrix2)
 rLeg.add(rLeg2);
-
-var rToe = new THREE.Mesh(rToeGeometry,normalMaterial);
-rToe.setMatrix(rToeMatrix)
-rLeg2.add(rToe);
 
 var rToe = new THREE.Mesh(rToeGeometry,normalMaterial);
 rToe.setMatrix(rToeMatrix)
@@ -424,11 +419,29 @@ function updateBody() {
       }
 
       var rotate = rotateY(p);
-      
+
       //var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
       var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotate, behindOriginMatrix)));
       //tail.setMatrix(tailRotMatrix);
       behind.setMatrix(behindRotMatrix);
+      break
+
+    case(key == "D"):
+      if (time > time_end || jumpcut){
+        p = p1;
+        animate = false;
+      } else {
+        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+      }
+
+      var rotate = rotateX(p);
+
+      rArm.setMatrix(mul(rArmMatrix, rotate));
+      rFinger.setMatrix(translate(mul(translate(rFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
+      rFinger2.setMatrix(translate(mul(translate(rFingerMatrix2, 0, 0, -0.5), rotate), 0, 0, 0.5));
+      rFinger3.setMatrix(translate(mul(translate(rFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
+      rFinger4.setMatrix(translate(mul(translate(rFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
+      rFinger5.setMatrix(translate(mul(translate(rFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
       break
 
     default:
@@ -453,7 +466,7 @@ keyboard.domElement.addEventListener('keydown',function(event){
     camera.lookAt(scene.position);}
   else if(keyboard.eventMatches(event,"U")) { // Body up
     (key == "U")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "U")
-  } else if(keyboard.eventMatches(event,"E")||keyboard.eventMatches(event,"D")) { // Body down
+  } else if(keyboard.eventMatches(event,"E")) { // Body down
     (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
   } else if(keyboard.eventMatches(event,"H")) { // Head right
     (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/16,1), key = "H")
@@ -463,6 +476,8 @@ keyboard.domElement.addEventListener('keydown',function(event){
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
     (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
+  } else if(keyboard.eventMatches(event,"D")) { // Tail left
+    (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
   } else if(keyboard.eventMatches(event,"space")) { // Jumpcut
     jumpcut = !jumpcut;
   }
