@@ -144,8 +144,8 @@ var torsoMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,2.5, 0,0,1,0, 0,0,0,1);
 
 var headMatrix = scale(translate(identity(), 0,-0.125,0.375), 0.75,0.75,0.75);
 var headMatrix2 = scale(translate(identity(), 0,-0.125,0.325), 0.75,0.75,0.75);
-var neckMatrix = scale(translate(identity(), 0,-0.5,3.25), 3.5,3.5,4);
-var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.25), 1.25,1.25,1);
+var neckMatrix = scale(translate(identity(), 0,-0.5,6), 3.5,3.5,4);
+var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.5), 1.25,1.25,1);
 var behindMatrix = translate(identity(), 0,-0.375,-5);
 var behindMatrix2 = scale(translate(identity(), 0,-0.125,-1), 0.75,0.75,1);
 var behindMatrix3 = scale(translate(identity(), 0,-0.25,-1.5), 0.5,0.5,1);
@@ -389,7 +389,7 @@ function rotateHead(time_start, time_length, p0, p1) {
     headP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
-  var rotate = rotateY(headP);
+  var rotate = rotateY(headP/4);
 
   var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
   var neckRotMatrix = mul(neckMatrix,mul(neckOriginInvMatrix, mul(rotate, neckOriginMatrix)));
@@ -475,6 +475,12 @@ function updateBody() {
       rotateHand(time_start, time_length, p0, p1);
       break
 
+    case(key == "S"):
+      rotateHand(time_start, time_length, p0, p1);
+      rotateTail(time_start, time_length, p0, p1);
+      rotateHead(time_start, time_length, p0, p1);
+      break
+
     default:
       break;
   }
@@ -500,15 +506,17 @@ keyboard.domElement.addEventListener('keydown',function(event){
   } else if(keyboard.eventMatches(event,"E")) { // Body down
     (key == "E")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "E")
   } else if(keyboard.eventMatches(event,"H")) { // Head right
-    (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/16,1), key = "H")
+    (key == "H")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "H")
   } else if(keyboard.eventMatches(event,"G")) { // Head left
-    (key == "G")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/16,1), key = "G")
+    (key == "G")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "G")
   } else if(keyboard.eventMatches(event,"T")) { // Tail right
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
     (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
   } else if(keyboard.eventMatches(event,"D")) { // Tail left
     (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
+  } else if(keyboard.eventMatches(event,"S")) { // Tail left
+    (key == "S")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "S")
   } else if(keyboard.eventMatches(event,"space")) { // Jumpcut
     jumpcut = !jumpcut;
   }
