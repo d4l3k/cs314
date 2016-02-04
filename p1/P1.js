@@ -87,7 +87,10 @@ var behindGeometry4 = makeCube();
 var tailGeometry = makeCube();
 var tailGeometry2 = makeCube();
 var noseGeometry = makeCube();
+var nostrilSmallGeometry = makeCube();
+nostrilSmallGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.5));
 var nostrilGeometry = makeCube();
+nostrilGeometry.applyMatrix(scale(identity(), 0.125,0.125,1));
 var rArmGeometry = makeCube();
 torsoGeometry.applyMatrix(scale(identity(), 1,1,2));
 var rArmGeometry2 = makeCube();
@@ -151,29 +154,29 @@ var tailMatrix = scale(translate(identity(), 0,-0.4,-2.75), 0.125,0.125,1);
 var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
 var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
 
-var nostrilMatrix = scale(translate(identity(), 0.1,0.5,0.75), 0.125,0.125,0.5);
-var nostrilMatrix2 = scale(translate(identity(), 0.25,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix3 = scale(translate(identity(), 0.4,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix4 = scale(translate(identity(), 0.4,0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix5 = scale(translate(identity(), 0.4,0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix6 = scale(translate(identity(), 0.4,0,0.75), 0.125,0.125,1);
-var nostrilMatrix7 = scale(translate(identity(), 0.4,-0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix8 = scale(translate(identity(), 0.4,-0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix9 = scale(translate(identity(), 0.4,-0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix10 = scale(translate(identity(), 0.25,-0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix11 = scale(translate(identity(), 0.1,-0.5,0.75), 0.125,0.125,0.5);
+var nostrilMatrix = translate(identity(), 0.1,0.5,0.75);
+var nostrilMatrix2 = translate(identity(), 0.25,0.5,0.75);
+var nostrilMatrix3 = translate(identity(), 0.4,0.5,0.75);
+var nostrilMatrix4 = translate(identity(), 0.4,0.35,0.75);
+var nostrilMatrix5 = translate(identity(), 0.4,0.175,0.75);
+var nostrilMatrix6 = translate(identity(), 0.4,0,0.75);
+var nostrilMatrix7 = translate(identity(), 0.4,-0.175,0.75);
+var nostrilMatrix8 = translate(identity(), 0.4,-0.35,0.75);
+var nostrilMatrix9 = translate(identity(), 0.4,-0.5,0.75);
+var nostrilMatrix10 = translate(identity(), 0.25,-0.5,0.75);
+var nostrilMatrix11 = translate(identity(), 0.1,-0.5,0.75);
 
-var nostrilMatrix12 = scale(translate(identity(), -0.1,0.5,0.75), 0.125,0.125,0.5);
-var nostrilMatrix13 = scale(translate(identity(), -0.25,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix14 = scale(translate(identity(), -0.4,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix15 = scale(translate(identity(), -0.4,0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix16 = scale(translate(identity(), -0.4,0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix17 = scale(translate(identity(), -0.4,0,0.75), 0.125,0.125,1);
-var nostrilMatrix18 = scale(translate(identity(), -0.4,-0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix19 = scale(translate(identity(), -0.4,-0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix20 = scale(translate(identity(), -0.4,-0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix21 = scale(translate(identity(), -0.25,-0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix22 = scale(translate(identity(), -0.1,-0.5,0.75), 0.125,0.125,0.5);
+var nostrilMatrix12 = translate(identity(), -0.1,0.5,0.75);
+var nostrilMatrix13 = translate(identity(), -0.25,0.5,0.75);
+var nostrilMatrix14 = translate(identity(), -0.4,0.5,0.75);
+var nostrilMatrix15 = translate(identity(), -0.4,0.35,0.75);
+var nostrilMatrix16 = translate(identity(), -0.4,0.175,0.75);
+var nostrilMatrix17 = translate(identity(), -0.4,0,0.75);
+var nostrilMatrix18 = translate(identity(), -0.4,-0.175,0.75);
+var nostrilMatrix19 = translate(identity(), -0.4,-0.35,0.75);
+var nostrilMatrix20 = translate(identity(), -0.4,-0.5,0.75);
+var nostrilMatrix21 = translate(identity(), -0.25,-0.5,0.75);
+var nostrilMatrix22 = translate(identity(), -0.1,-0.5,0.75);
 
 var rArmMatrix = translate(identity(), 3,-2,2.5);
 var rArmMatrix2 = scale(translate(identity(), 0.5,0,0.75), 1.5,1.25,1.5);
@@ -255,7 +258,7 @@ var nose = new THREE.Mesh(noseGeometry,normalMaterial);
 nose.setMatrix(noseMatrix)
 head.add(nose);
 
-var nostril = new THREE.Mesh(nostrilGeometry,normalMaterial);
+var nostril = new THREE.Mesh(nostrilSmallGeometry,normalMaterial);
 nostril.setMatrix(nostrilMatrix)
 nose.add(nostril);
 
@@ -295,11 +298,11 @@ var nostril10 = new THREE.Mesh(nostrilGeometry,normalMaterial);
 nostril10.setMatrix(nostrilMatrix10)
 nose.add(nostril10);
 
-var nostril11 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+var nostril11 = new THREE.Mesh(nostrilSmallGeometry,normalMaterial);
 nostril11.setMatrix(nostrilMatrix11)
 nose.add(nostril11);
 
-var nostril12 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+var nostril12 = new THREE.Mesh(nostrilSmallGeometry,normalMaterial);
 nostril12.setMatrix(nostrilMatrix12)
 nose.add(nostril12);
 
@@ -339,7 +342,7 @@ var nostril21 = new THREE.Mesh(nostrilGeometry,normalMaterial);
 nostril21.setMatrix(nostrilMatrix21)
 nose.add(nostril21);
 
-var nostril22 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+var nostril22 = new THREE.Mesh(nostrilSmallGeometry,normalMaterial);
 nostril22.setMatrix(nostrilMatrix22)
 nose.add(nostril22);
 
@@ -530,6 +533,14 @@ function rotateY(p) {
       0,            0,             0, 1);
 }
 
+function rotateZ(p) {
+  return new THREE.Matrix4().set(
+      Math.cos(-p), -Math.sin(-p), 0, 0,
+      Math.sin(-p), 0,  Math.cos(-p), 0,
+      0,            0,             1, 0,
+      0,            0,             0, 1);
+}
+
 var headP;
 function rotateHead(time_start, time_length, p0, p1) {
   var time = clock.getElapsedTime(); // t seconds passed since the clock started.
@@ -661,6 +672,55 @@ function rotateRFoot(time_start, time_length, p0, p1) {
   lLeg.setMatrix(mul(lLegMatrix, rotate));
 }
 
+var nostrilP;
+function rotateTentacles(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+
+  if (time > time_end || jumpcut){
+    if (nostrilP == p1) {
+      return;
+    }
+    nostrilP = p1;
+    animate = false;
+  } else {
+    nostrilP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateX(nostrilP/2);
+
+  var tentacles = [
+    [nostril, nostrilMatrix],
+    [nostril2, nostrilMatrix2],
+    [nostril3, nostrilMatrix3],
+    [nostril4, nostrilMatrix4],
+    [nostril5, nostrilMatrix5],
+    [nostril6, nostrilMatrix6],
+    [nostril7, nostrilMatrix7],
+    [nostril8, nostrilMatrix8],
+    [nostril9, nostrilMatrix9],
+    [nostril10, nostrilMatrix10],
+    [nostril11, nostrilMatrix11],
+    [nostril12, nostrilMatrix12],
+    [nostril13, nostrilMatrix13],
+    [nostril14, nostrilMatrix14],
+    [nostril15, nostrilMatrix15],
+    [nostril16, nostrilMatrix16],
+    [nostril17, nostrilMatrix17],
+    [nostril18, nostrilMatrix18],
+    [nostril19, nostrilMatrix19],
+    [nostril20, nostrilMatrix20],
+    [nostril21, nostrilMatrix21],
+    [nostril22, nostrilMatrix22],
+    ];
+  var step = Math.PI*2/22;
+  var offset = 0;
+  tentacles.forEach(function(t, i) {
+    var z = rotateZ(i*step);
+    t[0].setMatrix(translate(mul(mul(translate(t[1], 0, 0, -offset), z), rotate), 0, 0, offset));
+  });
+}
+
 function updateBody() {
   if (!animate) {
     return;
@@ -686,6 +746,10 @@ function updateBody() {
 
     case(key == "T" || key == "V"):
       rotateTail(time_start, time_length, p0, p1);
+      break
+
+    case(key == "N"):
+      rotateTentacles(time_start, time_length, p0, p1);
       break
 
     case(key == "D"):
@@ -735,6 +799,8 @@ keyboard.domElement.addEventListener('keydown',function(event){
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
     (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
+  } else if(keyboard.eventMatches(event,"N")) { // Tail left
+    (key == "N")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "N")
   } else if(keyboard.eventMatches(event,"D")) { //
     (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
   } else if(keyboard.eventMatches(event,"S")) { // Tail left
