@@ -70,7 +70,7 @@ function makeCube() {
 }
 
 // GEOMETRY
-var non_uniform_scale = new THREE.Matrix4().set(5,0,0,0, 0,5,0,0, 0,0,5,0, 0,0,0,1);
+var non_uniform_scale = new THREE.Matrix4().set(5,0,0,0, 0,5,0,0, 0,0,6,0, 0,0,0,1);
 
 var torsoGeometry = makeCube();
 torsoGeometry.applyMatrix(non_uniform_scale);
@@ -80,7 +80,7 @@ var headGeometry2 = makeCube();
 var neckGeometry = makeCube();
 var neckGeometry2 = makeCube();
 var behindGeometry = makeCube();
-behindGeometry.applyMatrix(scale(identity(), 3,3,2));
+behindGeometry.applyMatrix(scale(identity(), 3.5,3.5,3.5));
 var behindGeometry2 = makeCube();
 var behindGeometry3 = makeCube();
 var behindGeometry4 = makeCube();
@@ -88,17 +88,12 @@ var tailGeometry = makeCube();
 var tailGeometry2 = makeCube();
 var noseGeometry = makeCube();
 var nostrilGeometry = makeCube();
-var rArmGeometry = makeCube();
-torsoGeometry.applyMatrix(scale(identity(), 1,1,2));
-var rArmGeometry2 = makeCube();
-var rArmGeometry3 = makeCube();
-var rFingerGeometry = makeCube();
-rFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
-var lArmGeometry = makeCube();
-var lArmGeometry2 = makeCube();
-var lArmGeometry3 = makeCube();
-var lFingerGeometry = makeCube();
-lFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
+var armGeometry = makeCube();
+armGeometry.applyMatrix(scale(identity(), 0.175,0.175,0.4));
+var armGeometry2 = makeCube();
+var armGeometry3 = makeCube();
+var fingerGeometry = makeCube();
+fingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
 var legGeometry = makeCube();
 legGeometry.applyMatrix(scale(identity(), 0.75,0.75,1.5));
 var legGeometry2 = makeCube();
@@ -143,14 +138,13 @@ var headMatrix = scale(translate(identity(), 0,-0.125,0.375), 0.75,0.75,0.75);
 var headMatrix2 = scale(translate(identity(), 0,-0.125,0.325), 0.75,0.75,0.75);
 var neckMatrix = scale(translate(identity(), 0,-0.5,6), 3.5,3.5,4);
 var neckMatrix2 = scale(translate(identity(), 0,0.125,-0.5), 1.25,1.25,1);
-var behindMatrix = translate(identity(), 0,-0.375,-5);
-var behindMatrix2 = scale(translate(identity(), 0,-0.125,-1), 0.75,0.75,1);
-var behindMatrix3 = scale(translate(identity(), 0,-0.25,-1.5), 0.5,0.5,1);
-var behindMatrix4 = scale(translate(identity(), 0,-0.375,-2), 0.25,0.25,1);
-var tailMatrix = scale(translate(identity(), 0,-0.4,-2.75), 0.125,0.125,1);
+var behindMatrix = translate(identity(), 0,-0.375,-3);
+var behindMatrix2 = scale(translate(identity(), 0,-0.7,-2), 2,2,2);
+var behindMatrix3 = scale(translate(identity(), 0,-1.1,-3), 1.5,1.5,1.5);
+var behindMatrix4 = scale(translate(identity(), 0,-1.2,-4), 1,1,1);
+var tailMatrix = scale(translate(identity(), 0,-0.2,-0.5), 0.5,0.5,1);
 var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
 var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
-
 var nostrilMatrix = scale(translate(identity(), 0.1,0.5,0.75), 0.125,0.125,0.5);
 var nostrilMatrix2 = scale(translate(identity(), 0.25,0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix3 = scale(translate(identity(), 0.4,0.5,0.75), 0.125,0.125,1);
@@ -162,7 +156,6 @@ var nostrilMatrix8 = scale(translate(identity(), 0.4,-0.35,0.75), 0.125,0.125,1)
 var nostrilMatrix9 = scale(translate(identity(), 0.4,-0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix10 = scale(translate(identity(), 0.25,-0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix11 = scale(translate(identity(), 0.1,-0.5,0.75), 0.125,0.125,0.5);
-
 var nostrilMatrix12 = scale(translate(identity(), -0.1,0.5,0.75), 0.125,0.125,0.5);
 var nostrilMatrix13 = scale(translate(identity(), -0.25,0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix14 = scale(translate(identity(), -0.4,0.5,0.75), 0.125,0.125,1);
@@ -174,18 +167,17 @@ var nostrilMatrix19 = scale(translate(identity(), -0.4,-0.35,0.75), 0.125,0.125,
 var nostrilMatrix20 = scale(translate(identity(), -0.4,-0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix21 = scale(translate(identity(), -0.25,-0.5,0.75), 0.125,0.125,1);
 var nostrilMatrix22 = scale(translate(identity(), -0.1,-0.5,0.75), 0.125,0.125,0.5);
-
-var rArmMatrix = translate(identity(), 3,-2,2.5);
-var rArmMatrix2 = scale(translate(identity(), 0.5,0,0.75), 1.5,1.25,1.5);
-var rArmMatrix3 = scale(translate(identity(), 0.5,-0.5,1.5), 1,1,1);
+var rArmMatrix = translate(identity(), 0.55,-0.5,-0.15);
+var rArmMatrix2 = scale(translate(identity(), 0.25,0.04,0.25), 0.35,0.25,0.75);
+var rArmMatrix3 = scale(translate(identity(), 0.2,-0.05,0.7), 0.25,0.15,0.25);
 var rFingerMatrix = translate(identity(), -0.5,-0.375,0.75);
 var rFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
 var rFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
 var rFingerMatrix4 = translate(identity(), 0.25,-0.375,0.75);
 var rFingerMatrix5 = translate(identity(), 0.5,-0.375,0.75);
-var lArmMatrix = translate(identity(), -3,-2,2.5);
-var lArmMatrix2 = scale(translate(identity(), -0.5,0,0.75), 1.5,1.25,1.5);
-var lArmMatrix3 = scale(translate(identity(), -0.5,-0.5,1.5), 1,1,1);
+var lArmMatrix = translate(identity(), -0.55,-0.5,-0.15);
+var lArmMatrix2 = scale(translate(identity(), -0.25,0.04,0.25), 0.35,0.25,0.75);
+var lArmMatrix3 = scale(translate(identity(), -0.2,-0.05,0.7), 0.25,0.15,0.25);
 var lFingerMatrix = translate(identity(), -0.5,-0.375,0.75);
 var lFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
 var lFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
@@ -237,7 +229,7 @@ behind.add(behind4);
 
 var tail = new THREE.Mesh(tailGeometry,normalMaterial);
 tail.setMatrix(tailMatrix)
-behind.add(tail);
+behind4.add(tail);
 
 var tail2 = new THREE.Mesh(tailGeometry2,normalMaterial);
 tail2.setMatrix(tailMatrix2)
@@ -343,67 +335,67 @@ var nostril22 = new THREE.Mesh(nostrilGeometry,normalMaterial);
 nostril22.setMatrix(nostrilMatrix22)
 nose.add(nostril22);
 
-var rArm = new THREE.Mesh(rArmGeometry,normalMaterial);
+var rArm = new THREE.Mesh(armGeometry,normalMaterial);
 rArm.setMatrix(rArmMatrix)
-torso.add(rArm);
+neck2.add(rArm);
 
-var rArm2 = new THREE.Mesh(rArmGeometry2,normalMaterial);
+var rArm2 = new THREE.Mesh(armGeometry2,normalMaterial);
 rArm2.setMatrix(rArmMatrix2)
 rArm.add(rArm2);
 
-var rArm3 = new THREE.Mesh(rArmGeometry3,normalMaterial);
+var rArm3 = new THREE.Mesh(armGeometry3,normalMaterial);
 rArm3.setMatrix(rArmMatrix3)
 rArm.add(rArm3);
 
-var rFinger = new THREE.Mesh(rFingerGeometry,normalMaterial);
+var rFinger = new THREE.Mesh(fingerGeometry,normalMaterial);
 rFinger.setMatrix(rFingerMatrix)
 rArm3.add(rFinger);
 
-var rFinger2 = new THREE.Mesh(rFingerGeometry,normalMaterial);
+var rFinger2 = new THREE.Mesh(fingerGeometry,normalMaterial);
 rFinger2.setMatrix(rFingerMatrix2)
 rArm3.add(rFinger2);
 
-var rFinger3 = new THREE.Mesh(rFingerGeometry,normalMaterial);
+var rFinger3 = new THREE.Mesh(fingerGeometry,normalMaterial);
 rFinger3.setMatrix(rFingerMatrix3)
 rArm3.add(rFinger3);
 
-var rFinger4 = new THREE.Mesh(rFingerGeometry,normalMaterial);
+var rFinger4 = new THREE.Mesh(fingerGeometry,normalMaterial);
 rFinger4.setMatrix(rFingerMatrix4)
 rArm3.add(rFinger4);
 
-var rFinger5 = new THREE.Mesh(rFingerGeometry,normalMaterial);
+var rFinger5 = new THREE.Mesh(fingerGeometry,normalMaterial);
 rFinger5.setMatrix(rFingerMatrix5)
 rArm3.add(rFinger5);
 
-var lArm = new THREE.Mesh(lArmGeometry,normalMaterial);
+var lArm = new THREE.Mesh(armGeometry,normalMaterial);
 lArm.setMatrix(lArmMatrix)
-torso.add(lArm);
+neck2.add(lArm);
 
-var lArm2 = new THREE.Mesh(lArmGeometry2,normalMaterial);
+var lArm2 = new THREE.Mesh(armGeometry2,normalMaterial);
 lArm2.setMatrix(lArmMatrix2)
 lArm.add(lArm2);
 
-var lArm3 = new THREE.Mesh(lArmGeometry3,normalMaterial);
+var lArm3 = new THREE.Mesh(armGeometry3,normalMaterial);
 lArm3.setMatrix(lArmMatrix3)
 lArm.add(lArm3);
 
-var lFinger = new THREE.Mesh(lFingerGeometry,normalMaterial);
+var lFinger = new THREE.Mesh(fingerGeometry,normalMaterial);
 lFinger.setMatrix(lFingerMatrix)
 lArm3.add(lFinger);
 
-var lFinger2 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+var lFinger2 = new THREE.Mesh(fingerGeometry,normalMaterial);
 lFinger2.setMatrix(lFingerMatrix2)
 lArm3.add(lFinger2);
 
-var lFinger3 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+var lFinger3 = new THREE.Mesh(fingerGeometry,normalMaterial);
 lFinger3.setMatrix(lFingerMatrix3)
 lArm3.add(lFinger3);
 
-var lFinger4 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+var lFinger4 = new THREE.Mesh(fingerGeometry,normalMaterial);
 lFinger4.setMatrix(lFingerMatrix4)
 lArm3.add(lFinger4);
 
-var lFinger5 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+var lFinger5 = new THREE.Mesh(fingerGeometry,normalMaterial);
 lFinger5.setMatrix(lFingerMatrix5)
 lArm3.add(lFinger5);
 
@@ -566,12 +558,14 @@ function rotateTail(time_start, time_length, p0, p1) {
     tailP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
-  var rotate = rotateY(tailP);
+  var rotateB = rotateY(tailP / 2);
+  var rotateT = rotateY(tailP / 4);
 
-  //var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
-  var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotate, behindOriginMatrix)));
-  //tail.setMatrix(tailRotMatrix);
+  
+  var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotateB, behindOriginMatrix)));
+  var tailRotMatrix = mul(behindMatrix4,mul(tailOriginInvMatrix, mul(rotateT, tailOriginMatrix)));  
   behind.setMatrix(behindRotMatrix);
+  behind4.setMatrix(tailRotMatrix);
 }
 
 var handPL, handPR;
