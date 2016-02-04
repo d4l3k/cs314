@@ -577,7 +577,7 @@ function rotateTail(time_start, time_length, p0, p1) {
 }
 
 var handP;
-function rotateHand(time_start, time_length, p0, p1) {
+function rotateLHand(time_start, time_length, p0, p1) {
   var time = clock.getElapsedTime(); // t seconds passed since the clock started.
   var time_end = time_start + time_length;
 
@@ -599,6 +599,30 @@ function rotateHand(time_start, time_length, p0, p1) {
   rFinger3.setMatrix(translate(mul(translate(rFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
   rFinger4.setMatrix(translate(mul(translate(rFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
   rFinger5.setMatrix(translate(mul(translate(rFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
+}
+
+function rotateRHand(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+
+  if (time > time_end || jumpcut){
+    if (handP == p1) {
+      return;
+    }
+    handP = p1;
+    animate = false;
+  } else {
+    handP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateX(handP);
+
+  lArm.setMatrix(mul(lArmMatrix, rotate));
+  lFinger.setMatrix(translate(mul(translate(lFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  lFinger2.setMatrix(translate(mul(translate(lFingerMatrix2, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  lFinger3.setMatrix(translate(mul(translate(lFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  lFinger4.setMatrix(translate(mul(translate(lFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  lFinger5.setMatrix(translate(mul(translate(lFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
 }
 
 function updateBody() {
@@ -629,7 +653,8 @@ function updateBody() {
       break
 
     case(key == "D"):
-      rotateHand(time_start, time_length, p0, p1);
+      rotateRHand(time_start, time_length, p0, p1);
+      rotateLHand(time_start, time_length, p0, p1);
       break
 
     case(key == "S"):
@@ -670,7 +695,7 @@ keyboard.domElement.addEventListener('keydown',function(event){
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
     (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
-  } else if(keyboard.eventMatches(event,"D")) { // 
+  } else if(keyboard.eventMatches(event,"D")) { //
     (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
   } else if(keyboard.eventMatches(event,"S")) { // Tail left
     (key == "S")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "S")
