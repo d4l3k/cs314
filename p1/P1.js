@@ -764,6 +764,7 @@ function updateBody() {
       rotateLFoot(time_start, time_length, -p0, -p1);
       rotateTail(time_start, time_length, p0, p1);
       rotateHead(time_start, time_length, p0, p1);
+      rotateTentacles(time_start, time_length, p0, p1);
       break
 
     default:
