@@ -94,9 +94,17 @@ var rArmGeometry2 = makeCube();
 var rArmGeometry3 = makeCube();
 var rFingerGeometry = makeCube();
 rFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
+var lArmGeometry = makeCube();
+var lArmGeometry2 = makeCube();
+var lArmGeometry3 = makeCube();
+var lFingerGeometry = makeCube();
+lFingerGeometry.applyMatrix(scale(identity(), 0.125,0.125,0.75));
 var rLegGeometry = makeCube();
 var rLegGeometry2 = makeCube();
 var rToeGeometry = makeCube();
+var lLegGeometry = makeCube();
+var lLegGeometry2 = makeCube();
+var lToeGeometry = makeCube();
 
 // TO-DO: SPECIFY THE REST OF YOUR STAR-NOSE MOLE'S GEOMETRY.
 // Note: You will be using transformation matrices to set the shape.
@@ -145,15 +153,29 @@ var tailMatrix = scale(translate(identity(), 0,-0.4,-2.75), 0.125,0.125,1);
 var tailMatrix2 = scale(translate(identity(), 0,0,-0.75), 0.75,0.75,1);
 var noseMatrix = scale(translate(identity(), 0,0,0.75), 0.25,0.25,0.25);
 
-var nostrilMatrix = scale(translate(identity(), 0.25,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix2 = scale(translate(identity(), 0.4,0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix3 = scale(translate(identity(), 0.4,0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix4 = scale(translate(identity(), 0.4,0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix5 = scale(translate(identity(), 0.4,0,0.75), 0.125,0.125,1);
-var nostrilMatrix6 = scale(translate(identity(), 0.4,-0.175,0.75), 0.125,0.125,1);
-var nostrilMatrix7 = scale(translate(identity(), 0.4,-0.35,0.75), 0.125,0.125,1);
-var nostrilMatrix8 = scale(translate(identity(), 0.4,-0.5,0.75), 0.125,0.125,1);
-var nostrilMatrix9 = scale(translate(identity(), 0.25,-0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix = scale(translate(identity(), 0.1,0.5,0.75), 0.125,0.125,0.5);
+var nostrilMatrix2 = scale(translate(identity(), 0.25,0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix3 = scale(translate(identity(), 0.4,0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix4 = scale(translate(identity(), 0.4,0.35,0.75), 0.125,0.125,1);
+var nostrilMatrix5 = scale(translate(identity(), 0.4,0.175,0.75), 0.125,0.125,1);
+var nostrilMatrix6 = scale(translate(identity(), 0.4,0,0.75), 0.125,0.125,1);
+var nostrilMatrix7 = scale(translate(identity(), 0.4,-0.175,0.75), 0.125,0.125,1);
+var nostrilMatrix8 = scale(translate(identity(), 0.4,-0.35,0.75), 0.125,0.125,1);
+var nostrilMatrix9 = scale(translate(identity(), 0.4,-0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix10 = scale(translate(identity(), 0.25,-0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix11 = scale(translate(identity(), 0.1,-0.5,0.75), 0.125,0.125,0.5);
+
+var nostrilMatrix12 = scale(translate(identity(), -0.1,0.5,0.75), 0.125,0.125,0.5);
+var nostrilMatrix13 = scale(translate(identity(), -0.25,0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix14 = scale(translate(identity(), -0.4,0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix15 = scale(translate(identity(), -0.4,0.35,0.75), 0.125,0.125,1);
+var nostrilMatrix16 = scale(translate(identity(), -0.4,0.175,0.75), 0.125,0.125,1);
+var nostrilMatrix17 = scale(translate(identity(), -0.4,0,0.75), 0.125,0.125,1);
+var nostrilMatrix18 = scale(translate(identity(), -0.4,-0.175,0.75), 0.125,0.125,1);
+var nostrilMatrix19 = scale(translate(identity(), -0.4,-0.35,0.75), 0.125,0.125,1);
+var nostrilMatrix20 = scale(translate(identity(), -0.4,-0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix21 = scale(translate(identity(), -0.25,-0.5,0.75), 0.125,0.125,1);
+var nostrilMatrix22 = scale(translate(identity(), -0.1,-0.5,0.75), 0.125,0.125,0.5);
 
 var rArmMatrix = translate(identity(), 3,-2,2.5);
 var rArmMatrix2 = scale(translate(identity(), 0.5,0,0.75), 1.5,1.25,1.5);
@@ -163,6 +185,14 @@ var rFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
 var rFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
 var rFingerMatrix4 = translate(identity(), 0.25,-0.375,0.75);
 var rFingerMatrix5 = translate(identity(), 0.5,-0.375,0.75);
+var lArmMatrix = translate(identity(), -3,-2,2.5);
+var lArmMatrix2 = scale(translate(identity(), -0.5,0,0.75), 1.5,1.25,1.5);
+var lArmMatrix3 = scale(translate(identity(), -0.5,-0.5,1.5), 1,1,1);
+var lFingerMatrix = translate(identity(), -0.5,-0.375,0.75);
+var lFingerMatrix2 = translate(identity(), -0.25,-0.375,0.75);
+var lFingerMatrix3 = translate(identity(), 0,-0.375,0.75);
+var lFingerMatrix4 = translate(identity(), 0.25,-0.375,0.75);
+var lFingerMatrix5 = translate(identity(), 0.5,-0.375,0.75);
 var rLegMatrix = scale(translate(identity(), 2.75,-2.25,-1.75), 0.75,0.75,1.5);
 var rLegMatrix2 = scale(translate(identity(), 0.75,-0.5,0.375), 0.75,0.75,1);
 var rToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
@@ -170,6 +200,13 @@ var rToeMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.
 var rToeMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.5);
 var rToeMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.5);
+var lLegMatrix = scale(translate(identity(), -2.75,-2.25,-1.75), 0.75,0.75,1.5);
+var lLegMatrix2 = scale(translate(identity(), -0.75,-0.5,0.375), 0.75,0.75,1);
+var lToeMatrix = scale(translate(identity(), -0.5,-0.375,0.75), 0.125,0.125,0.5);
+var lToeMatrix2 = scale(translate(identity(), -0.25,-0.375,0.75), 0.125,0.125,0.5);
+var lToeMatrix3 = scale(translate(identity(), 0,-0.375,0.75), 0.125,0.125,0.5);
+var lToeMatrix4 = scale(translate(identity(), 0.25,-0.375,0.75), 0.125,0.125,0.5);
+var lToeMatrix5 = scale(translate(identity(), 0.5,-0.375,0.75), 0.125,0.125,0.5);
 
 // CREATE BODY
 var torso = new THREE.Mesh(torsoGeometry,normalMaterial);
@@ -256,6 +293,58 @@ var nostril9 = new THREE.Mesh(nostrilGeometry,normalMaterial);
 nostril9.setMatrix(nostrilMatrix9)
 nose.add(nostril9);
 
+var nostril10 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril10.setMatrix(nostrilMatrix10)
+nose.add(nostril10);
+
+var nostril11 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril11.setMatrix(nostrilMatrix11)
+nose.add(nostril11);
+
+var nostril12 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril12.setMatrix(nostrilMatrix12)
+nose.add(nostril12);
+
+var nostril13 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril13.setMatrix(nostrilMatrix13)
+nose.add(nostril13);
+
+var nostril14 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril14.setMatrix(nostrilMatrix14)
+nose.add(nostril14);
+
+var nostril15 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril15.setMatrix(nostrilMatrix15)
+nose.add(nostril15);
+
+var nostril16 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril16.setMatrix(nostrilMatrix16)
+nose.add(nostril16);
+
+var nostril17 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril17.setMatrix(nostrilMatrix17)
+nose.add(nostril17);
+
+var nostril18 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril18.setMatrix(nostrilMatrix18)
+nose.add(nostril18);
+
+var nostril19 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril19.setMatrix(nostrilMatrix19)
+nose.add(nostril19);
+
+var nostril20 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril20.setMatrix(nostrilMatrix20)
+nose.add(nostril20);
+
+var nostril21 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril21.setMatrix(nostrilMatrix21)
+nose.add(nostril21);
+
+var nostril22 = new THREE.Mesh(nostrilGeometry,normalMaterial);
+nostril22.setMatrix(nostrilMatrix22)
+nose.add(nostril22);
+
 var rArm = new THREE.Mesh(rArmGeometry,normalMaterial);
 rArm.setMatrix(rArmMatrix)
 torso.add(rArm);
@@ -288,6 +377,38 @@ var rFinger5 = new THREE.Mesh(rFingerGeometry,normalMaterial);
 rFinger5.setMatrix(rFingerMatrix5)
 rArm3.add(rFinger5);
 
+var lArm = new THREE.Mesh(lArmGeometry,normalMaterial);
+lArm.setMatrix(lArmMatrix)
+torso.add(lArm);
+
+var lArm2 = new THREE.Mesh(lArmGeometry2,normalMaterial);
+lArm2.setMatrix(lArmMatrix2)
+lArm.add(lArm2);
+
+var lArm3 = new THREE.Mesh(lArmGeometry3,normalMaterial);
+lArm3.setMatrix(lArmMatrix3)
+lArm.add(lArm3);
+
+var lFinger = new THREE.Mesh(lFingerGeometry,normalMaterial);
+lFinger.setMatrix(lFingerMatrix)
+lArm3.add(lFinger);
+
+var lFinger2 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+lFinger2.setMatrix(lFingerMatrix2)
+lArm3.add(lFinger2);
+
+var lFinger3 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+lFinger3.setMatrix(lFingerMatrix3)
+lArm3.add(lFinger3);
+
+var lFinger4 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+lFinger4.setMatrix(lFingerMatrix4)
+lArm3.add(lFinger4);
+
+var lFinger5 = new THREE.Mesh(lFingerGeometry,normalMaterial);
+lFinger5.setMatrix(lFingerMatrix5)
+lArm3.add(lFinger5);
+
 var rLeg = new THREE.Mesh(rLegGeometry,normalMaterial);
 rLeg.setMatrix(rLegMatrix)
 torso.add(rLeg);
@@ -315,6 +436,34 @@ rLeg2.add(rToe4);
 var rToe5 = new THREE.Mesh(rToeGeometry,normalMaterial);
 rToe5.setMatrix(rToeMatrix5)
 rLeg2.add(rToe5);
+
+var lLeg = new THREE.Mesh(lLegGeometry,normalMaterial);
+lLeg.setMatrix(lLegMatrix)
+torso.add(lLeg);
+
+var lLeg2 = new THREE.Mesh(lLegGeometry2,normalMaterial);
+lLeg2.setMatrix(lLegMatrix2)
+lLeg.add(lLeg2);
+
+var lToe = new THREE.Mesh(lToeGeometry,normalMaterial);
+lToe.setMatrix(lToeMatrix)
+lLeg2.add(lToe);
+
+var lToe2 = new THREE.Mesh(lToeGeometry,normalMaterial);
+lToe2.setMatrix(lToeMatrix2)
+lLeg2.add(lToe2);
+
+var lToe3 = new THREE.Mesh(lToeGeometry,normalMaterial);
+lToe3.setMatrix(lToeMatrix3)
+lLeg2.add(lToe3);
+
+var lToe4 = new THREE.Mesh(lToeGeometry,normalMaterial);
+lToe4.setMatrix(lToeMatrix4)
+lLeg2.add(lToe4);
+
+var lToe5 = new THREE.Mesh(lToeGeometry,normalMaterial);
+lToe5.setMatrix(lToeMatrix5)
+lLeg2.add(lToe5);
 
 // TO-DO: PUT TOGETHER THE REST OF YOUR STAR-NOSED MOLE AND ADD TO THE SCENE!
 // Hint: Hint: Add one piece of geometry at a time, then implement the motion for that part.
@@ -521,7 +670,7 @@ keyboard.domElement.addEventListener('keydown',function(event){
     (key == "T")? init_animation(p1,p0,time_length) : (init_animation(0,Math.PI/4,1), key = "T")
   } else if(keyboard.eventMatches(event,"V")) { // Tail left
     (key == "V")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "V")
-  } else if(keyboard.eventMatches(event,"D")) { // Tail left
+  } else if(keyboard.eventMatches(event,"D")) { // 
     (key == "D")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "D")
   } else if(keyboard.eventMatches(event,"S")) { // Tail left
     (key == "S")? init_animation(p1,p0,time_length) : (init_animation(0,-Math.PI/4,1), key = "S")
