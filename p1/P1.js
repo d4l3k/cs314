@@ -375,6 +375,75 @@ function rotateY(p) {
       0,            0,             0, 1);
 }
 
+var headP;
+function rotateHead(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+  if (time > time_end || jumpcut){
+    if (headP == p1) {
+      return;
+    }
+    headP = p1;
+    animate = false;
+  } else {
+    headP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateY(headP);
+
+  var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
+  var neckRotMatrix = mul(neckMatrix,mul(neckOriginInvMatrix, mul(rotate, neckOriginMatrix)));
+  head.setMatrix(headRotMatrix);
+  neck.setMatrix(neckRotMatrix);
+}
+
+var tailP;
+function rotateTail(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+  if (time > time_end || jumpcut){
+    if (tailP == p1) {
+      return;
+    }
+    tailP = p1;
+    animate = false;
+  } else {
+    tailP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateY(tailP);
+
+  //var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
+  var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotate, behindOriginMatrix)));
+  //tail.setMatrix(tailRotMatrix);
+  behind.setMatrix(behindRotMatrix);
+}
+
+var handP;
+function rotateHand(time_start, time_length, p0, p1) {
+  var time = clock.getElapsedTime(); // t seconds passed since the clock started.
+  var time_end = time_start + time_length;
+
+  if (time > time_end || jumpcut){
+    if (handP == p1) {
+      return;
+    }
+    handP = p1;
+    animate = false;
+  } else {
+    handP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
+  }
+
+  var rotate = rotateX(handP);
+
+  rArm.setMatrix(mul(rArmMatrix, rotate));
+  rFinger.setMatrix(translate(mul(translate(rFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  rFinger2.setMatrix(translate(mul(translate(rFingerMatrix2, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  rFinger3.setMatrix(translate(mul(translate(rFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  rFinger4.setMatrix(translate(mul(translate(rFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
+  rFinger5.setMatrix(translate(mul(translate(rFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
+}
+
 function updateBody() {
   if (!animate) {
     return;
@@ -395,53 +464,15 @@ function updateBody() {
       break
 
     case(key == "H" || key == "G"):
-      if (time > time_end || jumpcut){
-        p = p1;
-        animate = false;
-      } else {
-        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
-      }
-
-      var rotate = rotateY(p);
-
-      var headRotMatrix = mul(headMatrix,mul(headOriginInvMatrix, mul(rotate, headOriginMatrix)));
-      var neckRotMatrix = mul(neckMatrix,mul(neckOriginInvMatrix, mul(rotate, neckOriginMatrix)));
-      head.setMatrix(headRotMatrix);
-      neck.setMatrix(neckRotMatrix);
+      rotateHead(time_start, time_length, p0, p1);
       break
 
     case(key == "T" || key == "V"):
-      if (time > time_end || jumpcut){
-        p = p1;
-        animate = false;
-      } else {
-        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
-      }
-
-      var rotate = rotateY(p);
-
-      //var tailRotMatrix = mul(tailMatrix,mul(tailOriginInvMatrix, mul(rotate, tailOriginMatrix)));
-      var behindRotMatrix = mul(behindMatrix,mul(behindOriginInvMatrix, mul(rotate, behindOriginMatrix)));
-      //tail.setMatrix(tailRotMatrix);
-      behind.setMatrix(behindRotMatrix);
+      rotateTail(time_start, time_length, p0, p1);
       break
 
     case(key == "D"):
-      if (time > time_end || jumpcut){
-        p = p1;
-        animate = false;
-      } else {
-        p = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
-      }
-
-      var rotate = rotateX(p);
-
-      rArm.setMatrix(mul(rArmMatrix, rotate));
-      rFinger.setMatrix(translate(mul(translate(rFingerMatrix, 0, 0, -0.5), rotate), 0, 0, 0.5));
-      rFinger2.setMatrix(translate(mul(translate(rFingerMatrix2, 0, 0, -0.5), rotate), 0, 0, 0.5));
-      rFinger3.setMatrix(translate(mul(translate(rFingerMatrix3, 0, 0, -0.5), rotate), 0, 0, 0.5));
-      rFinger4.setMatrix(translate(mul(translate(rFingerMatrix4, 0, 0, -0.5), rotate), 0, 0, 0.5));
-      rFinger5.setMatrix(translate(mul(translate(rFingerMatrix5, 0, 0, -0.5), rotate), 0, 0, 0.5));
+      rotateHand(time_start, time_length, p0, p1);
       break
 
     default:
