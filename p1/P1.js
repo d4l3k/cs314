@@ -505,6 +505,10 @@ function mul(a, b) {
   return new THREE.Matrix4().multiplyMatrices(a, b);
 }
 
+// Rotate nostrils
+init_animation(0,0,0);
+rotateTentacles(0,0,0,0);
+
 var headOriginMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,0.5, 0,0,0,1);
 var headOriginInvMatrix = new THREE.Matrix4().set(1,0,0,0, 0,1,0,0, 0,0,1,-0.5, 0,0,0,1);
 
@@ -536,7 +540,7 @@ function rotateY(p) {
 function rotateZ(p) {
   return new THREE.Matrix4().set(
       Math.cos(-p), -Math.sin(-p), 0, 0,
-      Math.sin(-p), 0,  Math.cos(-p), 0,
+      Math.sin(-p),  Math.cos(-p), 0, 0,
       0,            0,             1, 0,
       0,            0,             0, 1);
 }
@@ -687,8 +691,6 @@ function rotateTentacles(time_start, time_length, p0, p1) {
     nostrilP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
-  var rotate = rotateX(nostrilP/2);
-
   var tentacles = [
     [nostril, nostrilMatrix],
     [nostril2, nostrilMatrix2],
@@ -714,8 +716,18 @@ function rotateTentacles(time_start, time_length, p0, p1) {
     [nostril22, nostrilMatrix22],
     ];
   var step = Math.PI*2/22;
-  var offset = 0;
+  var offset = 0.5;
   tentacles.forEach(function(t, i) {
+    var z;
+    var p = -nostrilP/2;
+    if (i >= 11) {
+      i=22-i;
+      p = -p;
+    }
+    if (nostrilP > 0) {
+      p = 0;
+    }
+    var rotate = rotateX(p);
     var z = rotateZ(i*step);
     t[0].setMatrix(translate(mul(mul(translate(t[1], 0, 0, -offset), z), rotate), 0, 0, offset));
   });
