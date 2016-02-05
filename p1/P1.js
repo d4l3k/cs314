@@ -685,6 +685,10 @@ function rotateTentacles(time_start, time_length, p0, p1) {
     nostrilP = (p1 - p0)*((time-time_start)/time_length) + p0; // current frame
   }
 
+  if (swimState == 1) {
+    return;
+  }
+
   var tentacles = [
     [nostril, nostrilMatrix],
     [nostril2, nostrilMatrix2],
@@ -719,7 +723,7 @@ function rotateTentacles(time_start, time_length, p0, p1) {
       p = -p;
     }
     if (nostrilP > 0) {
-      p = 0;
+      p = -p;
     }
     var rotate = rotateX(p);
     var z = rotateZ(i*step);
