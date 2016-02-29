@@ -193,6 +193,34 @@ var blueMaterial = new THREE.MeshBasicMaterial({color: 0x369EFF});
 var redMaterial = new THREE.MeshBasicMaterial({color: 0xFF6536});
 
 // Planet Object3D
+var mercuryPivot = new THREE.Object3D();
+var venusPivot = new THREE.Object3D();
+var earthPivot = new THREE.Object3D();
+var moonPivot = new THREE.Object3D();
+var marsPivot = new THREE.Object3D();
+var jupiterPivot = new THREE.Object3D();
+var saturnPivot = new THREE.Object3D();
+var uranusPivot = new THREE.Object3D();
+var neptunePivot = new THREE.Object3D();
+
+mercuryPivot.rotation.y = 1;
+venusPivot.rotation.y = 2;
+earthPivot.rotation.y = 3;
+marsPivot.rotation.y = 4;
+jupiterPivot.rotation.y = 5;
+saturnPivot.rotation.y = 6;
+uranusPivot.rotation.y = 7;
+neptunePivot.rotation.y = 8;    
+
+scene.add(mercuryPivot);
+scene.add(venusPivot);
+scene.add(earthPivot);
+scene.add(marsPivot);
+scene.add(jupiterPivot);
+scene.add(saturnPivot);
+scene.add(uranusPivot);
+scene.add(neptunePivot);
+
 var mercury = new THREE.Object3D();
 var venus = new THREE.Object3D();
 var earth = new THREE.Object3D();
@@ -214,15 +242,16 @@ saturn.position.x = 24;
 uranus.position.x = 29;
 neptune.position.x = 34;
 
-sun.add(mercury);
-sun.add(venus);
-sun.add(earth);
+mercuryPivot.add(mercury);
+venusPivot.add(venus);
+earthPivot.add(earth);
 earth.add(moon);
-sun.add(mars);
-sun.add(jupiter);
-sun.add(saturn);
-sun.add(uranus);
-sun.add(neptune);
+marsPivot.add(mars);
+jupiterPivot.add(jupiter);
+saturnPivot.add(saturn);
+uranusPivot.add(uranus);
+neptunePivot.add(neptune);
+
 
 // Geometry
 var mercuryGeometry = new THREE.SphereGeometry( 0.25, 32, 32);
@@ -328,6 +357,7 @@ neptuneOrbitGeometry.vertices.shift();
 var neptuneOrbit = new THREE.Line(neptuneOrbitGeometry, orbitMaterial);
 scene.add( neptuneOrbit );
 
+
 //Note: Use of parent attribute IS allowed.
 //Hint: Keep hierarchies in mind! 
 
@@ -335,7 +365,29 @@ var clock = new THREE.Clock(true);
 function updateSystem() 
 {  
 	// ANIMATE YOUR SOLAR SYSTEM HERE.
+    if (!update) {
+        return;
+    }
+    var time = clock.getElapsedTime();
     
+    mercuryPivot.rotation.y += 0.03;
+    venusPivot.rotation.y += 0.02;
+    earthPivot.rotation.y += 0.01;
+    marsPivot.rotation.y += 0.008;
+    jupiterPivot.rotation.y += 0.006;
+    saturnPivot.rotation.y += 0.004;
+    uranusPivot.rotation.y += 0.003;
+    neptunePivot.rotation.y += 0.001;    
+    
+    mercury.rotation.y += 0.01;
+    venus.rotation.y += 0.01;
+    earth.rotation.y += 0.01;
+    mars.rotation.y += 0.01;
+    jupiter.rotation.y += 0.01;
+    saturn.rotation.y += 0.01;
+    uranus.rotation.z += 0.01;
+    neptune.rotation.y += 0.01;
+
 }
 
 // LISTEN TO KEYBOARD
