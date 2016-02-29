@@ -188,9 +188,10 @@ var segments = 64;
 // Materials
 var orbitMaterial = new THREE.LineBasicMaterial({color: 0xDDDDDD});
 var greyMaterial = new THREE.MeshBasicMaterial({color: 0x999999});
-var lightBrownMaterial = new THREE.MeshBasicMaterial({color: 0xFFCD6C});
-var blueMaterial = new THREE.MeshBasicMaterial({color: 0x369EFF});
+var lightBrownMaterial = new THREE.MeshBasicMaterial({color: 0xFFCD6C, side: THREE.DoubleSide});
+var blueMaterial = new THREE.MeshBasicMaterial({color: 0x369EFF, side: THREE.DoubleSide});
 var redMaterial = new THREE.MeshBasicMaterial({color: 0xFF6536});
+var hullMaterial = new THREE.MeshBasicMaterial({color: 0x333333});
 
 // Planet Object3D
 var mercuryPivot = new THREE.Object3D();
@@ -203,6 +204,7 @@ var saturnPivot = new THREE.Object3D();
 var uranusPivot = new THREE.Object3D();
 var neptunePivot = new THREE.Object3D();
 
+// Arbitrary starting points
 mercuryPivot.rotation.y = 1;
 venusPivot.rotation.y = 2;
 earthPivot.rotation.y = 3;
@@ -221,6 +223,7 @@ scene.add(saturnPivot);
 scene.add(uranusPivot);
 scene.add(neptunePivot);
 
+// Matricies
 var mercury = new THREE.Object3D();
 var venus = new THREE.Object3D();
 var earth = new THREE.Object3D();
@@ -265,7 +268,7 @@ var marsGeometry = new THREE.SphereGeometry( 0.4, 32, 32 );
 var jupiterGeometry = new THREE.SphereGeometry( 1.25, 32, 32 );
 var saturnGeometry = new THREE.SphereGeometry( 1, 32, 32 );
 var saturnRingGeometry = new THREE.RingGeometry( 1.5, 2, 32 );
-saturnRingGeometry.rotateX(1);
+saturnRingGeometry.rotateX(1.5708);
 var uranusGeometry = new THREE.SphereGeometry( 0.7, 32, 32 );
 var uranusRingGeometry = new THREE.RingGeometry( 1, 1.1, 32 );
 var neptuneGeometry = new THREE.SphereGeometry( 0.7, 32, 32 );
@@ -358,9 +361,43 @@ var neptuneOrbit = new THREE.Line(neptuneOrbitGeometry, orbitMaterial);
 scene.add( neptuneOrbit );
 
 
+// Spaceships
+var mainShip = new THREE.Object3D();
+var cockpitGeometry = new THREE.BoxGeometry(2, 1, 0.5);
+var bridgeGeometry = new THREE.BoxGeometry(3, 0.5, 1.25);
+var middriftGeometry = new THREE.BoxGeometry(8, 0.5, 2);
+var hullGeometry = new THREE.BoxGeometry(7, 0.5, 1.5);
+
+var cockpit = new THREE.Mesh(cockpitGeometry, greyMaterial);
+var bridge = new THREE.Mesh(bridgeGeometry, hullMaterial);
+var middrift = new THREE.Mesh(middriftGeometry, greyMaterial);
+var hull = new THREE.Mesh(hullGeometry, hullMaterial);
+
+cockpit.position.y = 0.75;
+cockpit.position.x = -1;
+bridge.position.y = 0.25;
+bridge.position.x = -1.75;
+hull.position.y = -0.25;
+hull.position.x = -0.75;
+mainShip.position.z = 30;
+mainShip.position.x = 30;
+
+mainShip.add(cockpit);
+mainShip.add(bridge);
+mainShip.add(middrift);
+mainShip.add(hull);
+scene.add(mainShip);
+
+var scoutShip = mainShip.clone();
+scoutShip.position.y = 10;
+scoutShip.scale.set(0.5, 0.5, 0.5);
+scene.add(scoutShip);
+
+
 //Note: Use of parent attribute IS allowed.
 //Hint: Keep hierarchies in mind! 
 
+var freeze = false;
 var clock = new THREE.Clock(true);
 function updateSystem() 
 {  
@@ -370,24 +407,25 @@ function updateSystem()
     }
     var time = clock.getElapsedTime();
     
-    mercuryPivot.rotation.y += 0.03;
-    venusPivot.rotation.y += 0.02;
-    earthPivot.rotation.y += 0.01;
-    marsPivot.rotation.y += 0.008;
-    jupiterPivot.rotation.y += 0.006;
-    saturnPivot.rotation.y += 0.004;
-    uranusPivot.rotation.y += 0.003;
-    neptunePivot.rotation.y += 0.001;    
-    
-    mercury.rotation.y += 0.01;
-    venus.rotation.y += 0.01;
-    earth.rotation.y += 0.01;
-    mars.rotation.y += 0.01;
-    jupiter.rotation.y += 0.01;
-    saturn.rotation.y += 0.01;
-    uranus.rotation.z += 0.01;
-    neptune.rotation.y += 0.01;
-
+    if(!freeze) {
+        mercuryPivot.rotation.y += 0.03;
+        venusPivot.rotation.y += 0.02;
+        earthPivot.rotation.y += 0.01;
+        marsPivot.rotation.y += 0.008;
+        jupiterPivot.rotation.y += 0.006;
+        saturnPivot.rotation.y += 0.004;
+        uranusPivot.rotation.y += 0.003;
+        neptunePivot.rotation.y += 0.001;    
+        
+        mercury.rotation.y += 0.01;
+        venus.rotation.y += 0.01;
+        earth.rotation.y += 0.01;
+        mars.rotation.y += 0.01;
+        jupiter.rotation.y += 0.01;
+        saturn.rotation.y += 0.01;
+        uranus.rotation.z += 0.01;
+        neptune.rotation.y += 0.01;
+    }
 }
 
 // LISTEN TO KEYBOARD
@@ -398,12 +436,13 @@ var grid_state = false;
 function onKeyDown(event)
 {
 	// TO-DO: BIND KEYS TO YOUR CONTROLS	  
-  if(keyboard.eventMatches(event,"shift+g"))
-  {  // Reveal/Hide helper grid
+  if(keyboard.eventMatches(event,"shift+g"))  {  // Reveal/Hide helper grid
     grid_state = !grid_state;
     grid_state? scene.add(grid) : scene.remove(grid);
-  }   
-
+  }
+  else if(keyboard.eventMatches(event, "space")) {
+    freeze = !freeze;
+  }
 }
 keyboard.domElement.addEventListener('keydown', onKeyDown );
 		
