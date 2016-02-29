@@ -172,26 +172,170 @@ var grid = new THREE.Line(gridGeometry,gridMaterial,THREE.LinePieces);
 //   YOUR WORK STARTS BELOW    //
 /////////////////////////////////
 
-
 // Create Solar System
-var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-generateVertexColors( geometry );
+var sun = new THREE.Object3D();
+var geometrySun = new THREE.SphereGeometry( 5, 32, 32 );
+generateVertexColors( geometrySun );
 var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-var sun = new THREE.Mesh( geometry, material );
-scene.add( sun );
+var sunMesh = new THREE.Mesh( geometrySun, material );
+sun.add(sunMesh);
+scene.add(sun);
+
+// Ring Variables
+var radius = 1;
+var segments = 64;
+
+// Materials
+var orbitMaterial = new THREE.LineBasicMaterial({color: 0xDDDDDD});
+var greyMaterial = new THREE.MeshBasicMaterial({color: 0x999999});
+var lightBrownMaterial = new THREE.MeshBasicMaterial({color: 0xFFCD6C});
+var blueMaterial = new THREE.MeshBasicMaterial({color: 0x369EFF});
+var redMaterial = new THREE.MeshBasicMaterial({color: 0xFF6536});
+
+// Planet Object3D
+var mercury = new THREE.Object3D();
+var venus = new THREE.Object3D();
+var earth = new THREE.Object3D();
+var moon = new THREE.Object3D();
+var mars = new THREE.Object3D();
+var jupiter = new THREE.Object3D();
+var saturn = new THREE.Object3D();
+var uranus = new THREE.Object3D();
+var neptune = new THREE.Object3D();
+
+mercury.position.x = 7;
+venus.position.x = 9;
+earth.position.x = 12;
+moon.position = earth.position;
+moon.position.x++;
+mars.position.x = 15;
+jupiter.position.x = 19;
+saturn.position.x = 24;
+uranus.position.x = 29;
+neptune.position.x = 34;
+
+sun.add(mercury);
+sun.add(venus);
+sun.add(earth);
+earth.add(moon);
+sun.add(mars);
+sun.add(jupiter);
+sun.add(saturn);
+sun.add(uranus);
+sun.add(neptune);
+
+// Geometry
+var mercuryGeometry = new THREE.SphereGeometry( 0.25, 32, 32);
+var venusGeometry = new THREE.SphereGeometry( 0.5, 32, 32 );
+var earthGeometry = new THREE.SphereGeometry( 0.6, 32, 32 );
+var moonGeometry = new THREE.SphereGeometry( 0.2, 32, 32 );
+var moonOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+moonOrbitGeometry.rotateX(1.5708).scale(1, 1, 1);
+moonOrbitGeometry.vertices.shift();
+var marsGeometry = new THREE.SphereGeometry( 0.4, 32, 32 );
+var jupiterGeometry = new THREE.SphereGeometry( 1.25, 32, 32 );
+var saturnGeometry = new THREE.SphereGeometry( 1, 32, 32 );
+var saturnRingGeometry = new THREE.RingGeometry( 1.5, 2, 32 );
+saturnRingGeometry.rotateX(1);
+var uranusGeometry = new THREE.SphereGeometry( 0.7, 32, 32 );
+var uranusRingGeometry = new THREE.RingGeometry( 1, 1.1, 32 );
+var neptuneGeometry = new THREE.SphereGeometry( 0.7, 32, 32 );
+
+generateVertexColors( mercuryGeometry );
+generateVertexColors( venusGeometry );
+generateVertexColors( earthGeometry );
+generateVertexColors( moonGeometry );
+generateVertexColors( marsGeometry );
+generateVertexColors( jupiterGeometry );
+generateVertexColors( saturnGeometry );
+generateVertexColors( uranusGeometry );
+generateVertexColors( neptuneGeometry );
 
 
-//TO-DO: INITIALIZE THE REST OF YOUR PLANETS
+// Planet Meshes
+var mercuryMesh = new THREE.Mesh( mercuryGeometry, greyMaterial );
+mercury.add(mercuryMesh);
+var venusMesh = new THREE.Mesh( venusGeometry, lightBrownMaterial );
+venus.add(venusMesh);
+var moonMesh = new THREE.Mesh( moonGeometry, greyMaterial );
+moon.add(moonMesh);
+var moonOrbit = new THREE.Line(moonOrbitGeometry, orbitMaterial);
+earth.add( moonOrbit );
+var earthMesh = new THREE.Mesh( earthGeometry, blueMaterial );
+earth.add(earthMesh);
+var marsMesh = new THREE.Mesh( marsGeometry, redMaterial );
+mars.add(marsMesh);
+var jupiterMesh = new THREE.Mesh( jupiterGeometry, lightBrownMaterial );
+jupiter.add(jupiterMesh);
+var saturnMesh = new THREE.Mesh( saturnGeometry, lightBrownMaterial );
+saturn.add(saturnMesh);
+var saturnRingMesh = new THREE.Mesh( saturnRingGeometry, lightBrownMaterial );
+saturn.add(saturnRingMesh);
+var uranusMesh = new THREE.Mesh( uranusGeometry, blueMaterial );
+uranus.add(uranusMesh);
+var uranusRingMesh = new THREE.Mesh( uranusRingGeometry, blueMaterial );
+uranus.add(uranusRingMesh);
+var neptuneMesh = new THREE.Mesh( neptuneGeometry, blueMaterial );
+neptune.add(neptuneMesh);
 
+
+// Ring Geometry besides Moon
+var mercuryOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+mercuryOrbitGeometry.rotateX(1.5708).scale(7, 7, 7);
+mercuryOrbitGeometry.vertices.shift();
+var mercuryOrbit = new THREE.Line(mercuryOrbitGeometry, orbitMaterial);
+scene.add( mercuryOrbit );
+
+var venusOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+venusOrbitGeometry.rotateX(1.5708).scale(9, 9, 9);
+venusOrbitGeometry.vertices.shift();
+var venusOrbit = new THREE.Line(venusOrbitGeometry, orbitMaterial);
+scene.add( venusOrbit );
+
+var earthOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+earthOrbitGeometry.rotateX(1.5708).scale(12, 12, 12);
+earthOrbitGeometry.vertices.shift();
+var earthOrbit = new THREE.Line(earthOrbitGeometry, orbitMaterial);
+scene.add( earthOrbit );
+
+var marsOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+marsOrbitGeometry.rotateX(1.5708).scale(15, 15, 15);
+marsOrbitGeometry.vertices.shift();
+var marsOrbit = new THREE.Line(marsOrbitGeometry, orbitMaterial);
+scene.add( marsOrbit );
+
+var jupiterOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+jupiterOrbitGeometry.rotateX(1.5708).scale(19, 19, 19);
+jupiterOrbitGeometry.vertices.shift();
+var jupiterOrbit = new THREE.Line(jupiterOrbitGeometry, orbitMaterial);
+scene.add( jupiterOrbit );
+
+var saturnOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+saturnOrbitGeometry.rotateX(1.5708).scale(24, 24, 24);
+saturnOrbitGeometry.vertices.shift();
+var saturnOrbit = new THREE.Line(saturnOrbitGeometry, orbitMaterial);
+scene.add( saturnOrbit );
+
+var uranusOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+uranusOrbitGeometry.rotateX(1.5708).scale(29, 29, 29);
+uranusOrbitGeometry.vertices.shift();
+var uranusOrbit = new THREE.Line(uranusOrbitGeometry, orbitMaterial);
+scene.add( uranusOrbit );
+
+var neptuneOrbitGeometry = new THREE.CircleGeometry(radius, segments);
+neptuneOrbitGeometry.rotateX(1.5708).scale(34, 34, 34);
+neptuneOrbitGeometry.vertices.shift();
+var neptuneOrbit = new THREE.Line(neptuneOrbitGeometry, orbitMaterial);
+scene.add( neptuneOrbit );
 
 //Note: Use of parent attribute IS allowed.
 //Hint: Keep hierarchies in mind! 
 
 var clock = new THREE.Clock(true);
 function updateSystem() 
-{
+{  
 	// ANIMATE YOUR SOLAR SYSTEM HERE.
-  
+    
 }
 
 // LISTEN TO KEYBOARD
