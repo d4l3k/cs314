@@ -205,14 +205,15 @@ var uranusPivot = new THREE.Object3D();
 var neptunePivot = new THREE.Object3D();
 
 // Arbitrary starting points
-mercuryPivot.rotation.y = 1;
-venusPivot.rotation.y = 2;
-earthPivot.rotation.y = 3;
-marsPivot.rotation.y = 4;
-jupiterPivot.rotation.y = 5;
-saturnPivot.rotation.y = 6;
-uranusPivot.rotation.y = 7;
-neptunePivot.rotation.y = 8;    
+
+mercuryPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.1);
+venusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.3);
+earthPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.5);
+marsPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.7);
+jupiterPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.9);
+saturnPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.1);
+uranusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.3);
+neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.5);  
 
 scene.add(mercuryPivot);
 scene.add(venusPivot);
@@ -234,16 +235,16 @@ var saturn = new THREE.Object3D();
 var uranus = new THREE.Object3D();
 var neptune = new THREE.Object3D();
 
-mercury.position.x = 7;
-venus.position.x = 9;
-earth.position.x = 12;
+mercury.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 7,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+venus.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 9,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+earth.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 12,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
 moon.position = earth.position;
-moon.position.x++;
-mars.position.x = 15;
-jupiter.position.x = 19;
-saturn.position.x = 24;
-uranus.position.x = 29;
-neptune.position.x = 34;
+moon.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 1,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+mars.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 15,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+jupiter.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 19,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+saturn.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 24,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+uranus.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 29,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+neptune.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 34,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
 
 mercuryPivot.add(mercury);
 venusPivot.add(venus);
@@ -373,14 +374,10 @@ var bridge = new THREE.Mesh(bridgeGeometry, hullMaterial);
 var middrift = new THREE.Mesh(middriftGeometry, greyMaterial);
 var hull = new THREE.Mesh(hullGeometry, hullMaterial);
 
-cockpit.position.y = 0.75;
-cockpit.position.x = -1;
-bridge.position.y = 0.25;
-bridge.position.x = -1.75;
-hull.position.y = -0.25;
-hull.position.x = -0.75;
-mainShip.position.z = 30;
-mainShip.position.x = 30;
+cockpit.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1,  0, 1, 0, 0.75,  0, 0, 1, 0,  0, 0, 0, 1));
+bridge.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1.75,  0, 1, 0, 0.25,  0, 0, 1, 0,  0, 0, 0, 1));
+hull.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -0.75,  0, 1, 0, -0.25,  0, 0, 1, 0,  0, 0, 0, 1));
+mainShip.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 30,  0, 1, 0, 0,  0, 0, 1, 30,  0, 0, 0, 1));
 
 mainShip.add(cockpit);
 mainShip.add(bridge);
@@ -408,23 +405,23 @@ function updateSystem()
     var time = clock.getElapsedTime();
     
     if(!freeze) {
-        mercuryPivot.rotation.y += 0.03;
-        venusPivot.rotation.y += 0.02;
-        earthPivot.rotation.y += 0.01;
-        marsPivot.rotation.y += 0.008;
-        jupiterPivot.rotation.y += 0.006;
-        saturnPivot.rotation.y += 0.004;
-        uranusPivot.rotation.y += 0.003;
-        neptunePivot.rotation.y += 0.001;    
+        mercuryPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.03);
+        venusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.02);
+        earthPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+        marsPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.008);
+        jupiterPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.006);
+        saturnPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.004);
+        uranusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.003);
+        neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.001);
         
-        mercury.rotation.y += 0.01;
-        venus.rotation.y += 0.01;
-        earth.rotation.y += 0.01;
-        mars.rotation.y += 0.01;
-        jupiter.rotation.y += 0.01;
-        saturn.rotation.y += 0.01;
-        uranus.rotation.z += 0.01;
-        neptune.rotation.y += 0.01;
+        mercury.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.02);
+        venus.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+        earth.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+        mars.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+        jupiter.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.005);
+        saturn.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.005);
+        uranus.rotateOnAxis(new THREE.Vector3(0, 0, 1), 0.005);
+        neptune.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.005);
     }
 }
 
