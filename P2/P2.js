@@ -43,7 +43,7 @@ z_axis = buildAxis(
 	    0x0000FF,
 	    false
 	)
-	
+
 // ASSIGNMENT-SPECIFIC API EXTENSION
 THREE.Object3D.prototype.setMatrix = function(a) {
   this.matrix=a;
@@ -69,7 +69,9 @@ var views = [
 		eye: [ 80, 20, 80 ],
 		up: [ 0, 1, 0 ],
 		fov: 45,
-		updateCamera: function ( camera, scene, mouseX, mouseY ) {		}
+		updateCamera: function ( camera, scene, mouseX, mouseY ) {
+      mainShip.lookAt(scene.position);
+    }
 	},
 	{
 		left: 0.501,
@@ -80,7 +82,9 @@ var views = [
 		eye: [ 65, 20, 65 ],
 		up: [ 0, 1, 0 ],
 		fov: 45,
-		updateCamera: function ( camera, scene, mouseX, mouseY ) {		}
+		updateCamera: function ( camera, scene, mouseX, mouseY ) {
+      scoutShip.lookAt(scene.position);
+    }
 	}
 ];
 
@@ -97,27 +101,23 @@ canvas.appendChild(renderer.domElement);
 // Creating the two cameras and adding them to the scene.
 var view = views[0];
 camera_MotherShip = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-camera_MotherShip.position.x = view.eye[ 0 ];
-camera_MotherShip.position.y = view.eye[ 1 ];
-camera_MotherShip.position.z = view.eye[ 2 ];
+camera_MotherShip.position.x = 0;//view.eye[ 0 ];
+camera_MotherShip.position.y = 0;//view.eye[ 1 ];
+camera_MotherShip.position.z = 0;//view.eye[ 2 ];
 camera_MotherShip.up.x = view.up[ 0 ];
 camera_MotherShip.up.y = view.up[ 1 ];
 camera_MotherShip.up.z = view.up[ 2 ];
-camera_MotherShip.lookAt( scene.position );
 view.camera = camera_MotherShip;
-scene.add(view.camera);
 
 var view = views[1];
 camera_ScoutShip = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-camera_ScoutShip.position.x = view.eye[ 0 ];
-camera_ScoutShip.position.y = view.eye[ 1 ];
-camera_ScoutShip.position.z = view.eye[ 2 ];
+camera_ScoutShip.position.x = 0;//view.eye[ 0 ];
+camera_ScoutShip.position.y = 0;//view.eye[ 1 ];
+camera_ScoutShip.position.z = 0;//view.eye[ 2 ];
 camera_ScoutShip.up.x = view.up[ 0 ];
 camera_ScoutShip.up.y = view.up[ 1 ];
 camera_ScoutShip.up.z = view.up[ 2 ];
-camera_ScoutShip.lookAt( scene.position );
 view.camera = camera_ScoutShip;
-scene.add(view.camera);
 
 
 // ADDING THE AXIS DEBUG VISUALIZATIONS
@@ -138,7 +138,7 @@ window.addEventListener('resize',resize);
 resize();
 
 //SCROLLBAR FUNCTION DISABLE
-window.onscroll = function () 
+window.onscroll = function ()
 {
      window.scrollTo(0,0);
 }
@@ -213,7 +213,7 @@ marsPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.7);
 jupiterPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.9);
 saturnPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.1);
 uranusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.3);
-neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.5);  
+neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.5);
 
 scene.add(mercuryPivot);
 scene.add(venusPivot);
@@ -364,6 +364,7 @@ scene.add( neptuneOrbit );
 
 // Spaceships
 var mainShip = new THREE.Object3D();
+var body = new THREE.Object3D();
 var cockpitGeometry = new THREE.BoxGeometry(2, 1, 0.5);
 var bridgeGeometry = new THREE.BoxGeometry(3, 0.5, 1.25);
 var middriftGeometry = new THREE.BoxGeometry(8, 0.5, 2);
@@ -377,33 +378,45 @@ var hull = new THREE.Mesh(hullGeometry, hullMaterial);
 cockpit.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1,  0, 1, 0, 0.75,  0, 0, 1, 0,  0, 0, 0, 1));
 bridge.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1.75,  0, 1, 0, 0.25,  0, 0, 1, 0,  0, 0, 0, 1));
 hull.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -0.75,  0, 1, 0, -0.25,  0, 0, 1, 0,  0, 0, 0, 1));
+body.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI/2));
 mainShip.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 30,  0, 1, 0, 0,  0, 0, 1, 30,  0, 0, 0, 1));
 
-mainShip.add(cockpit);
-mainShip.add(bridge);
-mainShip.add(middrift);
-mainShip.add(hull);
+camera_MotherShip.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
+camera_MotherShip.position.setZ(1);
+camera_ScoutShip.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
+camera_ScoutShip.position.setZ(1);
+
+body.add(cockpit);
+body.add(bridge);
+body.add(middrift);
+body.add(hull);
+mainShip.add(body);
 scene.add(mainShip);
 
 var scoutShip = mainShip.clone();
 scoutShip.position.y = 10;
+scoutShip.position.x = 50;
+scoutShip.position.z = 50;
 scoutShip.scale.set(0.5, 0.5, 0.5);
 scene.add(scoutShip);
 
+mainShip.add(camera_MotherShip);
+scoutShip.add(camera_ScoutShip);
+
 
 //Note: Use of parent attribute IS allowed.
-//Hint: Keep hierarchies in mind! 
+//Hint: Keep hierarchies in mind!
 
 var freeze = false;
 var clock = new THREE.Clock(true);
-function updateSystem() 
-{  
+function updateSystem()
+{
 	// ANIMATE YOUR SOLAR SYSTEM HERE.
     if (!update) {
         return;
     }
     var time = clock.getElapsedTime();
-    
+
     if(!freeze) {
         mercuryPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.03);
         venusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.02);
@@ -413,7 +426,7 @@ function updateSystem()
         saturnPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.004);
         uranusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.003);
         neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.001);
-        
+
         mercury.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.02);
         venus.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
         earth.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
@@ -429,10 +442,10 @@ function updateSystem()
 // Hint: Pay careful attention to how the keys already specified work!
 var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
-		
+
 function onKeyDown(event)
 {
-	// TO-DO: BIND KEYS TO YOUR CONTROLS	  
+	// TO-DO: BIND KEYS TO YOUR CONTROLS
   if(keyboard.eventMatches(event,"shift+g"))  {  // Reveal/Hide helper grid
     grid_state = !grid_state;
     grid_state? scene.add(grid) : scene.remove(grid);
@@ -442,7 +455,7 @@ function onKeyDown(event)
   }
 }
 keyboard.domElement.addEventListener('keydown', onKeyDown );
-		
+
 
 // SETUP UPDATE CALL-BACK
 // Hint: It is useful to understand what is being updated here, the effect, and why.
@@ -451,9 +464,9 @@ function update() {
   updateSystem();
 
   requestAnimationFrame(update);
-  
+
   // UPDATES THE MULTIPLE CAMERAS IN THE SIMULATION
-  for ( var ii = 0; ii < views.length; ++ii ) 
+  for ( var ii = 0; ii < views.length; ++ii )
   {
 
 		view = views[ii];
