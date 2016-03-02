@@ -200,6 +200,7 @@ neptunePivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 1.5);
 scene.add(mercuryPivot);
 scene.add(venusPivot);
 scene.add(earthPivot);
+scene.add(moonPivot);
 scene.add(marsPivot);
 scene.add(jupiterPivot);
 scene.add(saturnPivot);
@@ -231,7 +232,8 @@ neptune.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 34,  0, 1, 0, 0,  0, 0, 1, 
 mercuryPivot.add(mercury);
 venusPivot.add(venus);
 earthPivot.add(earth);
-earth.add(moon);
+moonPivot.add(moon);
+earth.add(moonPivot);
 marsPivot.add(mars);
 jupiterPivot.add(jupiter);
 saturnPivot.add(saturn);
@@ -265,7 +267,6 @@ generateVertexColors( jupiterGeometry );
 generateVertexColors( saturnGeometry );
 generateVertexColors( uranusGeometry );
 generateVertexColors( neptuneGeometry );
-
 
 // Planet Meshes
 var mercuryMesh = new THREE.Mesh( mercuryGeometry, greyMaterial );
@@ -351,16 +352,25 @@ var cockpitGeometry = new THREE.BoxGeometry(2, 1, 0.5);
 var bridgeGeometry = new THREE.BoxGeometry(3, 0.5, 1.25);
 var middriftGeometry = new THREE.BoxGeometry(8, 0.5, 2);
 var hullGeometry = new THREE.BoxGeometry(7, 0.5, 1.5);
+var engineGeometry = new THREE.CylinderGeometry( 0.25, 0.25, 1, 32 );
 
 var cockpit = new THREE.Mesh(cockpitGeometry, greyMaterial);
 var bridge = new THREE.Mesh(bridgeGeometry, hullMaterial);
 var middrift = new THREE.Mesh(middriftGeometry, greyMaterial);
 var hull = new THREE.Mesh(hullGeometry, hullMaterial);
+var engine = new THREE.Mesh(engineGeometry, blueMaterial);
 
 cockpit.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1,  0, 1, 0, 0.75,  0, 0, 1, 0,  0, 0, 0, 1));
 bridge.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -1.75,  0, 1, 0, 0.25,  0, 0, 1, 0,  0, 0, 0, 1));
 hull.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -0.75,  0, 1, 0, -0.25,  0, 0, 1, 0,  0, 0, 0, 1));
-body.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI/2));
+engine.applyMatrix(new THREE.Matrix4().makeRotationZ(-Math.PI/2));
+engine.applyMatrix(new THREE.Matrix4().set(1, 0, 0, -4,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1));
+body.applyMatrix(new THREE.Matrix4().makeRotationY(-Math.PI/2));
+
+var engine2 = engine.clone();
+engine2.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0.6,  0, 0, 0, 1));
+var engine3 = engine.clone();
+engine3.applyMatrix(new THREE.Matrix4().set(1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, -0.6,  0, 0, 0, 1));
 
 camera_MotherShip.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
 camera_MotherShip.position.setZ(1);
@@ -372,6 +382,9 @@ body.add(cockpit);
 body.add(bridge);
 body.add(middrift);
 body.add(hull);
+body.add(engine);
+body.add(engine2);
+body.add(engine3);
 mainShip.add(body);
 scene.add(mainShip);
 
@@ -414,6 +427,7 @@ function updateSystem()
         mercuryPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.03);
         venusPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.02);
         earthPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+        moonPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.05);
         marsPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.008);
         jupiterPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.006);
         saturnPivot.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.004);
