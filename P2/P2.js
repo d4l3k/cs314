@@ -442,55 +442,77 @@ AbsoluteMode.prototype.updateShip = function() {
 };
 AbsoluteMode.prototype.onKeyDown = function(event) {
   if (keyboard.eventMatches(event, "shift+x")) {
-    controlledShip.position.x += this.stepSize;
-  } else if (keyboard.eventMatches(event, "x")) { // Ship position
     controlledShip.position.x -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "x")) { // Ship position
+    controlledShip.position.x += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+y")) {
-    controlledShip.position.y += this.stepSize;
-  } else if (keyboard.eventMatches(event, "y")) {
     controlledShip.position.y -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "y")) {
+    controlledShip.position.y += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+z")) {
-    controlledShip.position.z += this.stepSize;
-  } else if (keyboard.eventMatches(event, "z")) {
     controlledShip.position.z -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "z")) {
+    controlledShip.position.z += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+a")) { // LookAt
-    this.lookAt.x += this.stepSize;
-  } else if (keyboard.eventMatches(event, "a")) {
     this.lookAt.x -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "a")) {
+    this.lookAt.x += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+b")) {
-    this.lookAt.y += this.stepSize;
-  } else if (keyboard.eventMatches(event, "b")) {
     this.lookAt.y -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "b")) {
+    this.lookAt.y += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+c")) {
-    this.lookAt.z += this.stepSize;
-  } else if (keyboard.eventMatches(event, "c")) {
     this.lookAt.z -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "c")) {
+    this.lookAt.z += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+d")) { // UP vector
-    controlledShip.up.x += this.stepSize;
-  } else if (keyboard.eventMatches(event, "d")) {
     controlledShip.up.x -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "d")) {
+    controlledShip.up.x += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+e")) {
-    controlledShip.up.y += this.stepSize;
-  } else if (keyboard.eventMatches(event, "e")) {
     controlledShip.up.y -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "e")) {
+    controlledShip.up.y += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+f")) {
-    controlledShip.up.z += this.stepSize;
-  } else if (keyboard.eventMatches(event, "f")) {
     controlledShip.up.z -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "f")) {
+    controlledShip.up.z += this.stepSize;
   } else if (keyboard.eventMatches(event, "shift+k")) { // change step size
-    this.stepSize += 0.1;
-  } else if (keyboard.eventMatches(event, "k")) {
     this.stepSize -= 0.1;
+  } else if (keyboard.eventMatches(event, "k")) {
+    this.stepSize += 0.1;
   }
   this.updateShip();
 };
 
 function RelativeMode() {
+  this.stepSize = 1;
 }
 RelativeMode.prototype.updateShip = function() {
   shipParent(scene);
 };
 RelativeMode.prototype.onKeyDown= function(event) {
+  if (keyboard.eventMatches(event, "shift+k")) { // change step size
+    this.stepSize -= 0.1;
+  } else if (keyboard.eventMatches(event, "k")) {
+    this.stepSize += 0.1;
+  } else if (keyboard.eventMatches(event, "shift+q")) { // yaw
+    controlledShip.rotateY(-this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "q")) {
+    controlledShip.rotateY(this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "shift+s")) { // pitch
+    controlledShip.rotateX(-this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "s")) {
+    controlledShip.rotateX(this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "shift+a")) { // roll
+    controlledShip.rotateZ(-this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "a")) {
+    controlledShip.rotateZ(this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "shift+w")) { // move forward
+    controlledShip.translateZ(-this.stepSize/10);
+  } else if (keyboard.eventMatches(event, "w")) {
+    controlledShip.translateZ(this.stepSize/10);
+  }
 };
 
 var planets = [
@@ -526,13 +548,13 @@ GeoMode.prototype.onKeyDown = function(event) {
     }
   }
   if (keyboard.eventMatches(event, "shift+k")) { // change step size
-    this.stepSize += 0.1;
-  } else if (keyboard.eventMatches(event, "k")) {
     this.stepSize -= 0.1;
-  } else if (keyboard.eventMatches(event, "shift+w")) { // change step size
-    this.dist += this.stepSize;
-  } else if (keyboard.eventMatches(event, "w")) {
+  } else if (keyboard.eventMatches(event, "k")) {
+    this.stepSize += 0.1;
+  } else if (keyboard.eventMatches(event, "shift+w")) { // change distance
     this.dist -= this.stepSize;
+  } else if (keyboard.eventMatches(event, "w")) {
+    this.dist += this.stepSize;
   }
   this.updateShip();
 };
