@@ -66,8 +66,6 @@ var views = [
 		width: 0.499,
 		height: 1.0,
 		background: new THREE.Color().setRGB( 0.1, 0.1, 0.1 ),
-		eye: [ 80, 20, 80 ],
-		up: [ 0, 1, 0 ],
 		fov: 45,
 		updateCamera: function ( camera, scene, mouseX, mouseY ) {
     }
@@ -78,8 +76,6 @@ var views = [
 		width: 0.499,
 		height: 1.0,
 		background: new THREE.Color().setRGB( 0.1, 0.1, 0.1 ),
-		eye: [ 65, 20, 65 ],
-		up: [ 0, 1, 0 ],
 		fov: 45,
 		updateCamera: function ( camera, scene, mouseX, mouseY ) {
     }
@@ -99,16 +95,10 @@ canvas.appendChild(renderer.domElement);
 // Creating the two cameras and adding them to the scene.
 var view = views[0];
 camera_MotherShip = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-camera_MotherShip.up.x = view.up[ 0 ];
-camera_MotherShip.up.y = view.up[ 1 ];
-camera_MotherShip.up.z = view.up[ 2 ];
 view.camera = camera_MotherShip;
 
 var view = views[1];
 camera_ScoutShip = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-camera_ScoutShip.up.x = view.up[ 0 ];
-camera_ScoutShip.up.y = view.up[ 1 ];
-camera_ScoutShip.up.z = view.up[ 2 ];
 view.camera = camera_ScoutShip;
 
 
@@ -393,10 +383,14 @@ mainShip.add(camera_MotherShip);
 scoutShip.add(camera_ScoutShip);
 
 function resetPositions() {
+  setParent(mainShip, scene);
   mainShip.position.set(40, -5, 40);
+  mainShip.up.set(0, 1, 0);
   mainShip.lookAt(scene.position);
 
+  setParent(scoutShip, scene);
   scoutShip.position.set(60, 5, 60);
+  scoutShip.up.set(0, 1, 0);
   scoutShip.lookAt(scene.position);
 }
 
@@ -440,10 +434,10 @@ function updateSystem()
 // AbsoluteMode represents the absolute control method.
 function AbsoluteMode() {
   this.lookAt = new THREE.Vector3();
-  this.updateShip();
   this.stepSize = 1;
 }
 AbsoluteMode.prototype.updateShip = function() {
+  shipParent(scene);
   controlledShip.lookAt(this.lookAt);
 };
 AbsoluteMode.prototype.onKeyDown = function(event) {
@@ -483,7 +477,7 @@ AbsoluteMode.prototype.onKeyDown = function(event) {
     controlledShip.up.z += this.stepSize;
   } else if (keyboard.eventMatches(event, "f")) {
     controlledShip.up.z -= this.stepSize;
-  }else if (keyboard.eventMatches(event, "shift+k")) { // change step size
+  } else if (keyboard.eventMatches(event, "shift+k")) { // change step size
     this.stepSize += 0.1;
   } else if (keyboard.eventMatches(event, "k")) {
     this.stepSize -= 0.1;
@@ -492,20 +486,66 @@ AbsoluteMode.prototype.onKeyDown = function(event) {
 };
 
 function RelativeMode() {
-  this.updateShip();
 }
 RelativeMode.prototype.updateShip = function() {
+  shipParent(scene);
 };
 RelativeMode.prototype.onKeyDown= function(event) {
 };
 
+var planets = [
+  mercury,
+  venus,
+  earth,
+  mars,
+  jupiter,
+  saturn,
+  uranus,
+  neptune,
+];
+
 function GeoMode() {
-  this.updateShip();
+  this.pi = 2;
+  this.dist = 5;
+  this.stepSize = 1;
 }
 GeoMode.prototype.updateShip = function() {
+  var p = this.planet();
+  shipParent(p);
+  controlledShip.position.set(this.dist, this.dist, 0);
+  controlledShip.lookAt(new THREE.Vector3());
 };
-GeoMode.prototype.onKeyDown= function(event) {
+GeoMode.prototype.planet = function() {
+  return planets[this.pi];
+}
+GeoMode.prototype.onKeyDown = function(event) {
+  // switch follow planet
+  for (var i=0; i<8; i++) {
+    if (keyboard.eventMatches(event, (i+1).toFixed(0))) {
+      this.pi = i;
+    }
+  }
+  if (keyboard.eventMatches(event, "shift+k")) { // change step size
+    this.stepSize += 0.1;
+  } else if (keyboard.eventMatches(event, "k")) {
+    this.stepSize -= 0.1;
+  } else if (keyboard.eventMatches(event, "shift+w")) { // change step size
+    this.dist += this.stepSize;
+  } else if (keyboard.eventMatches(event, "w")) {
+    this.dist -= this.stepSize;
+  }
+  this.updateShip();
 };
+
+function shipParent(parent) {
+  setParent(controlledShip, parent);
+}
+function setParent(ship, parent) {
+  if (ship.parent !== parent) {
+    ship.parent.remove(ship);
+    parent.add(ship);
+  }
+}
 
 // LISTEN TO KEYBOARD
 // Hint: Pay careful attention to how the keys already specified work!
@@ -513,7 +553,40 @@ var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 
 var controlledShip = mainShip;
-var mode = new AbsoluteMode();
+var shipMode = {};
+function mode() {
+  var m = shipMode[controlledShip.uuid];
+  if (!m) {
+    m = AbsoluteMode;
+    shipMode[controlledShip.uuid] = m;
+  }
+  return m
+}
+var modes = {};
+
+function currentMode() {
+  var ms = modes[controlledShip.uuid];
+  if (!ms) {
+    ms = {};
+    modes[controlledShip.uuid] = ms;
+  }
+  var m = ms[mode().name];
+  if (!m) {
+    m = new (mode())();
+    ms[mode().name] = m;
+  }
+  return m;
+}
+
+function setMode(m) {
+  shipMode[controlledShip.uuid] = m;
+  return currentMode().updateShip();
+}
+
+function controlShip(ship) {
+    controlledShip = ship;
+    currentMode().updateShip();
+}
 
 function onKeyDown(event)
 {
@@ -526,19 +599,17 @@ function onKeyDown(event)
   } else if (keyboard.eventMatches(event, "m")) {
     resetPositions();
   } else if (keyboard.eventMatches(event, "o")) {
-    controlledShip = mainShip;
-    mode.updateShip();
+    controlShip(mainShip);
   } else if (keyboard.eventMatches(event, "p")) {
-    controlledShip = scoutShip;
-    mode.updateShip();
+    controlShip(scoutShip);
   } else if (keyboard.eventMatches(event, "l")) {
-    mode = new AbsoluteMode();
+    setMode(AbsoluteMode);
   } else if (keyboard.eventMatches(event, "r")) {
-    mode = new RelativeMode();
+    setMode(RelativeMode);
   } else if (keyboard.eventMatches(event, "g")) {
-    mode = new GeoMode();
+    setMode(GeoMode);
   } else {
-    mode.onKeyDown(event);
+    currentMode().onKeyDown(event);
   }
 }
 keyboard.domElement.addEventListener('keydown', onKeyDown );
