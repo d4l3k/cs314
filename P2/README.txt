@@ -15,3 +15,4 @@ listed all people with whom I/we have had significant discussions about the proj
 Resources:
 * THREE.js documentation site
 * Benson Li
+* Piazza
