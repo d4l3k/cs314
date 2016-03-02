@@ -487,6 +487,7 @@ AbsoluteMode.prototype.onKeyDown = function(event) {
 
 function RelativeMode() {
   this.stepSize = 1;
+  this.tDown = false;
 }
 RelativeMode.prototype.updateShip = function() {
   shipParent(scene);
@@ -513,6 +514,8 @@ RelativeMode.prototype.onKeyDown= function(event) {
   } else if (keyboard.eventMatches(event, "w")) {
     controlledShip.translateZ(this.stepSize/10);
   }
+};
+RelativeMode.prototype.onMouseMove = function(dx, dy) {
 };
 
 var planets = [
@@ -556,6 +559,10 @@ GeoMode.prototype.onKeyDown = function(event) {
   } else if (keyboard.eventMatches(event, "w")) {
     this.dist += this.stepSize;
   }
+  this.updateShip();
+};
+GeoMode.prototype.onMouseMove = function(dx, dy) {
+  this.dist += dy/20;
   this.updateShip();
 };
 
@@ -631,10 +638,37 @@ function onKeyDown(event)
   } else if (keyboard.eventMatches(event, "g")) {
     setMode(GeoMode);
   } else {
-    currentMode().onKeyDown(event);
   }
 }
 keyboard.domElement.addEventListener('keydown', onKeyDown );
+keyboard.domElement.addEventListener('keyup', function(event) {
+  var mode = currentMode()
+  if (mode.onKeyUp) {
+    mode.onKeyUp(event);
+  }
+});
+var down = false;
+document.body.addEventListener('mousedown', function(e) {
+  down = true;
+  mouseX = e.pageX;
+  mouseY = e.pageY;
+});
+document.body.addEventListener('mousemove', function(e) {
+  if (down) {
+    var mode = currentMode()
+    if (mode.onMouseMove) {
+      mode.onMouseMove(e.pageX-mouseX, e.pageY-mouseY);
+    }
+    mouseX = e.pageX;
+    mouseY = e.pageY;
+  }
+});
+document.body.addEventListener('mouseup', function(e) {
+  down = false;
+});
+document.body.addEventListener('mouseout', function(e) {
+  down = false;
+});
 
 
 // SETUP UPDATE CALL-BACK
