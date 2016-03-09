@@ -25,8 +25,8 @@ kse = 10
 normalize = function(a) a/sqrt(sum(a^2))
 dotprod = function(a,b) sum(a*b)
 
-# force positive replaces all negative components with 0.
-forcepositive = function(a) pmax(a, c(0,0,0))
+# clip replaces all negative components with 0 and all components > 1 with 1.
+clip = function(a) pmin(pmax(a, c(0,0,0)), c(1,1,1))
 
 # problem 1
 Nb = normalize((Nf+Ng)/2)
@@ -44,7 +44,7 @@ rb = 2*Nb*dotprod(Nb, lb)-lb
 Ispecular_b = ks*Il*dotprod(vb, normalize(rb))^kse
 Ispecular_b
 
-Itotal_b = forcepositive(Iambient) + forcepositive(Idiffuse_b) + forcepositive(Ispecular_b)
+Itotal_b = clip(Iambient) + clip(Idiffuse_b) + clip(Ispecular_b)
 Itotal_b
 
 lc = normalize(L-C)
@@ -57,22 +57,42 @@ rc
 Ispecular_c = ks*Il*dotprod(vc, normalize(rc))^kse
 Ispecular_c
 
-Itotal_c = forcepositive(Iambient) + forcepositive(Idiffuse_c) + forcepositive(Ispecular_c)
+Itotal_c = clip(Iambient) + clip(Idiffuse_c) + clip(Ispecular_c)
 Itotal_c
-
-ld = L-D
 
 # Since we're using the flat shading model, D is the same as C
 Idiffuse_d = Idiffuse_c
 Idiffuse_d
 Ispecular_d = Ispecular_c
 Ispecular_d
-Itotal_d = forcepositive(Iambient) + forcepositive(Idiffuse_d) + forcepositive(Ispecular_d)
+Itotal_d = clip(Iambient) + clip(Idiffuse_d) + clip(Ispecular_d)
 Itotal_d
 
 # problem 3
 # B and C will be the same, since Gouraud shading only affects the normal interpolation.
+percent_c = ((D-B)/(C-B))[1]
+percent_c
 
+Idiffuse_d = clip(Idiffuse_c)*percent_c + clip(Idiffuse_b)*(1-percent_c)
+Idiffuse_d
+Ispecular_d = clip(Ispecular_c)*percent_c + clip(Ispecular_b)*(1-percent_c)
+Ispecular_d
+Itotal_d = clip(Iambient) + Idiffuse_d + Ispecular_d
+Itotal_d
 
 # problem 4
 # B and C will be the same, since Phong shading only affects the normal interpolation.
+Nd = normalize(normalize(Nb)*(1-percent_c) + normalize(Nc)*percent_c)
+
+ld = normalize(L-D)
+Idiffuse_d = kd*Il*dotprod(Nd, ld)
+Idiffuse_d
+
+vd = normalize(E-D)
+rd = 2*normalize(Nd)*dotprod(normalize(Nd), ld)-ld
+rd
+Ispecular_d = ks*Il*dotprod(vd, normalize(rd))^kse
+Ispecular_d
+
+Itotal_d = clip(Iambient) + clip(Idiffuse_d) + clip(Ispecular_d)
+Itotal_d
