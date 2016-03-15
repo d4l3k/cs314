@@ -15,7 +15,7 @@ document.body.appendChild(renderer.domElement);
 var aspect = window.innerWidth/window.innerHeight;
 var camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 10000);
 camera.position.set(10,15,40);
-camera.lookAt(scene.position); 
+camera.lookAt(scene.position);
 scene.add(camera);
 
 // SETUP ORBIT CONTROL OF THE CAMERA
@@ -32,7 +32,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// FLOOR WITH CHECKERBOARD 
+// FLOOR WITH CHECKERBOARD
 var floorTexture = new THREE.ImageUtils.loadTexture('images/checkerboard.jpg');
 floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.set(4, 4);
@@ -59,17 +59,57 @@ var armadilloMaterial = new THREE.ShaderMaterial({
    },
 });
 
+var gouraudMaterial = new THREE.ShaderMaterial({
+   uniforms: {
+     lightColor : {type : 'c', value: lightColor},
+     ambientColor : {type : 'c', value: ambientColor},
+     lightPosition : {type: 'v3', value: lightPosition},
+   },
+});
+
+var phongMaterial = new THREE.ShaderMaterial({
+   uniforms: {
+     lightColor : {type : 'c', value: lightColor},
+     ambientColor : {type : 'c', value: ambientColor},
+     lightPosition : {type: 'v3', value: lightPosition},
+   },
+});
+
+var phongBlinnMaterial = new THREE.ShaderMaterial({
+   uniforms: {
+     lightColor : {type : 'c', value: lightColor},
+     ambientColor : {type : 'c', value: ambientColor},
+     lightPosition : {type: 'v3', value: lightPosition},
+   },
+});
+
+var toonMaterial = new THREE.ShaderMaterial({
+   uniforms: {
+     lightColor : {type : 'c', value: lightColor},
+     ambientColor : {type : 'c', value: ambientColor},
+     lightPosition : {type: 'v3', value: lightPosition},
+   },
+});
+
 // LOAD SHADERS
 var shaderFiles = [
   'glsl/example.vs.glsl',
   'glsl/example.fs.glsl',
+  'glsl/gouraud.vs.glsl',
+  'glsl/gouraud.fs.glsl',
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function(shaders) {
   armadilloMaterial.vertexShader = shaders['glsl/example.vs.glsl'];
   armadilloMaterial.fragmentShader = shaders['glsl/example.fs.glsl'];
   armadilloMaterial.needsUpdate = true;
-})
+
+  gouraudMaterial.vertexShader = shaders['glsl/gouraud.vs.glsl'];
+  gouraudMaterial.fragmentShader = shaders['glsl/gouraud.fs.glsl'];
+  gouraudMaterial.needsUpdate = true;
+});
+
+var armadillo;
 
 // LOAD ARMADILLO
 function loadOBJ(file, material, scale, xOff, yOff, zOff, xRot, yRot, zRot) {
@@ -99,30 +139,39 @@ function loadOBJ(file, material, scale, xOff, yOff, zOff, xRot, yRot, zRot) {
     object.scale.set(scale,scale,scale);
     object.parent = floor;
     scene.add(object);
+    armadillo = object;
 
   }, onProgress, onError);
 }
 
 loadOBJ('obj/armadillo.obj', armadilloMaterial, 3, 0,3,-2, 0,Math.PI,0);
 
+function setObjMaterial(object, material) {
+  object.traverse(function(child) {
+    if (child instanceof THREE.Mesh) {
+      child.material = material;
+    }
+  });
+}
+
 // CREATE SPHERES
 var sphere = new THREE.SphereGeometry(1, 32, 32);
-var gem_gouraud = new THREE.Mesh(sphere, defaultMaterial); // tip: make different materials for each sphere
+var gem_gouraud = new THREE.Mesh(sphere, gouraudMaterial); // tip: make different materials for each sphere
 gem_gouraud.position.set(-3, 1, -1);
 scene.add(gem_gouraud);
 gem_gouraud.parent = floor;
 
-var gem_phong = new THREE.Mesh(sphere, defaultMaterial);
+var gem_phong = new THREE.Mesh(sphere, phongMaterial);
 gem_phong.position.set(-1, 1, -1);
 scene.add(gem_phong);
 gem_phong.parent = floor;
 
-var gem_phong_blinn = new THREE.Mesh(sphere, defaultMaterial);
+var gem_phong_blinn = new THREE.Mesh(sphere, phongBlinnMaterial);
 gem_phong_blinn.position.set(1, 1, -1);
 scene.add(gem_phong_blinn);
 gem_phong_blinn.parent = floor;
 
-var gem_toon = new THREE.Mesh(sphere, defaultMaterial);
+var gem_toon = new THREE.Mesh(sphere, toonMaterial);
 gem_toon.position.set(3, 1, -1);
 scene.add(gem_toon);
 gem_toon.parent = floor;
@@ -130,10 +179,19 @@ gem_toon.parent = floor;
 // SETUP UPDATE CALL-BACK
 var keyboard = new THREEx.KeyboardState();
 var render = function() {
- // tip: change armadillo shading here according to keyboard
+  // tip: change armadillo shading here according to keyboard
+  if (keyboard.pressed("1")) {
+    setObjMaterial(armadillo, gouraudMaterial);
+  } else if (keyboard.pressed("2")) {
+    setObjMaterial(armadillo, phongMaterial);
+  } else if (keyboard.pressed("3")) {
+    setObjMaterial(armadillo, phongBlinnMaterial);
+  } else if (keyboard.pressed("3")) {
+    setObjMaterial(armadillo, toonMaterial);
+  }
 
- requestAnimationFrame(render);
- renderer.render(scene, camera);
+  requestAnimationFrame(render);
+  renderer.render(scene, camera);
 }
 
 render();
