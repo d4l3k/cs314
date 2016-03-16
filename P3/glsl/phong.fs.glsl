@@ -1,6 +1,7 @@
 varying vec3 interpolatedNormal;
 varying vec3 vertPos;
 varying vec3 lightPos;
+varying vec3 cameraPos;
 
 uniform vec3 lightColor;
 uniform vec3 ambientColor;
@@ -16,7 +17,7 @@ void main() {
 
     vec3 reflectDir = normalize(reflect(-l, n));
     //vec3 reflectDir = 2.0*n*dot(n, l) - l;
-    vec3 eyeDir = normalize(cameraPosition-vertPos);
+    vec3 eyeDir = normalize(cameraPos-vertPos);
     // specular color is 1,1,1 so omitted
     vec3 specular = lightColor * pow(dot(eyeDir, reflectDir), kse);
 

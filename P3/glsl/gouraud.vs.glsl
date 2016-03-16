@@ -15,13 +15,16 @@ void main() {
     vec4 lightPos4 = viewMatrix * vec4(lightPosition, 1.0);
     vec3 lightPos = vec3(lightPos4) / lightPos4.w;
 
+    vec4 cameraPos4 = viewMatrix * vec4(cameraPosition, 1.0);
+    vec3 cameraPos = vec3(cameraPos4) / cameraPos4.w;
+
     vec3 l = normalize(lightPos - vertPos);
     vec3 n = normalize(normalMatrix * normal);
     vec3 diffuse = color * lightColor * dot(n, l);
 
     vec3 reflectDir = normalize(reflect(-l, n));
     //vec3 reflectDir = 2.0*n*dot(n, l) - l;
-    vec3 eyeDir = normalize(cameraPosition-vertPos);
+    vec3 eyeDir = normalize(cameraPos-vertPos);
     // specular color is 1,1,1 so omitted
     vec3 specular = lightColor * pow(dot(eyeDir, reflectDir), kse);
 

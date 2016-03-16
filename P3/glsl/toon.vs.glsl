@@ -17,6 +17,5 @@ void main() {
     vec4 cameraPos4 = viewMatrix * vec4(cameraPosition, 1.0);
     cameraPos = vec3(cameraPos4) / cameraPos4.w;
 
-
-    interpolatedNormal = normalMatrix * normal;
+    interpolatedNormal = normalize(normalMatrix * normal);
 }

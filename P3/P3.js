@@ -99,6 +99,8 @@ var shaderFiles = [
   'glsl/gouraud.fs.glsl',
   'glsl/phong.vs.glsl',
   'glsl/phong.fs.glsl',
+  'glsl/toon.vs.glsl',
+  'glsl/toon.fs.glsl',
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function(shaders) {
@@ -113,6 +115,10 @@ new THREE.SourceLoader().load(shaderFiles, function(shaders) {
   phongMaterial.vertexShader = shaders['glsl/phong.vs.glsl'];
   phongMaterial.fragmentShader = shaders['glsl/phong.fs.glsl'];
   phongMaterial.needsUpdate = true;
+
+  toonMaterial.vertexShader = shaders['glsl/toon.vs.glsl'];
+  toonMaterial.fragmentShader = shaders['glsl/toon.fs.glsl'];
+  toonMaterial.needsUpdate = true;
 });
 
 var armadillo;
@@ -192,7 +198,7 @@ var render = function() {
     setObjMaterial(armadillo, phongMaterial);
   } else if (keyboard.pressed("3")) {
     setObjMaterial(armadillo, phongBlinnMaterial);
-  } else if (keyboard.pressed("3")) {
+  } else if (keyboard.pressed("4")) {
     setObjMaterial(armadillo, toonMaterial);
   }
 
