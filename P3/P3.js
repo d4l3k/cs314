@@ -97,6 +97,8 @@ var shaderFiles = [
   'glsl/example.fs.glsl',
   'glsl/gouraud.vs.glsl',
   'glsl/gouraud.fs.glsl',
+  'glsl/phong.vs.glsl',
+  'glsl/phong.fs.glsl',
 ];
 
 new THREE.SourceLoader().load(shaderFiles, function(shaders) {
@@ -107,6 +109,10 @@ new THREE.SourceLoader().load(shaderFiles, function(shaders) {
   gouraudMaterial.vertexShader = shaders['glsl/gouraud.vs.glsl'];
   gouraudMaterial.fragmentShader = shaders['glsl/gouraud.fs.glsl'];
   gouraudMaterial.needsUpdate = true;
+
+  phongMaterial.vertexShader = shaders['glsl/phong.vs.glsl'];
+  phongMaterial.fragmentShader = shaders['glsl/phong.fs.glsl'];
+  phongMaterial.needsUpdate = true;
 });
 
 var armadillo;

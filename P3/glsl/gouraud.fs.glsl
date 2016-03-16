@@ -1,5 +1,5 @@
-varying vec3 interpolatedNormal;
+varying vec3 interpolatedColor;
 
 void main() {
-  gl_FragColor = vec4(normalize(interpolatedNormal), 1.0);
+  gl_FragColor = vec4(interpolatedColor, 1.0);
 }

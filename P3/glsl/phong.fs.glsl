@@ -1,22 +1,17 @@
-varying vec3 interpolatedColor;
+varying vec3 interpolatedNormal;
+varying vec3 vertPos;
+varying vec3 lightPos;
 
 uniform vec3 lightColor;
 uniform vec3 ambientColor;
-uniform vec3 lightPosition;
 
 const vec3 color = vec3(0.5, 0.5, 0.5);
 const float kse = 10.0;
 
 void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
-    vec3 vertPos = vec3(vertPos4) / vertPos4.w;
-
-    vec4 lightPos4 = viewMatrix * vec4(lightPosition, 1.0);
-    vec3 lightPos = vec3(lightPos4) / lightPos4.w;
 
     vec3 l = normalize(lightPos - vertPos);
-    vec3 n = normalize(normalMatrix * normal);
+    vec3 n = normalize(interpolatedNormal);
     vec3 diffuse = color * lightColor * dot(n, l);
 
     vec3 reflectDir = normalize(reflect(-l, n));
@@ -27,5 +22,6 @@ void main() {
 
     float hidden = max(dot(l,n), 0.0);
 
-    interpolatedColor = ambientColor*color + hidden*diffuse + hidden*specular;
+    vec3 c = ambientColor*color + hidden*diffuse + hidden*specular;
+    gl_FragColor = vec4(c, 1.0);
 }
