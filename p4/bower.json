@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "three.js": "threejs#*",
-    "threex": "*"
+    "threex": "*",
+    "threex.windowresize": "*",
+    "threex.daynight": "*"
   }
 }
