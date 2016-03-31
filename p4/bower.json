@@ -1,0 +1,23 @@
+{
+  "name": "p4",
+  "authors": [
+    "Tristan Rice <rice@fn.lc>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "three.js": "threejs#*",
+    "threex": "*"
+  }
+}
