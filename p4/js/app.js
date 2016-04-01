@@ -84,11 +84,12 @@ function init() {
 // field for the surface of the island, and a gaussian falloff around the edges.
 // - precision: indicates the number of vertices to create per world distance unit.
 // - heightVariance: random mesh height variance. should mostly be irrelevant.
-// - sigmaFalloff: is the sigma parameter in the gaussian distribution used for falloff.
+// - sigmaFalloff: is the sigma parameter in the gaussian-like distribution used for falloff.
 //
 function generateIsland(centerX, centerY, width, height, z_max, z_min, precision, heightVariance, sigmaFalloff) {
-  function gauss(x) {
-    return Math.exp(-(x * x)/(2 * sigmaFalloff * sigmaFalloff))/(sigmaFalloff * Math.sqrt(2 * Math.PI));
+  // A poor man's Gaussian (no normalization).
+  function decay(x) {
+    return Math.exp(-(x * x)/(2 * sigmaFalloff * sigmaFalloff));
   }
 
   var geometry = new THREE.Geometry();
@@ -106,24 +107,26 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
       var worldX = x/precision;
       var worldY = y/precision;
       var falloff = z_max - z_min;
+
+      // FIXME: this is pretty gross tbh, I'd like to measure clamped distance from plane center
       if (worldX < sigmaSize) {
-        falloff *= gauss(sigmaSize - worldX);
+        falloff *= decay(sigmaSize - worldX);
       }
       if (worldY < sigmaSize) {
-        falloff *= gauss(sigmaSize - worldY);
+        falloff *= decay(sigmaSize - worldY);
       }
-      if (worldX > (width - sigmaSize)) {
-        falloff *= gauss(worldX - width);
+      if (worldX - sigmaSize > width) {
+        falloff *= decay(worldX - sigmaSize - width);
       }
-      if (worldY > (height - sigmaSize)) {
-        falloff *= gauss(worldY - height);
+      if (worldY - sigmaSize > height) {
+        falloff *= decay(worldY - sigmaSize - height);
       }
 
-      var height = Math.max(falloff + z_min - (heightVariance * Math.random()), z_min);
+      var elevation = Math.max(falloff + z_min - (heightVariance * Math.random()), z_min);
 
       geometry.vertices.push(
           new THREE.Vector3(worldX + offsetX,
-                            height,
+                            elevation,
                             worldY + offsetY));
       if (x >= 1 && y >= 1) {
         // TODO: randomized perlin normal?
@@ -150,9 +153,9 @@ function generateWater(waterLevel, width, height) {
 
 var cursor;
 function addFloor() {
-  const ISLAND_WIDTH = 4, ISLAND_HEIGHT = 4;
+  const ISLAND_WIDTH = 8, ISLAND_HEIGHT = 4;
   const PRECISION = 4;
-  floor = generateIsland(0, 0, ISLAND_WIDTH, ISLAND_HEIGHT, 0.5, 0, PRECISION, 0.1, 0.5);
+  floor = generateIsland(0, 0, ISLAND_WIDTH, ISLAND_HEIGHT, 0.5, 0, PRECISION, 0.2, 1);
   scene.add(floor);
 
   // FIXME: remove.
@@ -171,11 +174,11 @@ function addFloor() {
   cursor.position.z += 2;
   scene.add( cursor );
 
-  var gridHelper = new THREE.GridHelper( ISLAND_WIDTH, 1 );
+  var gridHelper = new THREE.GridHelper(ISLAND_HEIGHT - 1, 1 );
   gridHelper.position.y = 0.5;
   gridHelper.position.x += 0.5;
   gridHelper.position.z += 0.5;
-  //scene.add( gridHelper );
+  scene.add( gridHelper );
 }
 
 
