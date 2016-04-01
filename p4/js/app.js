@@ -1,6 +1,6 @@
 var scene, camera, renderer, composer;
 var geometry, material, mesh;
-var floor;
+var floor, island;
 var onRenderFcts = [];
 
 //var floorColor = 0x113300;//0x8EFAB4;
@@ -9,6 +9,10 @@ var fogColor = 0x8EFAB4;
 // day cycle
 var sunAngle = Math.PI/2;
 var dayDuration = 10;
+
+const mapWidth = 9; // map size in x dimension
+const mapHeight = 5; // map size in z dimension
+const mapElevation = 0.5; // y position of the baseline map level.
 
 init();
 
@@ -94,9 +98,9 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
 
   var geometry = new THREE.Geometry();
 
-  // Number of world units to extend the gaussian falloff for; encapsulate 2
-  // standard deviations, or 95% of the values.
-  const sigmaSize = 2 * sigmaFalloff;
+  // Number of world units to extend the gaussian falloff for; encapsulate 3
+  // standard deviations, or 99.7% of the values.
+  const sigmaSize = 3 * sigmaFalloff;
 
   var planeWidth = (width + 2 * sigmaSize) * precision,
       planeHeight = (height + 2 * sigmaSize) * precision;
@@ -153,29 +157,36 @@ function generateWater(waterLevel, width, height) {
 
 var cursor;
 function addFloor() {
-  const ISLAND_WIDTH = 8, ISLAND_HEIGHT = 4;
-  const PRECISION = 4;
-  floor = generateIsland(0, 0, ISLAND_WIDTH, ISLAND_HEIGHT, 0.5, 0, PRECISION, 0.2, 1);
-  scene.add(floor);
+  const meshPrecision = 4;
+  const islandFalloff = 0.75;
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, 0, meshPrecision, 0.2, islandFalloff);
+  scene.add(island);
+
+  var geometry = new THREE.PlaneGeometry(mapWidth, mapHeight, 1);
+  var material = new THREE.MeshLambertMaterial( {color: 0} );
+  floor = new THREE.Mesh( geometry, material );
+  floor.rotateX(-Math.PI/2);
+  floor.position.y = mapElevation;
+  scene.add( floor );
 
   // FIXME: remove.
-  var wireframeHelper = new THREE.WireframeHelper(floor);
-  wireframeHelper.material.color.set(0x333333);
+  var wireframeHelper = new THREE.WireframeHelper(island);
+  wireframeHelper.material.color.set(0x999999);
   scene.add(wireframeHelper);
 
-  var water = generateWater(0.2, 1000, 1000);
+  var water = generateWater(0.1, 1000, 1000);
   scene.add(water);
 
   var geometry = new THREE.PlaneGeometry( 1, 1, 32 );
   var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
   cursor = new THREE.Mesh( geometry, material );
   cursor.rotateX(-Math.PI/2);
-  cursor.position.y = 0.5;
+  cursor.position.y = mapElevation;
   cursor.position.z += 2;
   scene.add( cursor );
 
-  var gridHelper = new THREE.GridHelper(ISLAND_HEIGHT - 1, 1 );
-  gridHelper.position.y = 0.5;
+  var gridHelper = new THREE.GridHelper(50, 1 );
+  gridHelper.position.y = mapElevation + 0.01;
   gridHelper.position.x += 0.5;
   gridHelper.position.z += 0.5;
   scene.add( gridHelper );
@@ -225,6 +236,15 @@ function render(nowMsec) {
   onRenderFcts.forEach(function(updateFn){
     updateFn(deltaMsec/1000, nowMsec/1000);
   });
+
+  // TODO: remove demo rotation.
+  const ROTATION_DISTANCE = 8;
+  const ROTATION_HEIGHT = 4;
+  var angle = nowMsec * Math.PI/48000 % 2 * Math.PI;
+  camera.position.x = ROTATION_DISTANCE * Math.cos(angle);
+  camera.position.y = ROTATION_HEIGHT;
+  camera.position.z = ROTATION_DISTANCE * Math.sin(angle);
+  camera.lookAt(mesh.position);
 
   //renderer.render( scene, camera );
   renderer.clear();
