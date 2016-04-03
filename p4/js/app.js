@@ -40,8 +40,8 @@ function init() {
   waterMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value: 0.0 },
-      diffuse: { type: "c", value: new THREE.Color(0x0000ff) },
-      specular: { type: "c", value: new THREE.Color(0x5555ff) },
+      diffuse: { type: "c", value: new THREE.Color(0x000099) },
+      specular: { type: "c", value: new THREE.Color(0x333399) },
       alpha: { type: "f", value: 0.5 },
       waveThreshold: { type: "f", value: 25.0 }
     },
