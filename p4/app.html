@@ -1,6 +1,39 @@
 <head>
   <title>CS314 P4 Project</title>
   <link rel="stylesheet" href="css/app.css">
+  <script id="waterVertexShader" type="x-vertex-shader">
+    varying vec3 world_position;
+
+    void main()
+    {
+      world_position = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  </script>
+  <script id="waterFragmentShader" type="x-fragment-shader">
+    varying vec3 world_position;
+
+    uniform float time;
+    uniform vec3 diffuse;
+    uniform vec3 specular;
+    // Distance cutoff where waves start appearing.
+    uniform float waveThreshold;
+
+    #define TIME_SCALE 1000.0
+    #define WAVE_SCALE 0.5
+
+    void main()
+    {
+      float timeFactor = time/TIME_SCALE;
+      // Distance from the origin.
+      float dist = sqrt(pow(world_position.x, 2.0) + pow(world_position.y, 2.0));
+      float waveFactor = 0.0; // Amount of specular wave highlight to show.
+      if (dist <= waveThreshold) {
+        waveFactor = sin(WAVE_SCALE * (timeFactor + dist));
+      }
+      gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), 0.5);
+    }
+  </script>
 </head>
 <body>
   <div id="overlay" class="panel">

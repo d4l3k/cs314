@@ -6,6 +6,8 @@ var onRenderFcts = [];
 //var floorColor = 0x113300;//0x8EFAB4;
 var fogColor = 0x8EFAB4;
 
+var waterMaterial;
+
 // day cycle
 var sunAngle = Math.PI/2;
 var dayDuration = 10;
@@ -33,6 +35,19 @@ function init() {
   mesh.position.y = 1;
   scene.add( mesh );
   camera.lookAt(mesh.position);
+
+  // Setup water material, which depends on the current time.
+  waterMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value: 0.0 },
+      diffuse: { type: "c", value: new THREE.Color(0x0000ff) },
+      specular: { type: "c", value: new THREE.Color(0x5555ff) },
+      alpha: { type: "f", value: 0.5 },
+      waveThreshold: { type: "f", value: 25.0 }
+    },
+    vertexShader: document.getElementById("waterVertexShader").textContent,
+    fragmentShader: document.getElementById("waterFragmentShader").textContent
+  });
 
   addFloor();
 
@@ -148,8 +163,7 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
 
 function generateWater(waterLevel, width, height) {
   var geometry = new THREE.PlaneGeometry(width, height);
-  var material = new THREE.MeshLambertMaterial({ color: 0x0000FF }); // TODO: replace with shaded water
-  var mesh = new THREE.Mesh(geometry, material);
+  var mesh = new THREE.Mesh(geometry, waterMaterial);
   mesh.position.set(0, waterLevel, 0);
   mesh.rotateX(-Math.PI/2);
   return mesh;
@@ -189,7 +203,7 @@ function addFloor() {
   gridHelper.position.y = mapElevation + 0.01;
   gridHelper.position.x += 0.5;
   gridHelper.position.z += 0.5;
-  scene.add( gridHelper );
+  //scene.add( gridHelper );
 }
 
 
@@ -225,6 +239,8 @@ var lastTimeMsec = null;
 requestAnimationFrame( render );
 function render(nowMsec) {
   requestAnimationFrame( render );
+
+  waterMaterial.uniforms.time.value = nowMsec;
 
   mesh.rotation.y += 0.02;
 
