@@ -1,6 +1,7 @@
 <head>
   <title>CS314 P4 Project</title>
   <link rel="stylesheet" href="css/app.css">
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
   <script id="waterVertexShader" type="x-vertex-shader">
     varying vec3 world_position;
 
@@ -38,14 +39,15 @@
 <body>
   <div id="overlay" class="panel">
     Items
-    <table>
-      <td>Turret</td>
-      <td>Wall</td>
-    </table>
+    <div id="items" class="well inline">
+      <a class="button">Turret</a>
+      <a class="button">Wall</a>
+    </div>
     <div>
       $<span id="money">0</span>,
       <span id="score">0</span> points
     </div>
+    <a id="next" class="button">Next Wave</a>
   </div>
 
   <script src="bower_components/three.js/build/three.min.js"></script>

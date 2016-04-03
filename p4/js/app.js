@@ -16,6 +16,8 @@ const mapWidth = 9; // map size in x dimension
 const mapHeight = 5; // map size in z dimension
 const mapElevation = 0.5; // y position of the baseline map level.
 
+var objects = []; // A list of all interactable objects in the scene.
+
 init();
 
 var mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
@@ -50,6 +52,7 @@ function init() {
   });
 
   addFloor();
+  initControls();
 
   var light = new THREE.AmbientLight( 0x404040 );
   scene.add( light );
@@ -83,18 +86,29 @@ function init() {
     raycaster.setFromCamera( mouse, camera );
     var intersects = raycaster.intersectObjects( [floor] );
 
-    if ( intersects.length == 0 ) {
-      return;
-    }
     var intersect = intersects[0];
-    if (intersect.object === floor) {
-      cursor.position.y = 0.501;
+    if (intersects && intersects.length > 0 && intersect.object === floor) {
+      cursor.visible = true;
       var pos = intersect.point;
       cursor.position.x = Math.floor(pos.x+0.5);
       cursor.position.z = Math.floor(pos.z+0.5);
     } else {
-      cursor.position.y = -0.01;
+      cursor.visible = false;
     }
+  });
+}
+
+var activeControl = null;
+function initControls() {
+  var itemButtons = document.querySelectorAll('#items .button');
+  [].forEach.call(itemButtons, function(button) {
+    button.addEventListener('click', function(e) {
+      [].forEach.call(itemButtons, function(b2) {
+        b2.classList.remove('selected');
+      });
+      button.classList.add('selected');
+      activeControl = button.innerText;
+    });
   });
 }
 
@@ -195,8 +209,9 @@ function addFloor() {
   var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
   cursor = new THREE.Mesh( geometry, material );
   cursor.rotateX(-Math.PI/2);
-  cursor.position.y = mapElevation;
+  cursor.position.y = mapElevation+0.01;
   cursor.position.z += 2;
+  cursor.visible = false;
   scene.add( cursor );
 
   var gridHelper = new THREE.GridHelper(50, 1 );

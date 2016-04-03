@@ -18,19 +18,35 @@ canvas {
   bottom: 0;
   right: 0;
 }
-#overlay table {
+.inline {
   display: inline-block;
-  border: 1px solid black;
-  border-collapse: collapse;
 }
-#overlay table td {
-  border: 1px solid black;
+.button {
   padding: 10px;
-}
-#overlay table td:hover {
-  background-color: #ccc;
   cursor: pointer;
+  display: inline-block;
+  border: none;
+  border-radius: 2px;
+  outline: 0;
+  padding: 0 2rem;
+  height: 36px;
+  line-height: 36px;
+  background-color: #26a69a;
+  text-transform: uppercase;
+  color: white;
+  margin: 5px;
+}
+.button:hover, .button.selected {
+  background-color: #2bbbad;
+}
+.button {
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  transition: all .3s ease-out;
+}
+.button:hover, .button.selected {
+  box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18),0 4px 15px 0 rgba(0,0,0,0.15);
 }
 * {
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
 }
