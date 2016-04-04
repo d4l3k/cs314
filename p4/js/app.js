@@ -106,10 +106,10 @@ function init() {
       var obj = intersect.object;
       var pos = intersect.point;
       if (obj === floor) {
-        cursor.position.y = floor.position.y + 0.01;
+        cursor.position.y = floor.position.y - 0.5;
       } else if (obj.controller instanceof Wall) {
         pos = obj.position;
-        cursor.position.y = obj.position.y + 0.5 + 0.01;
+        cursor.position.y = obj.position.y;
       } else {
         return
       }
@@ -227,11 +227,11 @@ function addFloor() {
   var water = generateWater(0.1, 1000, 1000);
   scene.add(water);
 
-  var geometry = new THREE.PlaneGeometry( 1, 1, 32 );
-  var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+  var geometry = new THREE.BoxGeometry( 1.01, 1.01, 1.01 );
+  var material = new THREE.MeshBasicMaterial( {color: 0xffffff, transparent: true, opacity: 0.5} );
   cursor = new THREE.Mesh( geometry, material );
   cursor.rotateX(-Math.PI/2);
-  cursor.position.y = mapElevation+0.01;
+  cursor.position.y = mapElevation;
   cursor.position.z += 2;
   cursor.visible = false;
   scene.add( cursor );
@@ -272,7 +272,7 @@ function initDayNight() {
 }
 
 function cursorElevation() {
-  return cursor.position.y - 0.01;
+  return cursor.position.y + 0.5;
 }
 
 
