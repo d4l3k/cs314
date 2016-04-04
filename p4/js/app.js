@@ -18,6 +18,12 @@ const mapElevation = 0.5; // y position of the baseline map level.
 
 var objects = []; // A list of all interactable objects in the scene.
 
+// controls is a map of creatable objects.
+const controls = {
+  "WALL": Wall,
+  "TURRET": Turret,
+}
+
 init();
 
 var mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
@@ -82,19 +88,35 @@ function init() {
     mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
     mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
   });
+  renderer.domElement.addEventListener('click', function(e) {
+    if (cursor.visible && activeControl) {
+      var item = new activeControl();
+      objects.push(item.object);
+      scene.add(item.object);
+      item.object.position.x = cursor.position.x;
+      item.object.position.z = cursor.position.z;
+    }
+  });
   onRenderFcts.push(function(delta, now) {
     raycaster.setFromCamera( mouse, camera );
-    var intersects = raycaster.intersectObjects( [floor] );
-
-    var intersect = intersects[0];
-    if (intersects && intersects.length > 0 && intersect.object === floor) {
-      cursor.visible = true;
+    var intersectable = [floor].concat(objects);
+    var intersects = raycaster.intersectObjects( intersectable );
+    cursor.visible = false;
+    intersects.slice(0,1).forEach(function(intersect) {
+      var obj = intersect.object;
       var pos = intersect.point;
+      if (obj === floor) {
+        cursor.position.y = floor.position.y + 0.01;
+      } else if (obj.controller instanceof Wall) {
+        pos = obj.position;
+        cursor.position.y = obj.position.y + 0.5 + 0.01;
+      } else {
+        return
+      }
+      cursor.visible = true;
       cursor.position.x = Math.floor(pos.x+0.5);
       cursor.position.z = Math.floor(pos.z+0.5);
-    } else {
-      cursor.visible = false;
-    }
+    });
   });
 }
 
@@ -107,7 +129,7 @@ function initControls() {
         b2.classList.remove('selected');
       });
       button.classList.add('selected');
-      activeControl = button.innerText;
+      activeControl = controls[button.innerText.toUpperCase()]
     });
   });
 }
@@ -247,6 +269,10 @@ function initDayNight() {
     //starField.update(sunAngle);
 		sunLight.update(sunAngle)
   });
+}
+
+function cursorElevation() {
+  return cursor.position.y - 0.01;
 }
 
 
