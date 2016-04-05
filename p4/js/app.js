@@ -85,8 +85,8 @@ function init() {
 
   // setup mouse handlers
   document.body.addEventListener('mousemove', function(e) {
-    mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-    mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+    mouse.x = ( e.clientX / renderer.domElement.width ) * 2 - 1;
+    mouse.y = - ( e.clientY / renderer.domElement.height ) * 2 + 1;
   });
   renderer.domElement.addEventListener('click', function(e) {
     if (cursor.visible && activeControl) {
