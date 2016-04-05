@@ -29,7 +29,7 @@ Monster.prototype = {
   gridUpdate: function() {
     // Recalculate path to objective using BFS.
     // Guaranteed optimiality under our loveable little grid.
-    var frontier = [[this.gridPosition]];
+    var frontier = [[this.gridCell]];
     var goalPath = null;
     while (frontier.length > 0) {
       var path = frontier.shift(); // FIFO
@@ -39,7 +39,15 @@ Monster.prototype = {
         goalPath = path;
         break;
       }
+      if (lastNode.isDestructible()) {
+        // TODO: pick the closest destructible
+      }
       // TODO: add n, w, s, e blocks. cycle check in O(n) because computers are fast
+      grid.adjacentsOf(lastNode).forEach(function(adj) {
+        if (path.indexOf(adj)) { // cycle check
+
+        }
+      });
     }
   }
 }
