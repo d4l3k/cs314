@@ -1,3 +1,5 @@
+'use strict';
+
 var scene, camera, renderer, composer;
 var geometry, material, mesh;
 var floor, island;
@@ -18,15 +20,37 @@ const mapElevation = 0.5; // y position of the baseline map level.
 
 var objects = []; // A list of all interactable objects in the scene.
 
-// controls is a map of creatable objects.
-const controls = {
-  "WALL": Wall,
-  "TURRET": Turret,
-}
+
+// controls is a list of creatable objects.
+const placeable = [Turret, Wall];
+var controls = {};
+placeable.forEach(function(control) {
+  var name = control.name.toUpperCase();
+  controls[name] = control;
+  var button = document.createElement("a");
+  button.classList.add("button");
+  button.dataset.item = name;
+  button.innerText = name+' - $'+control.cost;
+  document.querySelector('#items').appendChild(button);
+});
 
 init();
 
 var mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
+
+var money = 0;
+var score = 0;
+
+function addMoney(d) {
+  if (money + d >= 0) {
+    money += d;
+    document.querySelector('#money').innerText = money.toFixed(0);
+    return true;
+  }
+  return false;
+}
+
+addMoney(10000);
 
 function init() {
   scene = new THREE.Scene();
@@ -90,6 +114,9 @@ function init() {
   });
   renderer.domElement.addEventListener('click', function(e) {
     if (cursor.visible && activeControl) {
+      if (!addMoney(-activeControl.cost)) {
+        return;
+      }
       var item = new activeControl();
       objects.push(item.object);
       scene.add(item.object);
@@ -129,7 +156,7 @@ function initControls() {
         b2.classList.remove('selected');
       });
       button.classList.add('selected');
-      activeControl = controls[button.innerText.toUpperCase()]
+      activeControl = controls[button.dataset.item]
     });
   });
 }
@@ -157,8 +184,8 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
       planeHeight = (height + 2 * sigmaSize) * precision;
   var offsetX = centerX - Math.floor(width / 2) - sigmaSize,
       offsetY = centerY - Math.floor(height / 2) - sigmaSize;
-  for (y = 0; y < planeHeight; y++) {
-    for (x = 0; x < planeWidth; x++) {
+  for (var y = 0; y < planeHeight; y++) {
+    for (var x = 0; x < planeWidth; x++) {
       var worldX = x/precision;
       var worldY = y/precision;
       var falloff = z_max - z_min;

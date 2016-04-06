@@ -5,6 +5,7 @@ function Wall() {
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
 }
+Wall.cost = 100;
 
 function Turret() {
   this.geometry = new THREE.BoxGeometry( 0.5, 1, 0.5 );
@@ -13,3 +14,4 @@ function Turret() {
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
 }
+Turret.cost = 1000;
