@@ -73,7 +73,7 @@ function init() {
   scene.add( mesh );
   camera.lookAt(mesh.position);
 
-  map = new Map(new THREE.Vector3(-mapWidth/2, mapElevation, -mapHeight/2),
+  map = new Map(new THREE.Vector3(mapWidth/2, mapElevation, -mapHeight/2),
                 mapWidth, mapHeight, 1);
 
   // Setup water material, which depends on the current time.

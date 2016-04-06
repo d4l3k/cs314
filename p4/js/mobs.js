@@ -6,17 +6,20 @@
  * @constructor
  * @param {THREE.Object3D} model - The model to use for the monster.
  *                                 It should be looking down the z axis.
- * @param {float} speed - The speed in world units per second.
+ * @param {float} acceleration - Acceleration in world units per second.
+ * @param {float} maxSpeed - The maximum speed in world units per second.
  * @param {float} dps - The damage per second done to obstacles.
  * @param {THREE.Vector2} start - Start coordinate in the xz-plane.
  * @param {THREE.Vector2} target - Target coordinate to path to in the xz-plane.
  * @param {float} collisionRadius - Radius to collide with game objects (using spherical collision detection).
  */
-var Monster = function(model, speed, dps, start, target, collisionRadius) {
+var Monster = function(model, acceleration, maxSpeed, dps, start, target, collisionRadius) {
   this.model = model;
   this.position = start;
   this.target = target;
-  this.speed = speed;
+  this.acceleration = acceleration;
+  this.maxSpeed = maxSpeed;
+  this.velocity = new THREE.Vector2().set(0, 0);
   this.dps = dps;
   this.collisionRadius = collisionRadius;
   this.path = [];
@@ -27,13 +30,22 @@ Monster.prototype = {
    * @param {float} dt - Delta time (in seconds) since the last game update.
    */
   update: function(dt) {
+    const friction = 0.5; // velocity dampening per second.
     // Move simply in the direction of the target.
     // TODO: acceleration, pathfinding, gravity, collision detection- so much to do!
     var direction = this.target.sub(this.position).normalize();
-    this.position = this.position.add(direction.multiplyScalar(this.speed * dt));
+    this.velocity.multiplyScalar(1 - friction * dt); // Apply friction to prevent orbiting.
+    this.velocity.add(direction.multiplyScalar(this.acceleration * dt));
+    if (this.velocity.length() > this.maxSpeed) {
+      this.velocity.normalize().multiplyScalar(this.maxSpeed);
+    }
+    this.position.add(this.velocity);
 
     // FIXME: fix plane constraint y=1
     this.model.position.set(this.position.x, 1, this.position.y);
+
+    // a priori collision detection
+    //var tracer = new 
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
@@ -83,7 +95,7 @@ var DebugMonster = function DebugMonster(start, target) {
   var material = new THREE.MeshLambertMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
-  Monster.call(this, mesh, 1.75, 0.25, start, target, radius);
+  Monster.call(this, mesh, 0.1, 0.5, 0.25, start, target, radius);
 }
 
 DebugMonster.prototype = Object.create(Monster.prototype);

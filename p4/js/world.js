@@ -22,15 +22,15 @@ Map.prototype = {
    */
   constructsAt: function(x, y) {
     console.assert(x >= 0 && x < this.width && y >= 0 && y < this.height,
-                   "grid location oob");
-    return this.grid[x + this.width * y];
+                   "grid location (" + x + "," + y + ") undefined");
+    return this.grid[Math.floor(x + this.width * y)];
   },
 
   /**
    * Add a construct to the given cell.
    */
   pushConstruct: function(construct, x, y) {
-    this.constructsAt(x, y).push(construct);
+    this.constructsAt(x - this.origin.x, y - this.origin.y).push(construct);
   },
 
   addEntity: function(entity) {
