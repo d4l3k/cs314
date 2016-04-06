@@ -145,6 +145,13 @@ function init() {
       cursor.position.z = Math.floor(pos.z+0.5);
     });
   });
+  onRenderFcts.push(function(delta, now) {
+    objects.forEach(function(obj) {
+      if (obj.controller.update) {
+        obj.controller.update(delta, now);
+      }
+    });
+  });
 }
 
 var activeControl = null;
