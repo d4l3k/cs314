@@ -9,6 +9,7 @@ var onRenderFcts = [];
 var fogColor = 0x8EFAB4;
 
 var waterMaterial;
+var sandMaterial = new THREE.MeshLambertMaterial();
 
 // day cycle
 var sunAngle = Math.PI/2;
@@ -16,7 +17,9 @@ var dayDuration = 10;
 
 const mapWidth = 9; // map size in x dimension
 const mapHeight = 5; // map size in z dimension
-const mapElevation = 0.5; // y position of the baseline map level.
+const mapElevation = 0.7; // y position of the baseline map level.
+
+const sandColor = 0xEDC9AF;
 
 var objects = []; // A list of all interactable objects in the scene.
 
@@ -73,12 +76,14 @@ function init() {
     uniforms: {
       time: { type: "f", value: 0.0 },
       diffuse: { type: "c", value: new THREE.Color(0x000099) },
-      specular: { type: "c", value: new THREE.Color(0x333399) },
-      alpha: { type: "f", value: 0.5 },
-      waveThreshold: { type: "f", value: 25.0 }
+      specular: { type: "c", value: new THREE.Color(0x3333cc) },
+      alpha: { type: "f", value: 0.4 },
+      waveThreshold: { type: "f", value: 60.0 },
+      tideVariance: { type: "f", value: 0.1 }
     },
     vertexShader: document.getElementById("waterVertexShader").textContent,
-    fragmentShader: document.getElementById("waterFragmentShader").textContent
+    fragmentShader: document.getElementById("waterFragmentShader").textContent,
+    transparent: true
   });
 
   addFloor();
@@ -88,6 +93,12 @@ function init() {
   scene.add( light );
   scene.fog = new THREE.FogExp2( fogColor, 0.05 );
   scene.fog.color.setScalar(0.7);
+
+  // FIXME: remove, replace with own light shader
+  var pointLight = new THREE.PointLight(0xffffff, 1, 35);
+  pointLight.position.set(0, 3, 0);
+  pointLight.rotateX(-Math.PI / 2);
+  scene.add(pointLight);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
@@ -220,15 +231,23 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
       if (x >= 1 && y >= 1) {
         // TODO: randomized perlin normal?
         var offset = (y - 1) * planeWidth; // Points to the first vertex in the last row.
-        var normal = new THREE.Vector3(0, 1, 0); // FIXME: vary using perlin noise
-        var faceTop = new THREE.Face3(offset + x, offset + x - 1, offset + planeWidth + x - 1, normal);
-        var faceBottom = new THREE.Face3(offset + planeWidth + x - 1, offset + planeWidth + x, offset + x, normal);
+        // a----b
+        // | \  |
+        // |  \ |  <-- as stored in vertex array
+        // c----d
+        var aIndex = offset + x - 1,
+            bIndex = aIndex + 1,
+            cIndex = aIndex + planeWidth,
+            dIndex = bIndex + planeWidth;
+        var phNormal = new THREE.Vector3().set(0, 1, 0); // TODO
+        var faceTop = new THREE.Face3(dIndex, bIndex, aIndex, phNormal);
+        var faceBottom = new THREE.Face3(aIndex, cIndex, dIndex, phNormal);
         geometry.faces.push(faceTop, faceBottom);
       }
     }
   }
 
-  return new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: 0xffff00 }));
+  return new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: sandColor }));
 }
 
 function generateWater(waterLevel, width, height) {
@@ -241,24 +260,36 @@ function generateWater(waterLevel, width, height) {
 
 var cursor;
 function addFloor() {
-  const meshPrecision = 4;
-  const islandFalloff = 0.75;
-  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, 0, meshPrecision, 0.2, islandFalloff);
+  const meshPrecision = 5;
+  const islandFalloff = 1.2;
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, 0, meshPrecision, 0.15, islandFalloff);
   scene.add(island);
 
+  //var normals = new THREE.FaceNormalsHelper(island, 0.2, 0x00ff00, 1);
+  //scene.add(normals);
+
+  // TODO: replace floor- useless.
   var geometry = new THREE.PlaneGeometry(mapWidth, mapHeight, 1);
-  var material = new THREE.MeshLambertMaterial( {color: 0} );
+  var material = new THREE.MeshBasicMaterial( {color: 0, transparent: true, opacity: 0} );
   floor = new THREE.Mesh( geometry, material );
   floor.rotateX(-Math.PI/2);
   floor.position.y = mapElevation;
   scene.add( floor );
 
   // FIXME: remove.
+  /*
   var wireframeHelper = new THREE.WireframeHelper(island);
   wireframeHelper.material.color.set(0x999999);
   scene.add(wireframeHelper);
+  */
 
-  var water = generateWater(0.1, 1000, 1000);
+  var seabedGeometry = new THREE.PlaneGeometry(1000, 1000);
+  var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshLambertMaterial({color: 0}));
+  seabed.rotateX(-Math.PI/2);
+  seabed.position.set(0, 0.11, 0);
+  scene.add(seabed);
+
+  var water = generateWater(0.2, 1000, 1000);
   scene.add(water);
 
   var geometry = new THREE.BoxGeometry( 1.01, 1.01, 1.01 );
@@ -289,7 +320,7 @@ function initDayNight() {
   scene.add( starField.object3d );
   */
 	var sunLight	= new THREEx.DayNight.SunLight()
-	scene.add( sunLight.object3d )
+	//scene.add( sunLight.object3d )
 
   var geometry = new THREE.SphereGeometry(3000, 60, 40);
   var material = new THREE.MeshLambertMaterial( {color: 0, side: THREE.BackSide} );

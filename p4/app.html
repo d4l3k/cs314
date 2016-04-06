@@ -4,11 +4,16 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
   <script id="waterVertexShader" type="x-vertex-shader">
     varying vec3 world_position;
+    uniform float time;
+    uniform float tideVariance;
+
+    #define TIME_SCALE 1000.0
 
     void main()
     {
       world_position = position;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      world_position.z += tideVariance * max(sin(time/TIME_SCALE), 0.0);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(world_position, 1.0);
     }
   </script>
   <script id="waterFragmentShader" type="x-fragment-shader">
@@ -19,6 +24,7 @@
     uniform vec3 specular;
     // Distance cutoff where waves start appearing.
     uniform float waveThreshold;
+    uniform float alpha;
 
     #define TIME_SCALE 1000.0
     #define WAVE_SCALE 0.5
@@ -30,9 +36,9 @@
       float dist = sqrt(pow(world_position.x, 2.0) + pow(world_position.y, 2.0));
       float waveFactor = 0.0; // Amount of specular wave highlight to show.
       if (dist <= waveThreshold) {
-        waveFactor = sin(WAVE_SCALE * (timeFactor + dist));
+        waveFactor = max(sin(WAVE_SCALE * (timeFactor + dist)), 0.0);
       }
-      gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), 0.5);
+      gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
     }
   </script>
 </head>
