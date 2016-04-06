@@ -1,6 +1,12 @@
+const WALL_COLOR = 0x3d3d3d;
+const TURRET_BASE_COLOR = WALL_COLOR;
+const TURRET_BARREL_COLOR = 0x999999;
+
+const TURRET_LASER_COLOR = 0xff0000;
+
 function Wall() {
   this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  this.material = new THREE.MeshLambertMaterial( { color: 0x3d3d3d } );
+  this.material = new THREE.MeshLambertMaterial( { color: WALL_COLOR } );
   this.object = new THREE.Mesh( this.geometry, this.material );
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
@@ -13,7 +19,7 @@ function Turret() {
   this.object.position.y = cursorElevation() + 0.5;
 
   var geometry = new THREE.BoxGeometry( 0.2, 0.5, 0.2 );
-  var material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
   var base = new THREE.Mesh( geometry, material );
   base.position.y = -0.25;
   this.object.add(base);
@@ -22,14 +28,14 @@ function Turret() {
   this.object.add(this.gun);
 
   var geometry = new THREE.BoxGeometry( 0.3, 0.75, 0.3 );
-  var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
   var barrel = new THREE.Mesh( geometry, material );
   barrel.position.z=0.20;
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
 
-  var geometry = new THREE.BoxGeometry( 0.1, 10000, 0.1 );
-  var material = new THREE.MeshBasicMaterial( { color: 0xff0000, fog: false } );
+  var geometry = new THREE.BoxGeometry( 0.03, 10000, 0.03 );
+  var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
   var laser = new THREE.Mesh( geometry, material );
   laser.position.y += 5000;
   barrel.add(laser);
