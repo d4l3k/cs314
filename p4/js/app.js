@@ -152,7 +152,6 @@ function init() {
   finalPass.renderToScreen = true;
   composer.addPass(finalPass);
 
-  var winResize = new THREEx.WindowResize(renderer, camera);
   initDayNight();
 
   document.body.appendChild( renderer.domElement );
@@ -221,6 +220,22 @@ function initControls() {
   // TODO: setup ai.
   wave = new Wave(scene);
   wave.start();
+}
+
+function nearestEnemy(position) {
+  if (!wave || !wave.monsters || !wave.monsters.length) {
+    return;
+  }
+  var enemy = null;
+  var dist = 10000000;
+  wave.monsters.forEach(function(monster) {
+    var mDist = monster.model.position.clone().sub(position).length();
+    if (mDist < dist) {
+      dist = mDist;
+      enemy = monster;
+    }
+  });
+  return enemy;
 }
 
 // Generates an island mesh with the given width, height, and depth boundaries.
@@ -354,30 +369,10 @@ function addFloor() {
 
 
 function initDayNight() {
-  THREEx.DayNight.baseURL = "bower_components/threex.daynight/";
-  var sunSphere = new THREEx.DayNight.SunSphere();
-  scene.add( sunSphere.object3d );
-  /*
-  var skydom  = new THREEx.DayNight.Skydom();
-  scene.add( skydom.object3d );
-  var starField   = new THREEx.DayNight.StarField();
-  scene.add( starField.object3d );
-  */
-	var sunLight	= new THREEx.DayNight.SunLight()
-	//scene.add( sunLight.object3d )
-
   var geometry = new THREE.SphereGeometry(3000, 60, 40);
   var material = new THREE.MeshLambertMaterial( {color: 0, side: THREE.BackSide} );
   var skybox = new THREE.Mesh( geometry, material );
   scene.add(skybox);
-
-  onRenderFcts.push(function(delta, now) {
-    //sunAngle    += delta/dayDuration * Math.PI*2;
-    //skydom.update(sunAngle);
-    sunSphere.update(sunAngle);
-    //starField.update(sunAngle);
-		sunLight.update(sunAngle)
-  });
 }
 
 function cursorElevation() {

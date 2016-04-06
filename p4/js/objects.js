@@ -12,7 +12,7 @@ function Wall() {
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
 
-  var sideGeometry = new THREE.BoxGeometry( 0.5, 0.8, 0.3 );
+  var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
 	for (var i=0; i<4; i++) {
 		var angle = Math.PI*i/2;
@@ -21,7 +21,7 @@ function Wall() {
 		var side = new THREE.Mesh( sideGeometry, sideMaterial );
 		side.position.x = x;
 		side.position.z = z;
-		side.position.y = -0.1;
+		side.position.y = -0.2;
 		side.rotateY(Math.PI/2 + angle);
 		this.object.add(side);
 	}
@@ -49,6 +49,8 @@ function Turret() {
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
 
+  this.targetPos = new THREE.Vector3(0,0,0);
+
   var geometry = new THREE.BoxGeometry( 0.03, 10000, 0.03 );
   var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
   var laser = new THREE.Mesh( geometry, material );
@@ -58,8 +60,21 @@ function Turret() {
 Turret.cost = 1000;
 Turret.prototype = {
   update: function(delta, now) {
-    var target = new THREE.Vector3(0,5,0);
-    var pos = this.object.worldToLocal(target);
-    this.gun.lookAt(pos);
+    var target = nearestEnemy(this.object.position);
+    var pos;
+    if (target) {
+      pos = target.model.position.clone();
+    } else {
+      pos = new THREE.Vector3(0,5,0);
+    }
+    var diff = pos.clone().sub(this.targetPos);
+    var step = 10*delta; // target at 10m/s
+    var length = diff.length();
+    if (length > step) {
+      diff.multiplyScalar(step/length);
+    }
+    this.targetPos.add(diff);
+    var localPos = this.object.worldToLocal(this.targetPos.clone());
+    this.gun.lookAt(localPos);
   },
 };
