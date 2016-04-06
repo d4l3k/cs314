@@ -23,6 +23,7 @@ const sandColor = 0xEDC9AF;
 
 var objects = []; // A list of all interactable objects in the scene.
 
+var wave;
 
 // controls is a list of creatable objects.
 const placeable = [Turret, Wall];
@@ -177,6 +178,10 @@ function initControls() {
       activeControl = controls[button.dataset.item]
     });
   });
+
+  // TODO: setup ai.
+  wave = new Wave(scene);
+  wave.start();
 }
 
 // Generates an island mesh with the given width, height, and depth boundaries.
@@ -358,6 +363,7 @@ function render(nowMsec) {
   onRenderFcts.forEach(function(updateFn){
     updateFn(deltaMsec/1000, nowMsec/1000);
   });
+  wave.update(deltaMsec/1000);
 
   // TODO: remove demo rotation.
   const ROTATION_DISTANCE = 8;
