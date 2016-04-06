@@ -10,13 +10,15 @@
  * @param {float} dps - The damage per second done to obstacles.
  * @param {THREE.Vector2} start - Start coordinate in the xz-plane.
  * @param {THREE.Vector2} target - Target coordinate to path to in the xz-plane.
+ * @param {float} collisionRadius - Radius to collide with game objects (using spherical collision detection).
  */
-var Monster = function(model, speed, dps, start, target) {
+var Monster = function(model, speed, dps, start, target, collisionRadius) {
   this.model = model;
   this.position = start;
   this.target = target;
   this.speed = speed;
   this.dps = dps;
+  this.collisionRadius = collisionRadius;
   this.path = [];
 }
 
@@ -26,11 +28,17 @@ Monster.prototype = {
    */
   update: function(dt) {
     // Move simply in the direction of the target.
+    // TODO: acceleration, pathfinding, gravity, collision detection- so much to do!
     var direction = this.target.sub(this.position).normalize();
     this.position = this.position.add(direction.multiplyScalar(this.speed * dt));
-    console.log(direction);
 
+    // FIXME: fix plane constraint y=1
     this.model.position.set(this.position.x, 1, this.position.y);
+
+    if (this.target.distanceTo(this.position) <= this.collisionRadius) {
+      // TODO: end game or something, placeholder for now
+      this.position.set(Math.random() * 10 - 5, Math.random() * 10 - 5);
+    }
   },
   /**
    * Called when the world grid has been updated.
@@ -70,24 +78,25 @@ Monster.prototype = {
 }
 
 var DebugMonster = function DebugMonster(start, target) {
-  var geometry = new THREE.SphereGeometry(0.5);
+  const radius = 0.5;
+  var geometry = new THREE.SphereGeometry(radius);
   var material = new THREE.MeshLambertMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
-  Monster.call(this, mesh, 1.75, 0.25, start, target);
+  Monster.call(this, mesh, 1.75, 0.25, start, target, radius);
 }
 
 DebugMonster.prototype = Object.create(Monster.prototype);
 DebugMonster.prototype.constructor = DebugMonster;
 DebugMonster.prototype.update = function(dt) {
   Monster.prototype.update.call(this, dt);
-  this.model.rotateX(dt);
+  this.model.rotateX(5 * dt);
 }
 
 // Creates a new 'wave'; a phase of the game with a given difficulty.
 // Difficulty is a simple integer value indicating the current wave.
 // If unset, difficulty defaults to zero (the initial wave).
-var Wave = function(scene, difficulty) {
+var Wave = function(scene, spawnHeight, difficulty) {
   this.scene = scene;
   this.started = false;
   this.difficulty = difficulty || 0;
