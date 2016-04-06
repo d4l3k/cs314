@@ -262,7 +262,7 @@ var cursor;
 function addFloor() {
   const meshPrecision = 5;
   const islandFalloff = 1.2;
-  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, 0, meshPrecision, 0.15, islandFalloff);
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -0.5, meshPrecision, 0.15, islandFalloff);
   scene.add(island);
 
   //var normals = new THREE.FaceNormalsHelper(island, 0.2, 0x00ff00, 1);
@@ -286,7 +286,7 @@ function addFloor() {
   var seabedGeometry = new THREE.PlaneGeometry(1000, 1000);
   var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshLambertMaterial({color: 0}));
   seabed.rotateX(-Math.PI/2);
-  seabed.position.set(0, 0.11, 0);
+  seabed.position.set(0, 0, 0);
   scene.add(seabed);
 
   var water = generateWater(0.2, 1000, 1000);

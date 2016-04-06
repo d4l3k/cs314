@@ -12,7 +12,7 @@
     void main()
     {
       world_position = position;
-      world_position.z += tideVariance * max(sin(time/TIME_SCALE), 0.0);
+      world_position.z += tideVariance * sin(time/TIME_SCALE);
       gl_Position = projectionMatrix * modelViewMatrix * vec4(world_position, 1.0);
     }
   </script>
