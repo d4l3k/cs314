@@ -1,6 +1,6 @@
 'use strict';
 
-var scene, camera, renderer, composer;
+var scene, camera, renderer, composer, glowcomposer;
 var geometry, material, mesh;
 var floor, island;
 var onRenderFcts = [];
@@ -65,7 +65,7 @@ function init() {
   camera.position.y = 2.5;
 
   geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+  material = new THREE.MeshBasicMaterial( { color: 0xff00ff, fog: false } );
 
   mesh = new THREE.Mesh( geometry, material );
   mesh.position.y = 1;
@@ -104,14 +104,53 @@ function init() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.autoClear = false;
-  composer = new THREE.EffectComposer(renderer);
+
+
+  // composers
   var renderPass = new THREE.RenderPass(scene, camera);
+
+  // glow composer
+  glowcomposer = new THREE.EffectComposer(renderer);
+  glowcomposer.addPass(renderPass);
+  var highlightPass = new HighlightPass();
+  glowcomposer.addPass(highlightPass);
+  var bloomPass = new THREE.BloomPass(2, 25, 4, 256);
+  glowcomposer.addPass(bloomPass);
+
+  var finalshader = {
+    uniforms: {
+      tDiffuse: { type: "t", value: 0, texture: null }, // The base scene buffer
+      tGlow: { type: "t", value: 1, texture: null } // The glow scene buffer
+    },
+    vertexShader: [
+      "varying vec2 vUv;",
+      "void main() {",
+      "vUv = vec2( uv.x, uv.y );",
+      "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+      "}"
+    ].join("\n"),
+
+    fragmentShader: [
+      "uniform sampler2D tDiffuse;",
+      "uniform sampler2D tGlow;",
+      "varying vec2 vUv;",
+      "void main() {",
+      "vec4 texel = texture2D( tDiffuse, vUv );",
+      "vec4 glow = texture2D( tGlow, vUv );",
+      "gl_FragColor = texel + glow;",
+      "}"
+    ].join("\n")
+  };
+  finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget1;
+
+
+  // main composer
+  composer = new THREE.EffectComposer(renderer);
   composer.addPass(renderPass);
-  var bloomPass = new THREE.BloomPass(1, 25, 5, 256);
-  //composer.addPass(bloomPass);
-  var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-  effectCopy.renderToScreen = true;
-  composer.addPass(effectCopy);
+  var finalPass = new THREE.ShaderPass( finalshader );
+  finalPass.needsSwap = true;
+  finalPass.renderToScreen = true;
+  composer.addPass(finalPass);
 
   var winResize = new THREEx.WindowResize(renderer, camera);
   initDayNight();
@@ -376,5 +415,6 @@ function render(nowMsec) {
 
   //renderer.render( scene, camera );
   renderer.clear();
+  glowcomposer.render(deltaMsec/1000);
   composer.render(deltaMsec/1000);
 }

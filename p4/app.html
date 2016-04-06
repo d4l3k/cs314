@@ -43,6 +43,29 @@
       gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
     }
   </script>
+  <script id="highlightFragmentShader" type="x-fragment-shader">
+varying vec2 vUv;
+
+uniform sampler2D tDiffuse;
+
+void main() {
+  vec4 col = texture2D( tDiffuse, vUv );
+  col.a = 1.0;
+
+  if (col == vec4(1,0,0,1)) {
+  } else if (col == vec4(0,1,0,1)) {
+  } else if (col == vec4(0,0,1,1)) {
+  } else if (col == vec4(1,1,0,1)) {
+  } else if (col == vec4(0,1,1,1)) {
+  } else if (col == vec4(1,0,1,1)) {
+  } else if (col == vec4(1,1,1,1)) {
+  } else {
+    col = vec4(0,0,0,0);
+  }
+
+  gl_FragColor = col;
+}
+  </script>
 </head>
 <body>
   <div id="overlay" class="panel">
@@ -67,6 +90,7 @@
   <script src="bower_components/three.js/examples/js/postprocessing/BloomPass.js"></script>
   <script src="bower_components/three.js/examples/js/postprocessing/MaskPass.js"></script>
   <script src="bower_components/three.js/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="js/HighlightPass.js"></script>
   <script src="js/objects.js"></script>
   <script src="js/mobs.js"></script>
   <script src="js/app.js"></script>

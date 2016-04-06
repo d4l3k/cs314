@@ -28,8 +28,8 @@ function Turret() {
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
 
-  var geometry = new THREE.BoxGeometry( 0.05, 10000, 0.05 );
-  var material = new THREE.MeshLambertMaterial( { color: 0xff0000, transparent: true, opacity: 0.5 } );
+  var geometry = new THREE.BoxGeometry( 0.1, 10000, 0.1 );
+  var material = new THREE.MeshBasicMaterial( { color: 0xff0000, fog: false } );
   var laser = new THREE.Mesh( geometry, material );
   laser.position.y += 5000;
   barrel.add(laser);
