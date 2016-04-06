@@ -78,7 +78,7 @@ function init() {
       diffuse: { type: "c", value: new THREE.Color(0x000099) },
       specular: { type: "c", value: new THREE.Color(0x3333cc) },
       alpha: { type: "f", value: 0.4 },
-      waveThreshold: { type: "f", value: 60.0 },
+      waveThreshold: { type: "f", value: 20.0 },
       tideVariance: { type: "f", value: 0.1 }
     },
     vertexShader: document.getElementById("waterVertexShader").textContent,

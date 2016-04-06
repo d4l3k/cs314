@@ -27,17 +27,19 @@
     uniform float alpha;
 
     #define TIME_SCALE 1000.0
-    #define WAVE_SCALE 0.5
+    #define WAVE_SCALE 0.4
 
     void main()
     {
       float timeFactor = time/TIME_SCALE;
       // Distance from the origin.
+      // Inverse linear falloff is used as dist increases to reduce effect of spcular highlights.
       float dist = sqrt(pow(world_position.x, 2.0) + pow(world_position.y, 2.0));
-      float waveFactor = 0.0; // Amount of specular wave highlight to show.
-      if (dist <= waveThreshold) {
-        waveFactor = max(sin(WAVE_SCALE * (timeFactor + dist)), 0.0);
-      }
+      // Vary intensity about the unit circle- maximizing prettiness.
+      // Waves rotate as a function of time and an angle about the center.
+      float angle = -sin(1.5 * dot(normalize(world_position), vec3(1.0, 0.0, 0.0)) + WAVE_SCALE * timeFactor);
+      // waveFactor determines the amount of specular highlight to show, in range [0, 1].
+      float waveFactor = max(min(waveThreshold/dist, 1.0) * angle * sin(WAVE_SCALE * (dist + timeFactor)), 0.0);
       gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
     }
   </script>
