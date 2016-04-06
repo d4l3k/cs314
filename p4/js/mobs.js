@@ -96,8 +96,9 @@ DebugMonster.prototype.update = function(dt) {
 // Creates a new 'wave'; a phase of the game with a given difficulty.
 // Difficulty is a simple integer value indicating the current wave.
 // If unset, difficulty defaults to zero (the initial wave).
-var Wave = function(scene, spawnHeight, difficulty) {
+var Wave = function(scene, map, spawnHeight, difficulty) {
   this.scene = scene;
+  this.map = map;
   this.started = false;
   this.difficulty = difficulty || 0;
   this.monsters = [new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0))];

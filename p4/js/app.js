@@ -4,6 +4,7 @@ var scene, camera, renderer, composer, glowcomposer;
 var geometry, material, mesh;
 var floor, island;
 var onRenderFcts = [];
+var map;
 
 //var floorColor = 0x113300;//0x8EFAB4;
 var fogColor = 0x8EFAB4;
@@ -71,6 +72,9 @@ function init() {
   mesh.position.y = 1;
   scene.add( mesh );
   camera.lookAt(mesh.position);
+
+  map = new Map(new THREE.Vector3(-mapWidth/2, mapElevation, -mapHeight/2),
+                mapWidth, mapHeight, 1);
 
   // Setup water material, which depends on the current time.
   waterMaterial = new THREE.ShaderMaterial({
@@ -173,6 +177,7 @@ function init() {
       scene.add(item.object);
       item.object.position.x = cursor.position.x;
       item.object.position.z = cursor.position.z;
+      map.pushConstruct(item, cursor.position.x, cursor.position.z);
     }
   });
   onRenderFcts.push(function(delta, now) {
@@ -219,7 +224,7 @@ function initControls() {
   });
 
   // TODO: setup ai.
-  wave = new Wave(scene);
+  wave = new Wave(scene, map);
   wave.start();
 }
 
