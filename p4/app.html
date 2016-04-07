@@ -29,6 +29,9 @@
     #define TIME_SCALE 1000.0
     #define WAVE_SCALE 0.4
 
+    #include <common>
+    #include <fog_pars_fragment>
+
     void main()
     {
       float timeFactor = time/TIME_SCALE;
@@ -41,6 +44,7 @@
       // waveFactor determines the amount of specular highlight to show, in range [0, 1].
       float waveFactor = max(min(waveThreshold/dist, 1.0) * angle * sin(WAVE_SCALE * (dist + timeFactor)), 0.0);
       gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
+      #include <fog_fragment>
     }
   </script>
   <script id="highlightFragmentShader" type="x-fragment-shader">

@@ -7,7 +7,7 @@ var onRenderFcts = [];
 var map;
 
 //var floorColor = 0x113300;//0x8EFAB4;
-var fogColor = 0x8EFAB4;
+var fogColor = 0x87CEEB;
 
 var waterMaterial;
 var sandMaterial = new THREE.MeshLambertMaterial();
@@ -78,17 +78,18 @@ function init() {
 
   // Setup water material, which depends on the current time.
   waterMaterial = new THREE.ShaderMaterial({
-    uniforms: {
+    uniforms: THREE.UniformsUtils.merge([ {
       time: { type: "f", value: 0.0 },
       diffuse: { type: "c", value: new THREE.Color(0x0000bb) },
       specular: { type: "c", value: new THREE.Color(0x3333bb) },
       alpha: { type: "f", value: 0.4 },
       waveThreshold: { type: "f", value: 20.0 },
-      tideVariance: { type: "f", value: 0.1 }
-    },
+      tideVariance: { type: "f", value: 0.1 },
+    }, THREE.UniformsLib[ "fog" ], ]),
     vertexShader: document.getElementById("waterVertexShader").textContent,
     fragmentShader: document.getElementById("waterFragmentShader").textContent,
-    transparent: true
+    transparent: true,
+    fog: true,
   });
 
   addFloor();
@@ -96,8 +97,7 @@ function init() {
 
   var light = new THREE.AmbientLight( 0x404040 );
   scene.add( light );
-  scene.fog = new THREE.FogExp2( fogColor, 0.05 );
-  scene.fog.color.setScalar(0.7);
+  scene.fog = new THREE.FogExp2( fogColor, 0.02 );
 
   // FIXME: remove, replace with own light shader
   var pointLight = new THREE.PointLight(0xffffff, 1, 35);
@@ -424,8 +424,8 @@ function addFloor() {
 
 
 function initDayNight() {
-  var geometry = new THREE.SphereGeometry(3000, 60, 40);
-  var material = new THREE.MeshLambertMaterial( {color: 0, side: THREE.BackSide} );
+  var geometry = new THREE.SphereGeometry(1000, 60, 40);
+  var material = new THREE.MeshLambertMaterial( {color: 0x00ff00, side: THREE.BackSide} );
   var skybox = new THREE.Mesh( geometry, material );
   scene.add(skybox);
 }
