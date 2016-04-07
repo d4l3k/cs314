@@ -184,6 +184,36 @@ function init() {
       cameraDir.z = 0;
     }
   });
+  document.body.addEventListener('keydown', function(e) {
+    switch(e.which) {
+      case 37: // left
+        cameraDir.x = -1;
+        break;
+      case 38: // up
+        cameraDir.z = -1;
+        break;
+      case 39: // right
+        cameraDir.x = 1;
+        break;
+      case 40: // down
+        cameraDir.z = 1;
+        break;
+      default:
+    }
+  });
+  document.body.addEventListener('keyup', function(e) {
+    switch(e.which) {
+      case 37: // left
+      case 39: // right
+        cameraDir.x = 0;
+        break;
+      case 38: // up
+      case 40: // down
+        cameraDir.z = 0;
+        break;
+      default:
+    }
+  });
   document.body.addEventListener('mouseout', function() {
     cameraDir.x = 0;
     cameraDir.z = 0;
