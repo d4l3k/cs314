@@ -397,7 +397,7 @@ function floorY(x, z) {
     // Use gaussian falloff out of bounds.
     return Math.max(seabedElevation,
         (mapElevation - seabedElevation) *
-        computeFalloff(x + mapWidth / 2, z + mapWidth / 2, mapWidth, mapHeight, mapFalloffSigma)
+        computeFalloff(x + mapWidth / 2, z + mapHeight / 2, mapWidth, mapHeight, mapFalloffSigma)
         + seabedElevation);
   }
   return mapElevation;
