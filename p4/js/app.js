@@ -80,8 +80,8 @@ function init() {
   waterMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value: 0.0 },
-      diffuse: { type: "c", value: new THREE.Color(0x000099) },
-      specular: { type: "c", value: new THREE.Color(0x3333cc) },
+      diffuse: { type: "c", value: new THREE.Color(0x0000bb) },
+      specular: { type: "c", value: new THREE.Color(0x3333bb) },
       alpha: { type: "f", value: 0.4 },
       waveThreshold: { type: "f", value: 20.0 },
       tideVariance: { type: "f", value: 0.1 }
@@ -296,7 +296,7 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
     }
   }
 
-  return new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: sandColor }));
+  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: sandColor }));
 }
 
 function generateWater(waterLevel, width, height) {
@@ -309,9 +309,9 @@ function generateWater(waterLevel, width, height) {
 
 var cursor;
 function addFloor() {
-  const meshPrecision = 5;
-  const islandFalloff = 1.2;
-  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -0.5, meshPrecision, 0.15, islandFalloff);
+  const meshPrecision = 4;
+  const islandFalloff = 2.5;
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -2, meshPrecision, 0.15, islandFalloff);
   scene.add(island);
 
   //var normals = new THREE.FaceNormalsHelper(island, 0.2, 0x00ff00, 1);
@@ -333,9 +333,9 @@ function addFloor() {
   */
 
   var seabedGeometry = new THREE.PlaneGeometry(1000, 1000);
-  var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshLambertMaterial({color: 0}));
+  var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshPhongMaterial({color: sandColor}));
   seabed.rotateX(-Math.PI/2);
-  seabed.position.set(0, 0, 0);
+  seabed.position.set(0, -2, 0);
   scene.add(seabed);
 
   var water = generateWater(0.2, 1000, 1000);
