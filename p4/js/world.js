@@ -34,7 +34,17 @@ Map.prototype = {
   },
 
   addEntity: function(entity) {
+    // FIXME: assume entities have collisionRadius and collisionHandlers set.
     this.entities.push(entity);
+  },
+
+  // Returns the first object in the scene that collides with the provided collider.
+  collidesWith: function(entity, newPosition) {
+    return this.entities.find(function(e) {
+      if (e === entity)
+        return false;
+      return e.model.position.distanceTo(newPosition) <= (e.collisionRadius + entity.collisionRadius);
+    });
   },
 
   /**

@@ -13,13 +13,14 @@
  * @param {THREE.Vector2} target - Target coordinate to path to in the xz-plane.
  * @param {float} collisionRadius - Radius to collide with game objects (using spherical collision detection).
  */
-var Monster = function(model, acceleration, maxSpeed, dps, start, target, collisionRadius) {
+var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, collisionRadius) {
   this.model = model;
+  this.map = map;
   this.position = start;
   this.target = target;
   this.acceleration = acceleration;
   this.maxSpeed = maxSpeed;
-  this.velocity = new THREE.Vector2().set(0, 0);
+  this.velocity = new THREE.Vector3().set(0, 0, 0);
   this.dps = dps;
   this.collisionRadius = collisionRadius;
   this.path = [];
@@ -33,23 +34,35 @@ Monster.prototype = {
     const friction = 0.5; // velocity dampening per second.
     // Move simply in the direction of the target.
     // TODO: acceleration, pathfinding, gravity, collision detection- so much to do!
-    var direction = this.target.sub(this.position).normalize();
+    var direction = new THREE.Vector3().subVectors(this.target, this.position).normalize();
     this.velocity.multiplyScalar(1 - friction * dt); // Apply friction to prevent orbiting.
     this.velocity.add(direction.multiplyScalar(this.acceleration * dt));
     if (this.velocity.length() > this.maxSpeed) {
       this.velocity.normalize().multiplyScalar(this.maxSpeed);
     }
+
+    // cheap a posteriori collision detection
+    // does not stop things going very fast
+    const maxCollisions = 5;
+    var collider;
+    for (numCollisions = 0; (collider = this.map.collidesWith(this, new THREE.Vector3().addVectors(this.position, this.velocity)))
+                            && numCollisions < maxCollisions; numCollisions++) {
+      // FIXME: switch to targetEntity.
+      //if (collider == this.target) {
+      //}
+      // TODO: project along normal, negate.
+      var normal = new THREE.Vector3().subVectors(this.position, collider.model.position);
+      this.velocity.negate();
+    }
+
     this.position.add(this.velocity);
 
     // FIXME: fix plane constraint y=1
-    this.model.position.set(this.position.x, 1, this.position.y);
-
-    // a priori collision detection
-    //var tracer = new
+    this.model.position.set(this.position.x, this.position.y, this.position.z);
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
-      this.position.set(Math.random() * 10 - 5, Math.random() * 10 - 5);
+      this.position.set(Math.random() * 10 - 5, this.position.y, Math.random() * 10 - 5);
     }
   },
   /**
@@ -89,13 +102,13 @@ Monster.prototype = {
   }
 }
 
-var DebugMonster = function DebugMonster(start, target) {
+var DebugMonster = function DebugMonster(map, start, target) {
   const radius = 0.5;
   var geometry = new THREE.SphereGeometry(radius);
   var material = new THREE.MeshLambertMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
-  Monster.call(this, mesh, 0.1, 0.5, 0.25, start, target, radius);
+  Monster.call(this, mesh, map, 0.1, 0.5, 0.25, start, target, radius);
 }
 
 DebugMonster.prototype = Object.create(Monster.prototype);
@@ -114,8 +127,8 @@ var Wave = function(scene, map, spawnHeight, difficulty) {
   this.started = false;
   this.difficulty = difficulty || 0;
   this.monsters = [
-		new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0)),
-		new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0)),
+		new DebugMonster(map, new THREE.Vector3().set(-5, 1, -5), new THREE.Vector3().set(0, 1, 0)),
+		new DebugMonster(map, new THREE.Vector3().set(5, 1, 5), new THREE.Vector3().set(0, 1, 0)),
 	];
 }
 
@@ -123,6 +136,7 @@ Wave.prototype = {
   start: function() {
     console.assert(!this.started, "Wave already started.");
     this.monsters.forEach(function(monster) {
+      this.map.addEntity(monster);
       this.scene.add(monster.model);
     });
   },
