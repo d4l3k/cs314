@@ -25,7 +25,7 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
   this.dps = dps;
   this.collisionRadius = collisionRadius;
   this.path = [];
-  this.bounciness = bounciness || 2;
+  this.bounciness = bounciness || 1;
   this.gravity = new THREE.Vector3().set(0, -0.1, 0);
 }
 
@@ -63,13 +63,18 @@ Monster.prototype = {
         break;
       collidedObjects.push(collider);
 
-      var normal = new THREE.Vector3().subVectors(newPosition, collider.object.position)
-                                      .normalize();
+      var dist = new THREE.Vector3().subVectors(newPosition, collider.object.position);
+      var normal = new THREE.Vector3().copy(dist).normalize();
       // Project the negated velocity onto the normal between the cylindrical colliders.
       var bounceVector = new THREE.Vector3().copy(this.velocity)
                                             .negate()
                                             .projectOnVector(normal);
       this.velocity.addScaledVector(bounceVector, this.bounciness);
+
+      // We want to bounce at least out of the object's bounds so that we don't cluster.
+      // Bounce away from the object as a baseline in case they're clipping each other already.
+      this.velocity.addScaledVector(bounceVector.normalize(),
+                                    (1 - (dist.length() / (this.collisionRadius + collider.collisionRadius))));
 
       if (collider.damage) {
         collider.damage(this.dps * dt);
@@ -156,9 +161,10 @@ var Wave = function(scene, map, spawnHeight, difficulty) {
   const SPAWN_DISTANCE = 15;
   for (i = 0; i < difficulty; i++) {
     // Spawn monster a random direction from the origin.
+    // Can spawn from at least 2*SPAWN_DISTANCE away.
     var position = new THREE.Vector3().set(2 * Math.random() - 1, 0, 2 * Math.random() - 1)
                                       .normalize()
-                                      .multiplyScalar(SPAWN_DISTANCE);
+                                      .multiplyScalar((Math.random() + 1) * SPAWN_DISTANCE);
     position.y = this.spawnHeight;
     this.monsters.push(new DebugMonster(map, position, new THREE.Vector3().set(0, 1, 0)));
   }
