@@ -15,7 +15,7 @@
  * @param {float} bounciness - Linear bounciness factor of velocity to negate on collision.
  */
 var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, collisionRadius, bounciness) {
-  this.model = model;
+  this.object = model;
   this.map = map;
   this.position = start;
   this.target = target;
@@ -45,15 +45,17 @@ Monster.prototype = {
 
     // cheap a posteriori collision detection
     // does not stop things going very fast
-    const maxCollisions = 20;
+    const maxCollisions = 100;
     for (numCollisions = 0; numCollisions < maxCollisions; numCollisions++) {
       var newPosition = new THREE.Vector3().addVectors(this.position, this.velocity);
       var collider = this.map.collidesWith(this, newPosition);
       if (!collider)
         break;
 
-      var normal = new THREE.Vector3().subVectors(newPosition, collider.model.position).normalize();
-      // Project the negated velocity onto the normal between the spherical colliders.
+      var normal = new THREE.Vector3().subVectors(newPosition, collider.object.position)
+                                      .projectOnPlane(new THREE.Vector3(0, 1, 0))
+                                      .normalize();
+      // Project the negated velocity onto the normal between the cylindrical colliders.
       var bounceVector = new THREE.Vector3().copy(this.velocity)
                                             .negate()
                                             .projectOnVector(normal);
@@ -63,7 +65,7 @@ Monster.prototype = {
     this.position.add(this.velocity);
 
     // FIXME: fix plane constraint y=1
-    this.model.position.set(this.position.x, this.position.y, this.position.z);
+    this.object.position.set(this.position.x, this.position.y, this.position.z);
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
@@ -120,7 +122,7 @@ DebugMonster.prototype = Object.create(Monster.prototype);
 DebugMonster.prototype.constructor = DebugMonster;
 DebugMonster.prototype.update = function(dt) {
   Monster.prototype.update.call(this, dt);
-  this.model.rotateX(5 * dt);
+  this.object.rotateX(5 * dt);
 }
 
 // Creates a new 'wave'; a phase of the game with a given difficulty.
@@ -144,7 +146,7 @@ Wave.prototype = {
     console.assert(!this.started, "Wave already started.");
     this.monsters.forEach(function(monster) {
       this.map.addEntity(monster);
-      this.scene.add(monster.model);
+      this.scene.add(monster.object);
     });
   },
   update: function(dt) {
