@@ -67,10 +67,10 @@ function init() {
   camera.position.y = 8;
 
   var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  var texture = THREE.ImageUtils.loadTexture( "textures/cube.jpg" );
+  var texture = THREE.ImageUtils.loadTexture( "textures/cube.png" );
   var material = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, fog: false } );
   var mesh = new THREE.Mesh( geometry, material );
-  mesh.position.y = 1;
+  mesh.position.y = mapElevation+0.5;
   scene.add(mesh);
   camera.lookAt(mesh.position);
   onRenderFcts.push(function() {
