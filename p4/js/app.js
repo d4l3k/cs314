@@ -203,6 +203,7 @@ function init() {
       var item = new activeControl();
       objects.push(item.object);
       scene.add(item.object);
+      map.addEntity(item); // XXX remove entity for collision somewhere too
       item.object.position.x = cursor.position.x;
       item.object.position.z = cursor.position.z;
       setSelectedObject(item.object);
@@ -223,6 +224,7 @@ function init() {
     // remove from objects array
     objects.splice(objects.indexOf(selectedObject), 1);
     setSelectedObject(null);
+    map.removeEntity(selectedObject);
   });
 
   onRenderFcts.push(function(delta, now) {
@@ -293,7 +295,7 @@ function nearestEnemy(position) {
   var enemy = null;
   var dist = 10000000;
   wave.monsters.forEach(function(monster) {
-    var mDist = monster.model.position.clone().sub(position).length();
+    var mDist = monster.object.position.clone().sub(position).length();
     if (mDist < dist) {
       dist = mDist;
       enemy = monster;

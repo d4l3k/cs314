@@ -13,6 +13,7 @@ function Wall() {
   this.object = new THREE.Mesh( this.geometry, this.material );
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
+  this.collisionRadius = 0.5;
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
@@ -40,6 +41,7 @@ function Turret() {
   this.targetSpeed = 10; // m/s
   this.fireRate = 4; // shots/s
   this.bulletSpeed = 20; // m/s
+  this.collisionRadius = 0.2;
 
   // Geometry
   this.object = new THREE.Object3D();
@@ -81,7 +83,7 @@ Turret.prototype = {
     var target = nearestEnemy(this.object.position);
     var pos;
     if (target) {
-      pos = target.model.position.clone();
+      pos = target.object.position.clone();
     } else {
       pos = new THREE.Vector3(0,5,0);
     }

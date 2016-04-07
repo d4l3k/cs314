@@ -38,12 +38,16 @@ Map.prototype = {
     this.entities.push(entity);
   },
 
+  removeEntity: function(entity) {
+    this.entities.splice(this.entities.indexOf(entity), 1);
+  },
+
   // Returns the first object in the scene that collides with the provided collider.
   collidesWith: function(entity, newPosition) {
     return this.entities.find(function(e) {
       if (e === entity)
         return false;
-      return e.model.position.distanceTo(newPosition) <= (e.collisionRadius + entity.collisionRadius);
+      return e.object.position.distanceTo(newPosition) <= (e.collisionRadius + entity.collisionRadius);
     });
   },
 
