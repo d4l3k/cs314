@@ -188,7 +188,17 @@ function init() {
       setSelectedObject(cursorObject);
     }
   });
+  // deselect the current object.
   document.querySelector('#info #unselect').addEventListener('click', function() {
+    setSelectedObject(null);
+  });
+  // destroy object and add money back to user.
+  document.querySelector('#info #destroy').addEventListener('click', function() {
+    var controller = selectedObject.controller;
+    addMoney(controller.destroyCost);
+    scene.remove(selectedObject);
+    // remove from objects array
+    objects.splice(objects.indexOf(selectedObject), 1);
     setSelectedObject(null);
   });
 
