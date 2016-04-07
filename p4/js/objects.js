@@ -1,9 +1,11 @@
 const WALL_COLOR = 0x3d3d3d;
 const WALL_SIDE_COLOR = 0x999999;
+
 const TURRET_BASE_COLOR = WALL_COLOR;
 const TURRET_BARREL_COLOR = WALL_SIDE_COLOR;
-
 const TURRET_LASER_COLOR = 0xff0000;
+
+const BULLET_COLOR = 0xffff00;
 
 function Wall() {
   this.geometry = new THREE.BoxGeometry( 0.5, 1, 0.5 );
@@ -29,6 +31,12 @@ function Wall() {
 Wall.cost = 100;
 
 function Turret() {
+  // Configuration
+  this.targetSpeed = 10; // m/s
+  this.fireRate = 4; // shots/s
+  this.bulletSpeed = 20; // m/s
+
+  // Geometry
   this.object = new THREE.Object3D();
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
@@ -49,13 +57,15 @@ function Turret() {
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
 
-  this.targetPos = new THREE.Vector3(0,0,0);
-
   var geometry = new THREE.BoxGeometry( 0.03, 10000, 0.03 );
   var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
   var laser = new THREE.Mesh( geometry, material );
   laser.position.y += 5000;
   barrel.add(laser);
+
+  // Default values
+  this.targetPos = new THREE.Vector3(0,0,0);
+  this.lastFired = 0;
 }
 Turret.cost = 1000;
 Turret.prototype = {
@@ -68,7 +78,7 @@ Turret.prototype = {
       pos = new THREE.Vector3(0,5,0);
     }
     var diff = pos.clone().sub(this.targetPos);
-    var step = 10*delta; // target at 10m/s
+    var step = this.targetSpeed*delta;
     var length = diff.length();
     if (length > step) {
       diff.multiplyScalar(step/length);
@@ -76,5 +86,43 @@ Turret.prototype = {
     this.targetPos.add(diff);
     var localPos = this.object.worldToLocal(this.targetPos.clone());
     this.gun.lookAt(localPos);
+
+    if (length < 0.1 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
+      this.lastFired = now;
+      console.log('firing!');
+      var dir = this.targetPos.clone().sub(this.object.position);
+      dir.multiplyScalar(this.bulletSpeed/dir.length());
+      new Bullet(this.object.position, dir);
+    }
+  },
+};
+
+function Bullet(position, direction) {
+  this.direction = direction.clone();
+  this.distanceTraveled = 0;
+  this.maxDistance = 80;
+
+  var geometry = new THREE.BoxGeometry( .2, .2, .2 );
+  var material = new THREE.MeshBasicMaterial( { color: BULLET_COLOR, fog: false } );
+  this.object = new THREE.Mesh( geometry, material );
+  this.object.position.copy(position);
+  this.object.controller = this;
+  scene.add(this.object);
+  objects.push(this.object);
+}
+Bullet.prototype = {
+  update: function(delta, now) {
+    if (this.distanceTraveled > this.maxDistance) {
+      this.destroy();
+    }
+    var diff = this.direction.clone().multiplyScalar(delta);
+    this.distanceTraveled += diff.length();
+    this.object.position.add(diff);
+  },
+  destroy: function() {
+    scene.remove(this.object);
+
+    // remove from objects array
+    objects.splice(objects.indexOf(this.object), 1);
   },
 };
