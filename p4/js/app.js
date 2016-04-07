@@ -1,7 +1,6 @@
 'use strict';
 
 var scene, camera, renderer, composer, glowcomposer;
-var geometry, material, mesh;
 var floor, island;
 var onRenderFcts = [];
 var map;
@@ -44,7 +43,7 @@ placeable.forEach(function(control) {
 
 init();
 
-var mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2(10000,10000), raycaster = new THREE.Raycaster();
 
 var money = 0;
 var score = 0;
@@ -67,13 +66,21 @@ function init() {
   camera.position.z = 2;
   camera.position.y = 8;
 
-  geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  material = new THREE.MeshBasicMaterial( { color: 0xff00ff, fog: false } );
-
-  mesh = new THREE.Mesh( geometry, material );
+  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  var material = new THREE.MeshBasicMaterial( { color: 0xff00ff, fog: false } );
+  var mesh = new THREE.Mesh( geometry, material );
   mesh.position.y = 1;
-  scene.add( mesh );
+  scene.add(mesh);
   camera.lookAt(mesh.position);
+  onRenderFcts.push(function() {
+    mesh.rotation.y += 0.02;
+  });
+
+  setInterval(function() {
+    var dir = new THREE.Vector3(2*Math.random()-1, 4, 2*Math.random()-1);
+    dir.multiplyScalar(6/dir.length());
+    new Particle(mesh.position, dir, 0xffffff, 0.1);
+  }, 100);
 
   map = new Map(new THREE.Vector3(mapWidth/2, mapElevation, -mapHeight/2),
                 mapWidth, mapHeight, 1);
@@ -501,7 +508,6 @@ function render(nowMsec) {
 
   waterMaterial.uniforms.time.value = nowMsec;
 
-  mesh.rotation.y += 0.02;
 
   // measure time
   lastTimeMsec	= lastTimeMsec || nowMsec-1000/60;

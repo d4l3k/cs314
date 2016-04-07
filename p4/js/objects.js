@@ -103,21 +103,24 @@ Turret.prototype = {
     }
   },
 };
-
-function Bullet(position, direction) {
-  this.direction = direction.clone();
-  this.distanceTraveled = 0;
-  this.maxDistance = 80;
-
-  var geometry = new THREE.BoxGeometry( .2, .2, .2 );
-  var material = new THREE.MeshBasicMaterial( { color: BULLET_COLOR, fog: false } );
-  this.object = new THREE.Mesh( geometry, material );
-  this.object.position.copy(position);
-  this.object.controller = this;
-  scene.add(this.object);
-  objects.push(this.object);
+function Particle(position, direction, color, size) {
+  this.constructor(position, direction, color, size);
 }
-Bullet.prototype = {
+Particle.prototype = {
+  constructor: function(position, direction, color, size){
+    this.direction = direction.clone();
+    this.distanceTraveled = 0;
+    this.maxDistance = 10;
+    this.acceleration = new THREE.Vector3(0,-9.8,0);
+
+    var geometry = new THREE.BoxGeometry( size, size, size );
+    var material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
+    this.object = new THREE.Mesh( geometry, material );
+    this.object.position.copy(position);
+    this.object.controller = this;
+    scene.add(this.object);
+    objects.push(this.object);
+  },
   update: function(delta, now) {
     if (this.distanceTraveled > this.maxDistance) {
       this.destroy();
@@ -125,6 +128,9 @@ Bullet.prototype = {
     var diff = this.direction.clone().multiplyScalar(delta);
     this.distanceTraveled += diff.length();
     this.object.position.add(diff);
+    if (this.acceleration) {
+      this.direction.add(this.acceleration.clone().multiplyScalar(delta));
+    }
   },
   destroy: function() {
     scene.remove(this.object);
@@ -133,3 +139,14 @@ Bullet.prototype = {
     objects.splice(objects.indexOf(this.object), 1);
   },
 };
+
+function Bullet(position, direction) {
+  Particle.prototype.constructor.call(this, position, direction, BULLET_COLOR, 0.2);
+  this.maxDistance = 80;
+  this.acceleration = null;
+}
+Bullet.prototype = {
+  update: Particle.prototype.update,
+  destroy: Particle.prototype.destroy,
+};
+
