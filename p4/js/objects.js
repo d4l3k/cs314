@@ -35,13 +35,15 @@ Wall.prototype = {
   description: 'A basic wall for stopping monsters.',
   cost: 100,
   destroyCost: 25,
-  maxHealth: 100,
+  maxHealth: 25,
   damage: function(damage) {
-    const Y_MULTIPLER = 1;
-    this.health -= damage;
-    this.object.position.y -= damage * Y_MULTIPLER;
-    if (this.health < 0) {
-      // TODO: kill
+    this.health = Math.max(0, this.health - damage);
+    this.object.scale.x = this.health/Wall.prototype.maxHealth;
+    this.object.scale.z = this.health/Wall.prototype.maxHealth;
+    if (this.health <= 0) {
+      // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
+      this.map.removeEntity(this);
+      this.object.remove();
     }
   }
 };
