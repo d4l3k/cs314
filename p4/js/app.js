@@ -229,6 +229,12 @@ function init() {
       }
     });
   });
+
+  window.addEventListener('resize', function() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
 }
 
 // topLevelObject returns the parent object that is a direct descendent of the scene.
@@ -463,7 +469,6 @@ function render(nowMsec) {
   camera.position.z = ROTATION_DISTANCE * Math.sin(angle);
   camera.lookAt(mesh.position);
 
-  //renderer.render( scene, camera );
   renderer.clear();
   glowcomposer.render(deltaMsec/1000);
   composer.render(deltaMsec/1000);
