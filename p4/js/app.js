@@ -16,8 +16,8 @@ var sandMaterial = new THREE.MeshLambertMaterial();
 var sunAngle = Math.PI/2;
 var dayDuration = 10;
 
-const mapWidth = 9; // map size in x dimension
-const mapHeight = 5; // map size in z dimension
+const mapWidth = 15; // map size in x dimension
+const mapHeight = 15; // map size in z dimension
 const mapElevation = 0.7; // y position of the baseline map level.
 
 const sandColor = 0xEDC9AF;
@@ -35,7 +35,7 @@ placeable.forEach(function(control) {
   var button = document.createElement("a");
   button.classList.add("button");
   button.dataset.item = name;
-  button.innerText = name+' - $'+control.cost;
+  button.innerText = name+' -$'+control.prototype.cost;
   document.querySelector('#items').appendChild(button);
 });
 
@@ -167,8 +167,14 @@ function init() {
     mouse.y = - ( e.clientY / renderer.domElement.height ) * 2 + 1;
   });
   renderer.domElement.addEventListener('click', function(e) {
-    if (cursor.visible && activeControl) {
-      if (!addMoney(-activeControl.cost)) {
+    if (!cursor.visible || !cursorObject) {
+      return;
+    }
+    if (activeControl) {
+      if (!(cursorObject.controller instanceof Wall || cursorObject == floor)) {
+        return;
+      }
+      if (!addMoney(-activeControl.prototype.cost)) {
         return;
       }
       var item = new activeControl();
@@ -176,25 +182,31 @@ function init() {
       scene.add(item.object);
       item.object.position.x = cursor.position.x;
       item.object.position.z = cursor.position.z;
+      setSelectedObject(item.object);
       // XXX map.pushConstruct(item, cursor.position.x, cursor.position.z);
+    } else {
+      setSelectedObject(cursorObject);
     }
   });
+  document.querySelector('#info #unselect').addEventListener('click', function() {
+    setSelectedObject(null);
+  });
+
   onRenderFcts.push(function(delta, now) {
     raycaster.setFromCamera( mouse, camera );
     var intersectable = [floor].concat(objects);
-    var intersects = raycaster.intersectObjects( intersectable );
+    var intersects = raycaster.intersectObjects(intersectable, true);
     cursor.visible = false;
     intersects.slice(0,1).forEach(function(intersect) {
-      var obj = intersect.object;
+      var obj = topLevelObject(intersect.object);
       var pos = intersect.point;
       if (obj === floor) {
         cursor.position.y = floor.position.y - 0.5;
-      } else if (obj.controller instanceof Wall) {
+      } else {
         pos = obj.position;
         cursor.position.y = obj.position.y;
-      } else {
-        return
       }
+      cursorObject = obj;
       cursor.visible = true;
       cursor.position.x = Math.floor(pos.x+0.5);
       cursor.position.z = Math.floor(pos.z+0.5);
@@ -209,6 +221,14 @@ function init() {
   });
 }
 
+// topLevelObject returns the parent object that is a direct descendent of the scene.
+function topLevelObject(obj) {
+  while(!(obj.parent instanceof THREE.Scene) && obj.parent) {
+    obj = obj.parent;
+  }
+  return obj;
+}
+
 var activeControl = null;
 function initControls() {
   var itemButtons = document.querySelectorAll('#items .button');
@@ -218,7 +238,7 @@ function initControls() {
         b2.classList.remove('selected');
       });
       button.classList.add('selected');
-      activeControl = controls[button.dataset.item]
+      activeControl = controls[button.dataset.item];
     });
   });
 
@@ -323,6 +343,24 @@ function generateWater(waterLevel, width, height) {
 }
 
 var cursor;
+var cursorObject;
+var selectedObject = null;
+function setSelectedObject(obj) {
+  selectedObject = obj;
+  var infoPane = document.querySelector('#info');
+  if (!selectedObject) {
+    infoPane.classList.add('hidden');
+    return;
+  }
+  var infoTitle = document.querySelector('#info #title');
+  infoTitle.innerText = obj.controller.name;
+  var infoDesc = document.querySelector('#info #desc');
+  infoDesc.innerText = obj.controller.description;
+  var infoCost = document.querySelector('#info #cost');
+  infoCost.innerText = obj.controller.destroyCost;
+
+  infoPane.classList.remove('hidden');
+}
 function addFloor() {
   const meshPrecision = 4;
   const islandFalloff = 2.5;

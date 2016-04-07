@@ -28,7 +28,12 @@ function Wall() {
 		this.object.add(side);
 	}
 }
-Wall.cost = 100;
+Wall.prototype = {
+  name: 'Wall',
+  description: 'A basic wall for stopping monsters.',
+  cost: 100,
+  destroyCost: 25,
+};
 
 function Turret() {
   // Configuration
@@ -67,8 +72,11 @@ function Turret() {
   this.targetPos = new THREE.Vector3(0,0,0);
   this.lastFired = 0;
 }
-Turret.cost = 1000;
 Turret.prototype = {
+  name: 'Turret',
+  description: 'Shoots at enemies. Pew pew!',
+  cost: 1000,
+  destroyCost: 250,
   update: function(delta, now) {
     var target = nearestEnemy(this.object.position);
     var pos;
@@ -89,7 +97,6 @@ Turret.prototype = {
 
     if (length < 0.1 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
       this.lastFired = now;
-      console.log('firing!');
       var dir = this.targetPos.clone().sub(this.object.position);
       dir.multiplyScalar(this.bulletSpeed/dir.length());
       new Bullet(this.object.position, dir);

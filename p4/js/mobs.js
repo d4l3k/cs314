@@ -45,7 +45,7 @@ Monster.prototype = {
     this.model.position.set(this.position.x, 1, this.position.y);
 
     // a priori collision detection
-    //var tracer = new 
+    //var tracer = new
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
@@ -113,7 +113,10 @@ var Wave = function(scene, map, spawnHeight, difficulty) {
   this.map = map;
   this.started = false;
   this.difficulty = difficulty || 0;
-  this.monsters = [new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0))];
+  this.monsters = [
+		new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0)),
+		new DebugMonster(new THREE.Vector2().set(-5, -5), new THREE.Vector2().set(0, 0)),
+	];
 }
 
 Wave.prototype = {

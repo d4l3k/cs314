@@ -68,16 +68,24 @@ void main() {
   </script>
 </head>
 <body>
-  <div id="overlay" class="panel">
-    Items
-    <div id="items" class="well inline">
-      <a class="button selected">NONE</a>
+  <div id="overlay">
+    <div id="info" class="panel hidden">
+      <h1 id="title"></h1>
+      <p id="desc"></p>
+      <a id="destroy" class="button">Destroy +$<span id="cost"></span></a>
+      <a id="unselect" class="button">UNSELECT</a>
     </div>
-    <div>
-      $<span id="money">0</span>,
-      <span id="score">0</span> points
+    <br>
+    <div class="panel">
+      <div id="items" class="well inline">
+        <a class="button selected">SELECT</a>
+      </div>
+      <div>
+        $<span id="money">0</span>,
+        <span id="score">0</span> points
+      </div>
+      <a id="next" class="button">Next Wave</a>
     </div>
-    <a id="next" class="button">Next Wave</a>
   </div>
 
   <script src="bower_components/three.js/build/three.min.js"></script>
