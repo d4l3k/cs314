@@ -149,14 +149,19 @@ DebugMonster.prototype.update = function(dt) {
 var Wave = function(scene, map, spawnHeight, difficulty) {
   this.scene = scene;
   this.map = map;
+  this.spawnHeight = spawnHeight;
   this.started = false;
-  this.difficulty = difficulty || 0;
-  this.monsters = [
-		new DebugMonster(map, new THREE.Vector3().set(-5, 1, -5), new THREE.Vector3().set(0, 1, 0)),
-		new DebugMonster(map, new THREE.Vector3().set(5, 1, 5), new THREE.Vector3().set(0, 1, 0)),
-		new DebugMonster(map, new THREE.Vector3().set(-5, 1, 5), new THREE.Vector3().set(0, 1, 0)),
-		new DebugMonster(map, new THREE.Vector3().set(5, 1, -5), new THREE.Vector3().set(0, 1, 0)),
-	];
+  this.difficulty = difficulty || 1;
+  this.monsters = [];
+  const SPAWN_DISTANCE = 15;
+  for (i = 0; i < difficulty; i++) {
+    // Spawn monster a random direction from the origin.
+    var position = new THREE.Vector3().set(2 * Math.random() - 1, 0, 2 * Math.random() - 1)
+                                      .normalize()
+                                      .multiplyScalar(SPAWN_DISTANCE);
+    position.y = this.spawnHeight;
+    this.monsters.push(new DebugMonster(map, position, new THREE.Vector3().set(0, 1, 0)));
+  }
 }
 
 Wave.prototype = {
@@ -172,5 +177,12 @@ Wave.prototype = {
     this.monsters.forEach(function(monster) {
       monster.update(dt);
     });
+  },
+  next: function() {
+    this.monsters.forEach(function(monster) {
+      this.map.removeEntity(monster);
+      this.scene.remove(monster.object);
+    });
+    return new Wave(this.scene, this.map, this.spawnHeight, this.difficulty + 1);
   }
 }

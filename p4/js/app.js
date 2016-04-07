@@ -22,6 +22,8 @@ var dayDuration = 10;
 const mapWidth = 15; // map size in x dimension
 const mapHeight = 15; // map size in z dimension
 const mapElevation = 0.7; // y position of the baseline map level.
+const mapFalloffSigma = 2; // sigma value of gaussianlike decay around island edges
+const seabedElevation = -1;
 
 const sandColor = 0xEDC9AF;
 
@@ -280,6 +282,10 @@ function init() {
     setSelectedObject(null);
     map.removeEntity(selectedObject);
   });
+  document.querySelector('#next').addEventListener('click', function() {
+    wave = wave.next();
+    wave.start();
+  });
 
   onRenderFcts.push(function(delta, now) {
     raycaster.setFromCamera( mouse, camera );
@@ -338,7 +344,7 @@ function initControls() {
   });
 
   // TODO: setup ai.
-  wave = new Wave(scene, map);
+  wave = new Wave(scene, map, mapElevation, 1);
   wave.start();
 }
 
@@ -358,14 +364,43 @@ function nearestEnemy(position) {
   return enemy;
 }
 
+// A poor man's Gaussian (no normalization).
+function decay(x, sigmaFalloff) {
+  return Math.exp(-(x * x)/(2 * sigmaFalloff * sigmaFalloff));
+}
+
+// Computes falloff for the given x and z coordinates around a rectangular region.
+// Assume coordinates on the rectangle are in range [0, width), [0, height).
+function computeFalloff(x, z, width, height, sigmaFalloff) {
+  // FIXME: this is pretty gross tbh, I'd like to measure clamped distance from plane center
+  var value = 1.0;
+  if (x < 0) {
+    value *= decay(x, sigmaFalloff);
+  }
+  if (z < 0) {
+    value *= decay(z, sigmaFalloff);
+  }
+  if (x > width) {
+    value *= decay(x - width, sigmaFalloff);
+  }
+  if (z > height) {
+    value *= decay(z - height, sigmaFalloff);
+  }
+  return value;
+}
+
 /**
  * Returns the height of the bottom of the map at the given coordinates.
  */
-var floorCaster = new THREE.Raycaster();
 function floorY(x, z) {
-  floorCaster.set(new THREE.Vector3().set(x, 10, z), new THREE.Vector3().set(0, -1, 0));
-  var intersections = floorCaster.intersectObjects([island, seabed], true);
-  return intersections[0].point.y;
+  if (x < -mapWidth/2 || x > mapWidth/2 || z < -mapHeight/2 || z > mapHeight/2) {
+    // Use gaussian falloff out of bounds.
+    return Math.max(seabedElevation,
+        (mapElevation - seabedElevation) *
+        computeFalloff(x + mapWidth / 2, z + mapWidth / 2, mapWidth, mapHeight, mapFalloffSigma)
+        + seabedElevation);
+  }
+  return mapElevation;
 }
 
 // Generates an island mesh with the given width, height, and depth boundaries.
@@ -376,11 +411,6 @@ function floorY(x, z) {
 // - sigmaFalloff: is the sigma parameter in the gaussian-like distribution used for falloff.
 //
 function generateIsland(centerX, centerY, width, height, z_max, z_min, precision, heightVariance, sigmaFalloff) {
-  // A poor man's Gaussian (no normalization).
-  function decay(x) {
-    return Math.exp(-(x * x)/(2 * sigmaFalloff * sigmaFalloff));
-  }
-
   var geometry = new THREE.Geometry();
 
   // Number of world units to extend the gaussian falloff for; encapsulate 3
@@ -395,22 +425,7 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
     for (var x = 0; x < planeWidth; x++) {
       var worldX = x/precision;
       var worldY = y/precision;
-      var falloff = z_max - z_min;
-
-      // FIXME: this is pretty gross tbh, I'd like to measure clamped distance from plane center
-      if (worldX < sigmaSize) {
-        falloff *= decay(sigmaSize - worldX);
-      }
-      if (worldY < sigmaSize) {
-        falloff *= decay(sigmaSize - worldY);
-      }
-      if (worldX - sigmaSize > width) {
-        falloff *= decay(worldX - sigmaSize - width);
-      }
-      if (worldY - sigmaSize > height) {
-        falloff *= decay(worldY - sigmaSize - height);
-      }
-
+      var falloff = (z_max - z_min) * computeFalloff(worldX - sigmaSize, worldY - sigmaSize, width, height, sigmaFalloff);
       var elevation = Math.max(falloff + z_min - (heightVariance * Math.random()), z_min);
 
       geometry.vertices.push(
@@ -470,8 +485,7 @@ function setSelectedObject(obj) {
 }
 function addFloor() {
   const meshPrecision = 5;
-  const islandFalloff = 2;
-  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -1, meshPrecision, 0.05, islandFalloff);
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, seabedElevation, meshPrecision, 0.05, mapFalloffSigma);
   scene.add(island);
 
   //var normals = new THREE.FaceNormalsHelper(island, 0.2, 0x00ff00, 1);
