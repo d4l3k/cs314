@@ -137,6 +137,10 @@ Particle.prototype = {
     if (this.object.position.y < floor.position.y) {
       this.direction.y *= -0.8;
     }
+    var scale = this.maxDistance - this.distanceTraveled;
+    if (scale < 1 && scale >= 0) {
+      this.object.geometry.scale(scale, scale, scale);
+    }
   },
   destroy: function() {
     scene.remove(this.object);
