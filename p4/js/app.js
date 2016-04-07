@@ -7,6 +7,7 @@ var map;
 
 var cameraSpeed = 10;
 var cameraDir = new THREE.Vector3(0,0,0);
+var cameraElevation = 8;
 
 //var floorColor = 0x113300;//0x8EFAB4;
 var fogColor = 0x87CEEB;
@@ -191,6 +192,20 @@ function init() {
     } else {
       cameraDir.z = 0;
     }
+  });
+  document.body.addEventListener('wheel', function(e) {
+    const maxY = 50;
+    const minY = 3;
+    var scrollAmount = e.deltaY;
+    switch (e.deltaMode) {
+      case 0x0: // DOM_DELTA_PIXEL
+        scrollAmount /= 50;
+        break;
+      case 0x1: // DOM_DELTA_LINE
+      case 0x2: // DOM_DELTA_PAGE
+        break;
+    }
+    cameraElevation = Math.min(Math.max(cameraElevation + scrollAmount, minY), maxY);
   });
   document.body.addEventListener('keydown', function(e) {
     switch(e.which) {
@@ -534,6 +549,7 @@ function render(nowMsec) {
   */
 
   camera.position.add(cameraDir.clone().multiplyScalar(cameraSpeed*deltaMsec/1000));
+  camera.position.y = cameraElevation;
 
   renderer.clear();
   glowcomposer.render(deltaMsec/1000);
