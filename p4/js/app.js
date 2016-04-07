@@ -176,7 +176,7 @@ function init() {
       scene.add(item.object);
       item.object.position.x = cursor.position.x;
       item.object.position.z = cursor.position.z;
-      map.pushConstruct(item, cursor.position.x, cursor.position.z);
+      // XXX map.pushConstruct(item, cursor.position.x, cursor.position.z);
     }
   });
   onRenderFcts.push(function(delta, now) {
