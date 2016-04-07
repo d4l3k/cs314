@@ -67,7 +67,8 @@ function init() {
   camera.position.y = 8;
 
   var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  var material = new THREE.MeshBasicMaterial( { color: 0xff00ff, fog: false } );
+  var texture = THREE.ImageUtils.loadTexture( "textures/cube.jpg" );
+  var material = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, fog: false } );
   var mesh = new THREE.Mesh( geometry, material );
   mesh.position.y = 1;
   scene.add(mesh);
