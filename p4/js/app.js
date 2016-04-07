@@ -6,6 +6,9 @@ var floor, island;
 var onRenderFcts = [];
 var map;
 
+var cameraSpeed = 10;
+var cameraDir = new THREE.Vector3(0,0,0);
+
 //var floorColor = 0x113300;//0x8EFAB4;
 var fogColor = 0x87CEEB;
 
@@ -61,9 +64,8 @@ function init() {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
-  camera.position.x = -2;
-  camera.position.z = -4;
-  camera.position.y = 2.5;
+  camera.position.z = 2;
+  camera.position.y = 8;
 
   geometry = new THREE.BoxGeometry( 1, 1, 1 );
   material = new THREE.MeshBasicMaterial( { color: 0xff00ff, fog: false } );
@@ -165,7 +167,28 @@ function init() {
   document.body.addEventListener('mousemove', function(e) {
     mouse.x = ( e.clientX / renderer.domElement.width ) * 2 - 1;
     mouse.y = - ( e.clientY / renderer.domElement.height ) * 2 + 1;
+
+    if (mouse.x < -0.9) {
+      cameraDir.x = -1;
+    } else if (mouse.x > 0.9) {
+      cameraDir.x = 1;
+    } else {
+      cameraDir.x = 0;
+    }
+
+    if (mouse.y < -0.9) {
+      cameraDir.z = 1;
+    } else if (mouse.y > 0.9) {
+      cameraDir.z = -1;
+    } else {
+      cameraDir.z = 0;
+    }
   });
+  document.body.addEventListener('mouseout', function() {
+    cameraDir.x = 0;
+    cameraDir.z = 0;
+  });
+
   renderer.domElement.addEventListener('click', function(e) {
     if (!cursor.visible || !cursorObject) {
       return;
@@ -461,6 +484,7 @@ function render(nowMsec) {
   wave.update(deltaMsec/1000);
 
   // TODO: remove demo rotation.
+  /*
   const ROTATION_DISTANCE = 8;
   const ROTATION_HEIGHT = 4;
   var angle = nowMsec * Math.PI/48000 % 2 * Math.PI;
@@ -468,6 +492,9 @@ function render(nowMsec) {
   camera.position.y = ROTATION_HEIGHT;
   camera.position.z = ROTATION_DISTANCE * Math.sin(angle);
   camera.lookAt(mesh.position);
+  */
+
+  camera.position.add(cameraDir.clone().multiplyScalar(cameraSpeed*deltaMsec/1000));
 
   renderer.clear();
   glowcomposer.render(deltaMsec/1000);
