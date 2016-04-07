@@ -26,6 +26,7 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
   this.collisionRadius = collisionRadius;
   this.path = [];
   this.bounciness = bounciness || 2;
+  this.gravity = new THREE.Vector3().set(0, -0.1, 0);
 }
 
 Monster.prototype = {
@@ -42,18 +43,27 @@ Monster.prototype = {
     if (this.velocity.length() > this.maxSpeed) {
       this.velocity.normalize().multiplyScalar(this.maxSpeed);
     }
+    this.velocity.add(this.gravity.clone().multiplyScalar(dt));
+
+    // Bounce if we hit the floor.
+    var minY = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
+    if (this.position.y < minY) {
+      this.position.y = minY;
+      this.velocity.y = this.bounciness * dt;
+    }
 
     // cheap a posteriori collision detection
     // does not stop things going very fast
-    const maxCollisions = 100;
-    for (numCollisions = 0; numCollisions < maxCollisions; numCollisions++) {
+    var collidedObjects = []; // keep track of collided objects so we don't recurse too much
+    for (;;) {
       var newPosition = new THREE.Vector3().addVectors(this.position, this.velocity);
+
       var collider = this.map.collidesWith(this, newPosition);
-      if (!collider)
+      if (!collider || collidedObjects.indexOf(collider) != -1)
         break;
+      collidedObjects.push(collider);
 
       var normal = new THREE.Vector3().subVectors(newPosition, collider.object.position)
-                                      .projectOnPlane(new THREE.Vector3(0, 1, 0))
                                       .normalize();
       // Project the negated velocity onto the normal between the cylindrical colliders.
       var bounceVector = new THREE.Vector3().copy(this.velocity)
@@ -69,8 +79,8 @@ Monster.prototype = {
     this.position.add(this.velocity);
 
     // FIXME: fix plane constraint y=1
-    var y = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
-    this.object.position.set(this.position.x, y, this.position.z);
+    //var y = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
+    this.object.position.set(this.position.x, this.position.y, this.position.z);
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
