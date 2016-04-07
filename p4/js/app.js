@@ -548,8 +548,12 @@ function render(nowMsec) {
   camera.lookAt(mesh.position);
   */
 
-  camera.position.add(cameraDir.clone().multiplyScalar(cameraSpeed*deltaMsec/1000));
-  camera.position.y = cameraElevation;
+  var cameraDelta = cameraSpeed * deltaMsec/1000;
+  camera.position.add(cameraDir.clone().multiplyScalar(cameraDelta));
+  if (Math.abs(camera.position.y - cameraElevation) > cameraDelta) {
+    // Animate elevation changes.
+    camera.position.y += cameraDelta * (camera.position.y < cameraElevation ? 1 : -1);
+  }
 
   renderer.clear();
   glowcomposer.render(deltaMsec/1000);
