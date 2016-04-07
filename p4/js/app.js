@@ -1,7 +1,7 @@
 'use strict';
 
 var scene, camera, renderer, composer, glowcomposer;
-var floor, island;
+var floor, island, seabed;
 var onRenderFcts = [];
 var map;
 
@@ -84,9 +84,6 @@ function init() {
     new Particle(mesh.position, dir, 0xffffff, 0.1);
   }, 100);
 
-  map = new Map(new THREE.Vector3(mapWidth/2, mapElevation, -mapHeight/2),
-                mapWidth, mapHeight, 1);
-
   // Setup water material, which depends on the current time.
   waterMaterial = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([ {
@@ -104,6 +101,10 @@ function init() {
   });
 
   addFloor();
+
+  map = new Map(new THREE.Vector3(mapWidth/2, mapElevation, -mapHeight/2),
+                mapWidth, mapHeight, 1);
+
   initControls();
 
   var light = new THREE.AmbientLight( 0x404040 );
@@ -357,6 +358,16 @@ function nearestEnemy(position) {
   return enemy;
 }
 
+/**
+ * Returns the height of the bottom of the map at the given coordinates.
+ */
+var floorCaster = new THREE.Raycaster();
+function floorY(x, z) {
+  floorCaster.set(new THREE.Vector3().set(x, 10, z), new THREE.Vector3().set(0, -1, 0));
+  var intersections = floorCaster.intersectObjects([island, seabed], true);
+  return intersections[0].point.y;
+}
+
 // Generates an island mesh with the given width, height, and depth boundaries.
 // The island's height map is determined by a combination of a uniform noise
 // field for the surface of the island, and a gaussian falloff around the edges.
@@ -482,7 +493,7 @@ function addFloor() {
   */
 
   var seabedGeometry = new THREE.PlaneGeometry(1000, 1000);
-  var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshPhongMaterial({color: sandColor}));
+  seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshPhongMaterial({color: sandColor}));
   seabed.rotateX(-Math.PI/2);
   seabed.position.set(0, -1, 0);
   scene.add(seabed);

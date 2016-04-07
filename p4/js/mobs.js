@@ -65,11 +65,15 @@ Monster.prototype = {
     this.position.add(this.velocity);
 
     // FIXME: fix plane constraint y=1
-    this.object.position.set(this.position.x, this.position.y, this.position.z);
+    var y = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
+    this.object.position.set(this.position.x, y, this.position.z);
 
     if (this.target.distanceTo(this.position) <= this.collisionRadius) {
       // TODO: end game or something, placeholder for now
-      this.position.set(Math.random() * 10 - 5, this.position.y, Math.random() * 10 - 5);
+      var x = Math.random() * 30 - 10,
+          z = Math.random() * 30 - 10;
+      var y = floorY(x, z) + this.collisionRadius / 2;
+      this.position.set(x, y, z);
     }
   },
   /**
