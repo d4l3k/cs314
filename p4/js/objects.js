@@ -112,7 +112,7 @@ Particle.prototype = {
   constructor: function(position, direction, color, size){
     this.direction = direction.clone();
     this.distanceTraveled = 0;
-    this.maxDistance = 10;
+    this.maxDistance = 6;
     this.acceleration = new THREE.Vector3(0,-9.8,0);
 
     var geometry = new THREE.BoxGeometry( size, size, size );
@@ -132,6 +132,10 @@ Particle.prototype = {
     this.object.position.add(diff);
     if (this.acceleration) {
       this.direction.add(this.acceleration.clone().multiplyScalar(delta));
+    }
+    // bounce off ground
+    if (this.object.position.y < floor.position.y) {
+      this.direction.y *= -0.8;
     }
   },
   destroy: function() {
