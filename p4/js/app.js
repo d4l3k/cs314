@@ -323,13 +323,15 @@ function generateIsland(centerX, centerY, width, height, z_max, z_min, precision
             bIndex = aIndex + 1,
             cIndex = aIndex + planeWidth,
             dIndex = bIndex + planeWidth;
-        var phNormal = new THREE.Vector3().set(0, 1, 0); // TODO
-        var faceTop = new THREE.Face3(dIndex, bIndex, aIndex, phNormal);
-        var faceBottom = new THREE.Face3(aIndex, cIndex, dIndex, phNormal);
+        var faceTop = new THREE.Face3(dIndex, bIndex, aIndex);
+        var faceBottom = new THREE.Face3(aIndex, cIndex, dIndex);
         geometry.faces.push(faceTop, faceBottom);
       }
     }
   }
+
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
 
   return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: sandColor }));
 }
@@ -362,9 +364,9 @@ function setSelectedObject(obj) {
   infoPane.classList.remove('hidden');
 }
 function addFloor() {
-  const meshPrecision = 4;
-  const islandFalloff = 2.5;
-  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -2, meshPrecision, 0.15, islandFalloff);
+  const meshPrecision = 5;
+  const islandFalloff = 2;
+  island = generateIsland(-0.5, -0.5, mapWidth, mapHeight, mapElevation, -1, meshPrecision, 0.05, islandFalloff);
   scene.add(island);
 
   //var normals = new THREE.FaceNormalsHelper(island, 0.2, 0x00ff00, 1);
@@ -388,7 +390,7 @@ function addFloor() {
   var seabedGeometry = new THREE.PlaneGeometry(1000, 1000);
   var seabed = new THREE.Mesh(seabedGeometry, new THREE.MeshPhongMaterial({color: sandColor}));
   seabed.rotateX(-Math.PI/2);
-  seabed.position.set(0, -2, 0);
+  seabed.position.set(0, -1, 0);
   scene.add(seabed);
 
   var water = generateWater(0.2, 1000, 1000);
