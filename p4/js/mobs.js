@@ -12,8 +12,9 @@
  * @param {THREE.Vector2} start - Start coordinate in the xz-plane.
  * @param {THREE.Vector2} target - Target coordinate to path to in the xz-plane.
  * @param {float} collisionRadius - Radius to collide with game objects (using spherical collision detection).
+ * @param {float} bounciness - Linear bounciness factor of velocity to negate on collision.
  */
-var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, collisionRadius) {
+var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, collisionRadius, bounciness) {
   this.model = model;
   this.map = map;
   this.position = start;
@@ -24,6 +25,7 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
   this.dps = dps;
   this.collisionRadius = collisionRadius;
   this.path = [];
+  this.bounciness = bounciness || 2;
 }
 
 Monster.prototype = {
@@ -43,16 +45,19 @@ Monster.prototype = {
 
     // cheap a posteriori collision detection
     // does not stop things going very fast
-    const maxCollisions = 5;
-    var collider;
-    for (numCollisions = 0; (collider = this.map.collidesWith(this, new THREE.Vector3().addVectors(this.position, this.velocity)))
-                            && numCollisions < maxCollisions; numCollisions++) {
-      // FIXME: switch to targetEntity.
-      //if (collider == this.target) {
-      //}
-      // TODO: project along normal, negate.
-      var normal = new THREE.Vector3().subVectors(this.position, collider.model.position);
-      this.velocity.negate();
+    const maxCollisions = 20;
+    for (numCollisions = 0; numCollisions < maxCollisions; numCollisions++) {
+      var newPosition = new THREE.Vector3().addVectors(this.position, this.velocity);
+      var collider = this.map.collidesWith(this, newPosition);
+      if (!collider)
+        break;
+
+      var normal = new THREE.Vector3().subVectors(newPosition, collider.model.position).normalize();
+      // Project the negated velocity onto the normal between the spherical colliders.
+      var bounceVector = new THREE.Vector3().copy(this.velocity)
+                                            .negate()
+                                            .projectOnVector(normal);
+      this.velocity.addScaledVector(bounceVector, this.bounciness);
     }
 
     this.position.add(this.velocity);
@@ -104,8 +109,8 @@ Monster.prototype = {
 
 var DebugMonster = function DebugMonster(map, start, target) {
   const radius = 0.5;
-  var geometry = new THREE.SphereGeometry(radius);
-  var material = new THREE.MeshLambertMaterial({color: 0xff0000});
+  var geometry = new THREE.SphereGeometry(radius, 32);
+  var material = new THREE.MeshPhongMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
   Monster.call(this, mesh, map, 0.1, 0.5, 0.25, start, target, radius);
@@ -129,6 +134,8 @@ var Wave = function(scene, map, spawnHeight, difficulty) {
   this.monsters = [
 		new DebugMonster(map, new THREE.Vector3().set(-5, 1, -5), new THREE.Vector3().set(0, 1, 0)),
 		new DebugMonster(map, new THREE.Vector3().set(5, 1, 5), new THREE.Vector3().set(0, 1, 0)),
+		new DebugMonster(map, new THREE.Vector3().set(-5, 1, 5), new THREE.Vector3().set(0, 1, 0)),
+		new DebugMonster(map, new THREE.Vector3().set(5, 1, -5), new THREE.Vector3().set(0, 1, 0)),
 	];
 }
 
