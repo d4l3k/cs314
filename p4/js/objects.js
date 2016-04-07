@@ -13,7 +13,8 @@ function Wall() {
   this.object = new THREE.Mesh( this.geometry, this.material );
   this.object.controller = this;
   this.object.position.y = cursorElevation() + 0.5;
-  this.collisionRadius = 0.5;
+  this.collisionRadius = 0.75;
+  this.health = Wall.prototype.maxHealth;
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
@@ -34,6 +35,15 @@ Wall.prototype = {
   description: 'A basic wall for stopping monsters.',
   cost: 100,
   destroyCost: 25,
+  maxHealth: 100,
+  damage: function(damage) {
+    const Y_MULTIPLER = 1;
+    this.health -= damage;
+    this.object.position.y -= damage * Y_MULTIPLER;
+    if (this.health < 0) {
+      // TODO: kill
+    }
+  }
 };
 
 function Turret() {

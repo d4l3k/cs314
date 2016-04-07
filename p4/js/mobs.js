@@ -60,6 +60,10 @@ Monster.prototype = {
                                             .negate()
                                             .projectOnVector(normal);
       this.velocity.addScaledVector(bounceVector, this.bounciness);
+
+      if (collider.damage) {
+        collider.damage(this.dps * dt);
+      }
     }
 
     this.position.add(this.velocity);
@@ -119,7 +123,7 @@ var DebugMonster = function DebugMonster(map, start, target) {
   var material = new THREE.MeshPhongMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
-  Monster.call(this, mesh, map, 0.1, 0.5, 0.25, start, target, radius);
+  Monster.call(this, mesh, map, 0.1, 0.5, 5, start, target, radius);
 }
 
 DebugMonster.prototype = Object.create(Monster.prototype);

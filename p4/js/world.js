@@ -36,10 +36,12 @@ Map.prototype = {
   addEntity: function(entity) {
     // FIXME: assume entities have collisionRadius and collisionHandlers set.
     this.entities.push(entity);
+    entity.map = this;
   },
 
   removeEntity: function(entity) {
     this.entities.splice(this.entities.indexOf(entity), 1);
+    entity.map = null;
   },
 
   // Returns the first object in the scene that collides with the provided collider.
