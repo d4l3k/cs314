@@ -176,25 +176,38 @@ function init() {
 
 
   // setup mouse handlers
+  var lastX, lastY;
   document.body.addEventListener('mousemove', function(e) {
     mouse.x = ( e.clientX / renderer.domElement.width ) * 2 - 1;
     mouse.y = - ( e.clientY / renderer.domElement.height ) * 2 + 1;
 
-    if (mouse.x < -0.9) {
-      cameraDir.x = -1;
-    } else if (mouse.x > 0.9) {
-      cameraDir.x = 1;
+    // If middle mouse is held down, pan camera.
+    // We use inverse mouse panning, because that's my favourite feature of StarCraft 2. -acomminos
+    if ((e.buttons & 4) && lastX && lastY) {
+      const DRAG_SCALE = 20;
+      camera.position.x -= DRAG_SCALE * (e.clientX - lastX) / window.innerWidth;
+      camera.position.z -= DRAG_SCALE * (e.clientY - lastY) / window.innerHeight;
     } else {
-      cameraDir.x = 0;
+      // Otherwise, pan to edges.
+      if (mouse.x < -0.9) {
+        cameraDir.x = -1;
+      } else if (mouse.x > 0.9) {
+        cameraDir.x = 1;
+      } else {
+        cameraDir.x = 0;
+      }
+
+      if (mouse.y < -0.9) {
+        cameraDir.z = 1;
+      } else if (mouse.y > 0.9) {
+        cameraDir.z = -1;
+      } else {
+        cameraDir.z = 0;
+      }
     }
 
-    if (mouse.y < -0.9) {
-      cameraDir.z = 1;
-    } else if (mouse.y > 0.9) {
-      cameraDir.z = -1;
-    } else {
-      cameraDir.z = 0;
-    }
+    lastX = e.clientX;
+    lastY = e.clientY;
   });
   document.body.addEventListener('wheel', function(e) {
     const maxY = 50;
@@ -249,6 +262,11 @@ function init() {
     if (!cursor.visible || !cursorObject) {
       return;
     }
+
+    if (e.button != 0) {
+      return;
+    }
+
     if (activeControl) {
       if (!(cursorObject.controller instanceof Wall || cursorObject == floor)) {
         return;
