@@ -5,6 +5,32 @@ var floor, island, seabed;
 var onRenderFcts = [];
 var map;
 
+var audioElem = document.getElementById("music");
+audioElem.volume = 0.2;
+
+function playAmbientMusic() {
+  const tracks = [
+    "music/Mellowtron.mp3",
+    "music/KawaiKitsune.mp3"
+  ]
+  // Cycle through tracks depending on wave.
+  audioElem.src = tracks[wave.difficulty % 3];
+  audioElem.play();
+}
+
+function playBattleMusic() {
+  const tracks = [
+    "music/Reformat.mp3",
+    "music/VideoDungeonBoss.mp3",
+    "music/Rhinoceros.mp3",
+  ]
+  // TODO: make this a function of the current wave, so more intense tracks
+  // get played on "boss" waves?
+  // Cycle through tracks depending on wave.
+  audioElem.src = tracks[wave.difficulty % 3];
+  audioElem.play();
+}
+
 var cameraSpeed = 10;
 var cameraDir = new THREE.Vector3(0,0,0);
 var cameraElevation = 8;
@@ -360,6 +386,8 @@ function init() {
     camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
   });
+
+  playAmbientMusic();
 }
 
 // topLevelObject returns the parent object that is a direct descendent of the scene.
@@ -372,6 +400,10 @@ function topLevelObject(obj) {
 
 var activeControl = null;
 function initControls() {
+  document.getElementById('musicEnabled').addEventListener('change', function(e) {
+    audioElem.muted = !e.target.checked;
+  });
+
   var itemButtons = document.querySelectorAll('#items .button');
   [].forEach.call(itemButtons, function(button) {
     button.addEventListener('click', function(e) {
@@ -386,9 +418,11 @@ function initControls() {
   var waveButton = document.querySelector('#next');
   wave = new Wave(scene, map, mapElevation, {
     begin: function() {
+      playBattleMusic();
       waveButton.style.display = 'none';
     },
     end: function() {
+      playAmbientMusic();
       waveButton.style.display = '';
     }
   }, 1);

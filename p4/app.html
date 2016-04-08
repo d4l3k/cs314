@@ -81,6 +81,7 @@ void main() {
     </div>
     <br>
     <div class="panel">
+      <input type="checkbox" id="musicEnabled">Music</input><br>
       <div id="items" class="well inline">
         <a class="button selected">SELECT</a>
       </div>
@@ -98,6 +99,8 @@ void main() {
     <br>
     <a onclick="window.location.reload()" class="button">Play Again?</a>
   </div>
+
+  <audio id="music" loop="true" muted="true"></audio>
 
   <script src="bower_components/three.js/build/three.min.js"></script>
   <script src="bower_components/three.js/examples/js/shaders/CopyShader.js"></script>
