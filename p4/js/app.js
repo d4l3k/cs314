@@ -66,6 +66,9 @@ function addScore(d) {
 }
 function addHealth(d) {
   health += d;
+  if (health < 0) {
+    health = 0;
+  }
   document.querySelector('#health').innerText = health.toFixed(0);
   if (health <= 0) {
     document.querySelector("#gameover").classList.remove("hidden");
