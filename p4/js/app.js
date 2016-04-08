@@ -14,7 +14,7 @@ function playAmbientMusic() {
     "music/KawaiKitsune.mp3"
   ]
   // Cycle through tracks depending on wave.
-  audioElem.src = tracks[wave.difficulty % 3];
+  audioElem.src = tracks[wave.difficulty % tracks.length];
   audioElem.play();
 }
 
@@ -27,7 +27,7 @@ function playBattleMusic() {
   // TODO: make this a function of the current wave, so more intense tracks
   // get played on "boss" waves?
   // Cycle through tracks depending on wave.
-  audioElem.src = tracks[wave.difficulty % 3];
+  audioElem.src = tracks[wave.difficulty % tracks.length];
   audioElem.play();
 }
 
