@@ -319,8 +319,12 @@ function init() {
     map.removeEntity(selectedObject);
   });
   document.querySelector('#next').addEventListener('click', function() {
-    wave = wave.next();
-    wave.start();
+    if (!wave.started) {
+      wave.start();
+    } else {
+      wave = wave.next();
+      wave.start();
+    }
   });
 
   onRenderFcts.push(function(delta, now) {
@@ -379,9 +383,15 @@ function initControls() {
     });
   });
 
-  // TODO: setup ai.
-  wave = new Wave(scene, map, mapElevation, 1);
-  wave.start();
+  var waveButton = document.querySelector('#next');
+  wave = new Wave(scene, map, mapElevation, {
+    begin: function() {
+      waveButton.style.display = 'none';
+    },
+    end: function() {
+      waveButton.style.display = '';
+    }
+  }, 1);
 }
 
 function nearestEnemy(position) {

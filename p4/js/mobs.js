@@ -193,32 +193,37 @@ DebugMonster.prototype.update = function(dt) {
 // Creates a new 'wave'; a phase of the game with a given difficulty.
 // Difficulty is a simple integer value indicating the current wave.
 // If unset, difficulty defaults to zero (the initial wave).
-var Wave = function(scene, map, spawnHeight, difficulty) {
+var Wave = function(scene, map, spawnHeight, callbacks, difficulty) {
   this.scene = scene;
   this.map = map;
   this.spawnHeight = spawnHeight;
   this.started = false;
+  this.callbacks = callbacks;
   this.difficulty = difficulty || 1;
   this.monsters = [];
-  const SPAWN_DISTANCE = 15;
-  for (i = 0; i < difficulty; i++) {
-    // Spawn monster a random direction from the origin.
-    // Can spawn from at least 2*SPAWN_DISTANCE away.
-    var position = new THREE.Vector3().set(2 * Math.random() - 1, 0, 2 * Math.random() - 1)
-                                      .normalize()
-                                      .multiplyScalar((Math.random() + 1) * SPAWN_DISTANCE);
-    position.y = this.spawnHeight;
-    this.monsters.push(new DebugMonster(map, position, new THREE.Vector3().set(0, 1, 0)));
-  }
 }
 
 Wave.prototype = {
   start: function() {
     console.assert(!this.started, "Wave already started.");
-    this.monsters.forEach(function(monster) {
+    this.started = true;
+    if (this.callbacks.begin) {
+      this.callbacks.begin(this);
+    }
+
+    const SPAWN_DISTANCE = 15;
+    for (i = 0; i < this.difficulty; i++) {
+      // Spawn monster a random direction from the origin.
+      // Can spawn from at least 2*SPAWN_DISTANCE away.
+      var position = new THREE.Vector3().set(2 * Math.random() - 1, 0, 2 * Math.random() - 1)
+                                        .normalize()
+                                        .multiplyScalar((Math.random() + 1) * SPAWN_DISTANCE);
+      position.y = this.spawnHeight;
+      var monster = new DebugMonster(map, position, new THREE.Vector3().set(0, 1, 0));
+      this.monsters.push(monster);
       this.map.addEntity(monster);
       this.scene.add(monster.object);
-    });
+    }
   },
   update: function(dt) {
     // TODO: spawn, update monsters
@@ -230,11 +235,15 @@ Wave.prototype = {
     this.map.removeEntity(monster);
     this.scene.remove(monster.object);
     this.monsters.splice(this.monsters.indexOf(monster), 1);
+    if (this.callbacks.end && this.monsters.length == 0) {
+      // Wave has ended!
+      this.callbacks.end(this);
+    }
   },
   next: function() {
     while (this.monsters.length > 0) {
       this.removeMonster(this.monsters[0]);
     }
-    return new Wave(this.scene, this.map, this.spawnHeight, this.difficulty + 1);
+    return new Wave(this.scene, this.map, this.spawnHeight, this.callbacks, this.difficulty + 1);
   }
 }
