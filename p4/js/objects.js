@@ -50,9 +50,9 @@ Wall.prototype = {
 
 function Turret() {
   // Configuration
-  this.targetSpeed = 10; // m/s
+  this.targetSpeed = 20; // m/s
   this.fireRate = 4; // shots/s
-  this.bulletSpeed = 20; // m/s
+  this.bulletSpeed = 30; // m/s
   this.collisionRadius = 0.2;
 
   // Geometry
@@ -91,13 +91,29 @@ Turret.prototype = {
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
   destroyCost: 250,
+  interceptPoint: function(enemy) {
+    var p = enemy.object.position;
+    var x=p.x, y=p.y, z=p.z;
+    var v = enemy.velocity;
+    var a=v.x, b=v.y, c=v.z;
+    var m = this.object.position;
+    var d=m.x, e=m.y, f=m.z;
+    var s = this.bulletSpeed;
+
+    // seconds to hit
+    var t = (Math.sqrt((2*a*d-2*a*x+2*b*e-2*b*y+2*c*f-2*c*z)^2-4*(-a^2-b^2-c^2+s^2)*(-d^2+2*d*x-e^2+2*e*y-f^2+2*f*z-x^2-y^2-z^2))-2*a*d+2*a*x-2*b*e+2*b*y-2*c*f+2*c*z)/(2*(-a^2-b^2-c^2+s^2));
+
+    var target = p.clone().add(v.clone().multiplyScalar(t));
+    return target;
+  },
   update: function(delta, now) {
-    var target = nearestEnemy(this.object.position);
+    var target = nearestEnemy(new THREE.Vector3(0,0,0)); //this.object.position);
     var pos;
     if (target) {
-      pos = target.object.position.clone();
+      //pos = target.object.position.clone();
+      pos = this.interceptPoint(target);
     } else {
-      pos = new THREE.Vector3(0,5,0);
+      pos = this.object.position.clone().add(new THREE.Vector3(0,1,0));
     }
     var diff = pos.clone().sub(this.targetPos);
     var step = this.targetSpeed*delta;
@@ -109,7 +125,7 @@ Turret.prototype = {
     var localPos = this.object.worldToLocal(this.targetPos.clone());
     this.gun.lookAt(localPos);
 
-    if (length < 0.1 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
+    if (target && length < 0.5 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
       this.lastFired = now;
       var dir = this.targetPos.clone().sub(this.object.position);
       dir.multiplyScalar(this.bulletSpeed/dir.length());
@@ -117,12 +133,12 @@ Turret.prototype = {
     }
   },
 };
-function Particle(position, direction, color, size) {
-  this.constructor(position, direction, color, size);
+function Particle(position, velocity, color, size) {
+  this.constructor(position, velocity, color, size);
 }
 Particle.prototype = {
-  constructor: function(position, direction, color, size){
-    this.direction = direction.clone();
+  constructor: function(position, velocity, color, size){
+    this.velocity = velocity.clone();
     this.distanceTraveled = 0;
     this.maxDistance = 6;
     this.acceleration = new THREE.Vector3(0,-9.8,0);
@@ -134,20 +150,22 @@ Particle.prototype = {
     this.object.controller = this;
     scene.add(this.object);
     objects.push(this.object);
+
+    this.collisionRadius = size/2;
   },
   update: function(delta, now) {
     if (this.distanceTraveled > this.maxDistance) {
       this.destroy();
     }
-    var diff = this.direction.clone().multiplyScalar(delta);
+    var diff = this.velocity.clone().multiplyScalar(delta);
     this.distanceTraveled += diff.length();
     this.object.position.add(diff);
     if (this.acceleration) {
-      this.direction.add(this.acceleration.clone().multiplyScalar(delta));
+      this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
     }
     // bounce off ground
     if (this.object.position.y < floor.position.y) {
-      this.direction.y *= -0.8;
+      this.velocity.y *= -0.8;
     }
     var scale = this.maxDistance - this.distanceTraveled;
     if (scale < 1 && scale >= 0) {
@@ -162,13 +180,22 @@ Particle.prototype = {
   },
 };
 
-function Bullet(position, direction) {
-  Particle.prototype.constructor.call(this, position, direction, BULLET_COLOR, 0.2);
+function Bullet(position, velocity) {
+  Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2);
   this.maxDistance = 80;
   this.acceleration = null;
 }
 Bullet.prototype = {
-  update: Particle.prototype.update,
+  damage: 1,
+  update: function(delta, now) {
+    Particle.prototype.update.call(this, delta, now);
+
+    var collidesWith = map.collidesWith(this, this.object.position);
+    if (collidesWith && collidesWith.damage) {
+      collidesWith.damage(this.damage);
+      this.destroy();
+    }
+  },
   destroy: Particle.prototype.destroy,
 };
 

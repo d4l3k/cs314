@@ -50,6 +50,7 @@ var mouse = new THREE.Vector2(10000,10000), raycaster = new THREE.Raycaster();
 
 var money = 0;
 var score = 0;
+var health = 100;
 
 function addMoney(d) {
   if (money + d >= 0) {
@@ -58,6 +59,14 @@ function addMoney(d) {
     return true;
   }
   return false;
+}
+function addScore(d) {
+  score += d;
+  document.querySelector('#score').innerText = score.toFixed(0);
+}
+function addHealth(d) {
+  health += d;
+  document.querySelector('#health').innerText = health.toFixed(0);
 }
 
 addMoney(10000);

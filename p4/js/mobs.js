@@ -27,6 +27,7 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
   this.path = [];
   this.bounciness = bounciness || 1;
   this.gravity = new THREE.Vector3().set(0, -0.1, 0);
+  this.health = this.maxHealth;
 }
 
 Monster.prototype = {
@@ -58,9 +59,14 @@ Monster.prototype = {
     for (;;) {
       var newPosition = new THREE.Vector3().addVectors(this.position, this.velocity);
 
-      var collider = this.map.collidesWith(this, newPosition);
-      if (!collider || collidedObjects.indexOf(collider) != -1)
+      if(!this.map) {
         break;
+      }
+
+      var collider = this.map.collidesWith(this, newPosition);
+      if (!collider || collidedObjects.indexOf(collider) != -1) {
+        break;
+      }
       collidedObjects.push(collider);
 
       var dist = new THREE.Vector3().subVectors(newPosition, collider.object.position);
@@ -93,7 +99,24 @@ Monster.prototype = {
           z = Math.random() * 30 - 10;
       var y = floorY(x, z) + this.collisionRadius / 2;
       this.position.set(x, y, z);
+
+      addHealth(-this.healthDamage);
     }
+  },
+  maxHealth: 25,
+  cost: 200,
+  score: 1,
+  healthDamage: 1,
+  damage: function(damage) {
+    this.health = Math.max(0, this.health - damage);
+    if (this.health === 0) {
+      addMoney(this.cost);
+      addScore(this.score);
+      this.destroy();
+    }
+  },
+  destroy: function() {
+    wave.removeMonster(this);
   },
   /**
    * Called when the world grid has been updated.
@@ -184,11 +207,15 @@ Wave.prototype = {
       monster.update(dt);
     });
   },
+  removeMonster: function(monster) {
+    this.map.removeEntity(monster);
+    this.scene.remove(monster.object);
+    this.monsters.splice(this.monsters.indexOf(monster), 1);
+  },
   next: function() {
-    this.monsters.forEach(function(monster) {
-      this.map.removeEntity(monster);
-      this.scene.remove(monster.object);
-    });
+    while (this.monsters.length > 0) {
+      this.removeMonster(this.monsters[0]);
+    }
     return new Wave(this.scene, this.map, this.spawnHeight, this.difficulty + 1);
   }
 }
