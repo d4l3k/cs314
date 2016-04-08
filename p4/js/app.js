@@ -7,6 +7,7 @@ var map;
 
 var audioElem = document.getElementById("music");
 audioElem.volume = 0.2;
+audioElem.muted = true;
 
 function playAmbientMusic() {
   const tracks = [
