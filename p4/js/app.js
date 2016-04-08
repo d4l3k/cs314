@@ -67,6 +67,11 @@ function addScore(d) {
 function addHealth(d) {
   health += d;
   document.querySelector('#health').innerText = health.toFixed(0);
+  if (health <= 0) {
+    document.querySelector("#gameover").classList.remove("hidden");
+  } else {
+    document.querySelector("#gameover").classList.add("hidden");
+  }
 }
 
 addMoney(10000);
