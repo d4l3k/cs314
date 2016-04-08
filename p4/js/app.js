@@ -505,6 +505,12 @@ var cursorObject;
 var selectedObject = null;
 function setSelectedObject(obj) {
   selectedObject = obj;
+  var controller = obj.controller;
+  if (!controller) {
+    selectedObject = null;
+    obj = null;
+    controller = null;
+  }
   var infoPane = document.querySelector('#info');
   if (!selectedObject) {
     infoPane.classList.add('hidden');
@@ -580,8 +586,12 @@ function cursorElevation() {
 }
 
 
+var delays = [];
+var fpsCounter = document.querySelector("#fps");
+
 var lastTimeMsec = null;
 requestAnimationFrame( render );
+
 function render(nowMsec) {
   requestAnimationFrame( render );
 
@@ -591,12 +601,25 @@ function render(nowMsec) {
   // measure time
   lastTimeMsec	= lastTimeMsec || nowMsec-1000/60;
   var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
+  var deltasec = deltaMsec/1000;
+
   lastTimeMsec	= nowMsec;
   // call each update function
   onRenderFcts.forEach(function(updateFn){
     updateFn(deltaMsec/1000, nowMsec/1000);
   });
   wave.update(deltaMsec/1000);
+
+  delays.push(deltasec);
+  if (delays.length > 60) {
+    delays.shift();
+  }
+  var average = 0;
+  delays.forEach(function(delay) {
+    average += delay;
+  });
+  average /= delays.length;
+  fpsCounter.innerText = (1/average).toFixed(0);
 
   // TODO: remove demo rotation.
   /*
