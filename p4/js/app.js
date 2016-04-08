@@ -338,10 +338,10 @@ function init() {
     var controller = selectedObject.controller;
     addMoney(controller.destroyCost);
     scene.remove(selectedObject);
+    map.removeEntity(controller);
     // remove from objects array
     objects.splice(objects.indexOf(selectedObject), 1);
     setSelectedObject(null);
-    map.removeEntity(selectedObject);
   });
   document.querySelector('#next').addEventListener('click', function() {
     if (!wave.started) {

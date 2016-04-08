@@ -20,7 +20,7 @@ function Prop(entity, map, position, collisionRadius, onMove, onCollide, bouncin
   this.map = map;
   this.position = position;
   this.collisionRadius = collisionRadius;
-  this.bounciness = bounciness || 1;
+  this.bounciness = bounciness !== undefined ? bounciness : 1;
   this.velocity = new THREE.Vector3().set(0, 0, 0);
   this.gravity = gravity || new THREE.Vector3().set(0, -0.1, 0);
   this.onMove = onMove;
@@ -34,7 +34,7 @@ Prop.prototype = {
   },
   update: function(dt) {
     this.velocity.multiplyScalar(1 - this.friction * dt); // Apply friction to prevent orbiting.
-    this.velocity.add(this.gravity.clone());
+    this.velocity.add(this.gravity);
 
     // Bounce if we hit the floor.
     var minY = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
@@ -64,17 +64,24 @@ Prop.prototype = {
 
       var dist = new THREE.Vector3().subVectors(newPosition, collider.position);
       var normal = new THREE.Vector3().copy(dist).normalize();
+      if (normal.length() == 0)
+        normal.y = 1; // Default to pushing things up.
+
       // Project the negated velocity onto the normal between the cylindrical colliders.
       var bounceVector = new THREE.Vector3().copy(this.velocity)
                                             .negate()
                                             .projectOnVector(normal);
-      this.velocity.addScaledVector(bounceVector, this.bounciness);
+      this.velocity.addScaledVector(bounceVector, 1 + this.bounciness);
+      // Exert normal force on the collider.
+      this.velocity.addScaledVector(normal, (this.collisionRadius + collider.collisionRadius) - dist.length());
 
       // We want to bounce at least out of the object's bounds so that we don't cluster.
       // Bounce away from the object as a baseline in case they're clipping each other already.
-      // This is done irrespective of dt.
-      this.velocity.addScaledVector(bounceVector.normalize(),
-                                    (1 - (dist.length() / (this.collisionRadius + collider.collisionRadius))) / dt);
+      // XXX: this doesn't always work great. works well for walls but not balls
+      /*
+      this.position.addScaledVector(normal, (collider.collisionRadius + this.collisionRadius) -
+                                            collider.position.distanceTo(newPosition));
+      */
 
       if (collider.onCollide) {
         collider.onCollide(this.entity, dt);
@@ -101,10 +108,15 @@ function Wall(x, y) {
   this.object.position.y = cursorElevation() + 0.5;
   this.object.position.z = y;
   this.health = Wall.prototype.maxHealth;
+  // Fix x and z such that the wall doesn't fly around.
+  this.fixedX = x;
+  this.fixedZ = y;
 
-  this.prop = new Prop(this, map, this.object.position.clone(), 0.75, function(pos) {
-    this.object.position.copy(pos);
-  });
+  var self = this;
+  this.prop = new Prop(this, map, this.object.position.clone(), 0.45, function(pos) {
+    self.prop.position.set(self.fixedX, pos.y, self.fixedZ);
+    self.object.position.copy(self.prop.position);
+  }, function() {}, -1); // Negative bounciness means no momentum transfer.
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
@@ -126,13 +138,16 @@ Wall.prototype = {
   cost: 100,
   destroyCost: 25,
   maxHealth: 25,
+  update: function(dt) {
+    this.prop.update(dt);
+  },
   onDamage : function(damage, dt) {
     this.health = Math.max(0, this.health - damage);
     this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
     this.object.scale.z = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
     if (this.health <= 0) {
       // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
-      this.map.removeEntity(this);
+      map.removeEntity(this);
       scene.remove(this.object);
     }
   }

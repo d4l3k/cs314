@@ -30,7 +30,7 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
         if (entity.onDamage && entity instanceof Wall) {
           entity.onDamage(self.dps * dt, dt);
         }
-      }, 1);
+      }, 1); // XXX: Increase bounciness to prevent unwanted collision.
   this.target = target;
   this.dps = dps;
   this.health = this.maxHealth;
