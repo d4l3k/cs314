@@ -44,12 +44,19 @@ Map.prototype = {
     entity.map = null;
   },
 
-  // Returns the first object in the scene that collides with the provided collider.
+  // Returns the first object in the scene that collides with the provided entity.
   collidesWith: function(entity, newPosition) {
+    if (!entity.prop)
+      return null;
+
     return this.entities.find(function(e) {
       if (e === entity)
         return false;
-      return e.object.position.distanceTo(newPosition) <= (e.collisionRadius + entity.collisionRadius);
+      if (!e.prop)
+        return false;
+      if (e.prop.collisionRadius == 0)
+        return false;
+      return e.prop.position.distanceTo(newPosition) <= (e.prop.collisionRadius + entity.prop.collisionRadius);
     });
   },
 

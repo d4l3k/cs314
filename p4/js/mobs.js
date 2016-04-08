@@ -7,7 +7,7 @@
  * @param {THREE.Object3D} model - The model to use for the monster.
  *                                 It should be looking down the z axis.
  * @param {float} acceleration - Acceleration in world units per second.
- * @param {float} maxSpeed - The maximum speed in world units per second.
+ * @param {float} maxSpeed - The maximum speed in world units per second on the xz-plane.
  * @param {float} dps - The damage per second done to obstacles.
  * @param {THREE.Vector2} start - Start coordinate in the xz-plane.
  * @param {THREE.Vector2} target - Target coordinate to path to in the xz-plane.
@@ -17,16 +17,22 @@
 var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, collisionRadius, bounciness) {
   this.object = model;
   this.map = map;
-  this.position = start;
-  this.target = target;
   this.acceleration = acceleration;
   this.maxSpeed = maxSpeed;
-  this.velocity = new THREE.Vector3().set(0, 0, 0);
+
+  var self = this;
+  this.prop = new Prop(this, map, start, collisionRadius,
+      function (pos) {
+        self.object.position.copy(pos);
+      },
+      function (entity, dt) {
+        // XXX: this unit can only damage walls.
+        if (entity.onDamage && entity instanceof Wall) {
+          entity.onDamage(self.dps * dt, dt);
+        }
+      }, 1);
+  this.target = target;
   this.dps = dps;
-  this.collisionRadius = collisionRadius;
-  this.path = [];
-  this.bounciness = bounciness || 1;
-  this.gravity = new THREE.Vector3().set(0, -0.1, 0);
   this.health = this.maxHealth;
 }
 
@@ -35,79 +41,30 @@ Monster.prototype = {
    * @param {float} dt - Delta time (in seconds) since the last game update.
    */
   update: function(dt) {
-    const friction = 0.5; // velocity dampening per second.
-    // Move simply in the direction of the target.
-    // TODO: acceleration, pathfinding, gravity, collision detection- so much to do!
-    var direction = new THREE.Vector3().subVectors(this.target, this.position).normalize();
-    this.velocity.multiplyScalar(1 - friction * dt); // Apply friction to prevent orbiting.
-    this.velocity.add(direction.multiplyScalar(this.acceleration * dt));
-    if (this.velocity.length() > this.maxSpeed) {
-      this.velocity.normalize().multiplyScalar(this.maxSpeed);
-    }
-    this.velocity.add(this.gravity.clone().multiplyScalar(dt));
-
-    // Bounce if we hit the floor.
-    var minY = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
-    if (this.position.y < minY) {
-      this.position.y = minY;
-      this.velocity.y = this.bounciness * dt;
-    }
-
-    // cheap a posteriori collision detection
-    // does not stop things going very fast
-    var collidedObjects = []; // keep track of collided objects so we don't recurse too much
-    for (;;) {
-      var newPosition = new THREE.Vector3().addVectors(this.position, this.velocity);
-
-      if(!this.map) {
-        break;
-      }
-
-      var collider = this.map.collidesWith(this, newPosition);
-      if (!collider || collidedObjects.indexOf(collider) != -1) {
-        break;
-      }
-      collidedObjects.push(collider);
-
-      var dist = new THREE.Vector3().subVectors(newPosition, collider.object.position);
-      var normal = new THREE.Vector3().copy(dist).normalize();
-      // Project the negated velocity onto the normal between the cylindrical colliders.
-      var bounceVector = new THREE.Vector3().copy(this.velocity)
-                                            .negate()
-                                            .projectOnVector(normal);
-      this.velocity.addScaledVector(bounceVector, this.bounciness);
-
-      // We want to bounce at least out of the object's bounds so that we don't cluster.
-      // Bounce away from the object as a baseline in case they're clipping each other already.
-      this.velocity.addScaledVector(bounceVector.normalize(),
-                                    (1 - (dist.length() / (this.collisionRadius + collider.collisionRadius))));
-
-      if (collider.damage) {
-        collider.damage(this.dps * dt);
-      }
-    }
-
-    this.position.add(this.velocity);
-
-    // FIXME: fix plane constraint y=1
-    //var y = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
-    this.object.position.set(this.position.x, this.position.y, this.position.z);
-
-    if (this.target.distanceTo(this.position) <= this.collisionRadius) {
+    if (this.target.distanceTo(this.prop.position) <= this.prop.collisionRadius) {
       // TODO: end game or something, placeholder for now
       var x = Math.random() * 30 - 10,
           z = Math.random() * 30 - 10;
-      var y = floorY(x, z) + this.collisionRadius / 2;
-      this.position.set(x, y, z);
+      var y = floorY(x, z) + this.prop.collisionRadius / 2;
+      this.prop.position.set(x, y, z);
 
       addHealth(-this.healthDamage);
     }
+
+    // Move simply in the direction of the target.
+    var direction = new THREE.Vector3().subVectors(this.target, this.prop.position).normalize();
+    // Lazily ensure we don't exceed the max speed.
+    if (this.prop.velocity.clone().projectOnPlane(new THREE.Vector3(0, 1, 0)).length() < this.maxSpeed) {
+      this.prop.applyForce(direction.multiplyScalar(this.acceleration * dt));
+    }
+
+    this.prop.update(dt);
   },
   maxHealth: 25,
   cost: 200,
   score: 1,
   healthDamage: 1,
-  damage: function(damage) {
+  onDamage: function(damage) {
     this.health = Math.max(0, this.health - damage);
     if (this.health === 0) {
       addMoney(this.cost);
@@ -180,7 +137,7 @@ var DebugMonster = function DebugMonster(map, start, target) {
   var material = new THREE.MeshPhongMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(5, 1, 0);
-  Monster.call(this, mesh, map, 0.1, 0.5, 5, start, target, radius);
+  Monster.call(this, mesh, map, 2, 4, 5, start, target, radius);
 }
 
 DebugMonster.prototype = Object.create(Monster.prototype);

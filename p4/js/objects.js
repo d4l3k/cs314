@@ -7,14 +7,104 @@ const TURRET_LASER_COLOR = 0xff0000;
 
 const BULLET_COLOR = 0xffff00;
 
-function Wall() {
+/**
+ * A prop is a movable, collidable world entity using a spherical collider.
+ * Possesses velocity with dampening, updates position each frame.
+ * It should have exclusive control over a movable object's position.
+ * Velocity is stored in world units per second.
+ * onMove: function(position)
+ * onCollide: function(prop, dt)
+ */
+function Prop(entity, map, position, collisionRadius, onMove, onCollide, bounciness, gravity, friction) {
+  this.entity = entity;
+  this.map = map;
+  this.position = position;
+  this.collisionRadius = collisionRadius;
+  this.bounciness = bounciness || 1;
+  this.velocity = new THREE.Vector3().set(0, 0, 0);
+  this.gravity = gravity || new THREE.Vector3().set(0, -0.1, 0);
+  this.onMove = onMove;
+  this.onCollide = onCollide;
+  this.friction = 0.5;
+}
+
+Prop.prototype = {
+  applyForce: function(f) {
+    this.velocity.add(f);
+  },
+  update: function(dt) {
+    this.velocity.multiplyScalar(1 - this.friction * dt); // Apply friction to prevent orbiting.
+    this.velocity.add(this.gravity.clone());
+
+    // Bounce if we hit the floor.
+    var minY = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
+    if (this.position.y < minY) {
+      this.position.y = minY;
+      this.velocity.y = this.bounciness;
+    }
+
+    // cheap a posteriori collision detection
+    // does not stop things going very fast
+    var collidedObjects = []; // keep track of collided objects so we don't recurse too much
+    for (;;) {
+      var newPosition = this.position.clone().addScaledVector(this.velocity, dt);
+
+      if(!this.map) {
+        break;
+      }
+
+      var entity = this.map.collidesWith(this.entity, newPosition);
+
+      if (!entity || collidedObjects.indexOf(entity) != -1) {
+        break;
+      }
+      collidedObjects.push(entity);
+
+      var collider = entity.prop; // By definition, all collidables must have a prop.
+
+      var dist = new THREE.Vector3().subVectors(newPosition, collider.position);
+      var normal = new THREE.Vector3().copy(dist).normalize();
+      // Project the negated velocity onto the normal between the cylindrical colliders.
+      var bounceVector = new THREE.Vector3().copy(this.velocity)
+                                            .negate()
+                                            .projectOnVector(normal);
+      this.velocity.addScaledVector(bounceVector, this.bounciness);
+
+      // We want to bounce at least out of the object's bounds so that we don't cluster.
+      // Bounce away from the object as a baseline in case they're clipping each other already.
+      // This is done irrespective of dt.
+      this.velocity.addScaledVector(bounceVector.normalize(),
+                                    (1 - (dist.length() / (this.collisionRadius + collider.collisionRadius))) / dt);
+
+      if (collider.onCollide) {
+        collider.onCollide(this.entity, dt);
+      }
+      if (this.onCollide) {
+        this.onCollide(entity, dt);
+      }
+    }
+
+    this.position.addScaledVector(this.velocity, dt);
+
+    if (this.onMove) {
+      this.onMove(this.position);
+    }
+  }
+}
+
+function Wall(x, y) {
   this.geometry = new THREE.BoxGeometry( 0.5, 1, 0.5 );
   this.material = new THREE.MeshLambertMaterial( { color: WALL_COLOR } );
   this.object = new THREE.Mesh( this.geometry, this.material );
   this.object.controller = this;
+  this.object.position.x = x;
   this.object.position.y = cursorElevation() + 0.5;
-  this.collisionRadius = 0.75;
+  this.object.position.z = y;
   this.health = Wall.prototype.maxHealth;
+
+  this.prop = new Prop(this, map, this.object.position.clone(), 0.75, function(pos) {
+    this.object.position.copy(pos);
+  });
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
@@ -36,35 +126,41 @@ Wall.prototype = {
   cost: 100,
   destroyCost: 25,
   maxHealth: 25,
-  damage: function(damage) {
+  onDamage : function(damage, dt) {
     this.health = Math.max(0, this.health - damage);
-    this.object.scale.x = this.health/Wall.prototype.maxHealth;
-    this.object.scale.z = this.health/Wall.prototype.maxHealth;
+    this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
+    this.object.scale.z = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
     if (this.health <= 0) {
       // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
       this.map.removeEntity(this);
-      this.object.remove();
+      scene.remove(this.object);
     }
   }
 };
 
-function Turret() {
+function Turret(x, y) {
+  const RADIUS = 0.2;
   // Configuration
   this.targetSpeed = 20; // m/s
   this.fireRate = 4; // shots/s
   this.bulletSpeed = 30; // m/s
-  this.collisionRadius = 0.2;
 
   // Geometry
   this.object = new THREE.Object3D();
   this.object.controller = this;
+  this.object.position.x = x;
   this.object.position.y = cursorElevation() + 0.5;
+  this.object.position.z = y;
 
-  var geometry = new THREE.BoxGeometry( 0.2, 0.5, 0.2 );
+  var geometry = new THREE.BoxGeometry( RADIUS, 0.5, RADIUS );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
   var base = new THREE.Mesh( geometry, material );
   base.position.y = -0.25;
   this.object.add(base);
+
+  this.prop = new Prop(this, map, this.object.position.clone(), RADIUS, function(pos) {
+    this.object.position.copy(pos);
+  });
 
   this.gun = new THREE.Object3D();
   this.object.add(this.gun);
@@ -92,9 +188,9 @@ Turret.prototype = {
   cost: 1000,
   destroyCost: 250,
   interceptPoint: function(enemy) {
-    var p = enemy.object.position;
+    var p = enemy.prop.position;
     var x=p.x, y=p.y, z=p.z;
-    var v = enemy.velocity;
+    var v = enemy.prop.velocity;
     var a=v.x, b=v.y, c=v.z;
     var m = this.object.position;
     var d=m.x, e=m.y, f=m.z;
@@ -133,15 +229,16 @@ Turret.prototype = {
     }
   },
 };
-function Particle(position, velocity, color, size) {
-  this.constructor(position, velocity, color, size);
+function Particle(position, velocity, color, size, collides, onCollide) {
+  this.constructor(position, velocity, color, size, collides, onCollide);
 }
 Particle.prototype = {
-  constructor: function(position, velocity, color, size){
+  constructor: function(position, velocity, color, size, collides, onCollide){
     this.velocity = velocity.clone();
-    this.distanceTraveled = 0;
-    this.maxDistance = 6;
+    this.timeAlive = 0;
+    this.maxLife = 3; // last at most 3 seconds
     this.acceleration = new THREE.Vector3(0,-9.8,0);
+    this.collides = collides;
 
     var geometry = new THREE.BoxGeometry( size, size, size );
     var material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
@@ -150,51 +247,59 @@ Particle.prototype = {
     this.object.controller = this;
     scene.add(this.object);
     objects.push(this.object);
+    map.addEntity(this);
 
-    this.collisionRadius = size/2;
+    var self = this;
+    this.prop = new Prop(this, map, position.clone(), collides ? size : 0,
+        function(position) {
+          self.object.position.copy(position);
+        },
+        function(entity, dt) {
+          if (onCollide)
+            onCollide(entity, dt);
+        }, 0.5);
+    this.prop.applyForce(velocity);
   },
   update: function(delta, now) {
-    if (this.distanceTraveled > this.maxDistance) {
+    if (this.timeAlive > this.maxLife) {
       this.destroy();
     }
-    var diff = this.velocity.clone().multiplyScalar(delta);
-    this.distanceTraveled += diff.length();
-    this.object.position.add(diff);
+    /*
     if (this.acceleration) {
-      this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
+      this.prop.velocity.add(this.acceleration.clone().multiplyScalar(delta));
     }
-    // bounce off ground
-    if (this.object.position.y < floor.position.y) {
-      this.velocity.y *= -0.8;
-    }
-    var scale = this.maxDistance - this.distanceTraveled;
+    */
+    var scale = this.maxLife - this.timeAlive;
     if (scale < 1 && scale >= 0) {
       this.object.geometry.scale(scale, scale, scale);
     }
+    this.prop.update(delta);
+    this.timeAlive += delta;
   },
   destroy: function() {
     scene.remove(this.object);
 
     // remove from objects array
     objects.splice(objects.indexOf(this.object), 1);
+    map.removeEntity(this);
   },
 };
 
 function Bullet(position, velocity) {
-  Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2);
+  var self = this;
+  Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2, true, function(collider, dt) {
+    if (collider.onDamage) {
+      collider.onDamage(Bullet.prototype.damage, dt);
+      self.destroy(); // it's cooler with trick shots tho
+    }
+  }, 1, new THREE.Vector3().set(0, 0, 0));
   this.maxDistance = 80;
   this.acceleration = null;
 }
 Bullet.prototype = {
-  damage: 1,
+  damage: 2,
   update: function(delta, now) {
     Particle.prototype.update.call(this, delta, now);
-
-    var collidesWith = map.collidesWith(this, this.object.position);
-    if (collidesWith && collidesWith.damage) {
-      collidesWith.damage(this.damage);
-      this.destroy();
-    }
   },
   destroy: Particle.prototype.destroy,
 };

@@ -127,8 +127,8 @@ function init() {
 
   setInterval(function() {
     var dir = new THREE.Vector3(2*Math.random()-1, 4, 2*Math.random()-1);
-    dir.multiplyScalar(6/dir.length());
-    new Particle(mesh.position, dir, 0xffffff, 0.1);
+    dir.multiplyScalar(3/dir.length());
+    new Particle(mesh.position, dir, 0xffffff, 0.1, false);
   }, 100);
 
   // Setup water material, which depends on the current time.
@@ -319,12 +319,10 @@ function init() {
       if (!addMoney(-activeControl.prototype.cost)) {
         return;
       }
-      var item = new activeControl();
+      var item = new activeControl(cursor.position.x, cursor.position.z);
       objects.push(item.object);
       scene.add(item.object);
-      map.addEntity(item); // XXX remove entity for collision somewhere too
-      item.object.position.x = cursor.position.x;
-      item.object.position.z = cursor.position.z;
+      map.addEntity(item);
       setSelectedObject(item.object);
       // XXX map.pushConstruct(item, cursor.position.x, cursor.position.z);
     } else {
@@ -426,7 +424,7 @@ function initControls() {
       playAmbientMusic();
       waveButton.style.display = '';
     }
-  }, 1);
+  }, 5);
 }
 
 function nearestEnemy(position) {
@@ -436,7 +434,7 @@ function nearestEnemy(position) {
   var enemy = null;
   var dist = 10000000;
   wave.monsters.forEach(function(monster) {
-    var mDist = monster.object.position.clone().sub(position).length();
+    var mDist = monster.prop.position.clone().sub(position).length();
     if (mDist < dist) {
       dist = mDist;
       enemy = monster;
