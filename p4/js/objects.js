@@ -116,7 +116,7 @@ function Wall(x, y) {
   this.prop = new Prop(this, map, this.object.position.clone(), 0.45, function(pos) {
     self.prop.position.set(self.fixedX, pos.y, self.fixedZ);
     self.object.position.copy(self.prop.position);
-  }, function() {}, -1); // Negative bounciness means no momentum transfer.
+  }, function() {}, 0); // Negative bounciness means no momentum transfer.
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
