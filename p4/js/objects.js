@@ -107,7 +107,7 @@ Turret.prototype = {
     return target;
   },
   update: function(delta, now) {
-    var target = nearestEnemy(new THREE.Vector3(0,0,0)); //this.object.position);
+    var target = nearestEnemy(this.object.position);
     var pos;
     if (target) {
       //pos = target.object.position.clone();
