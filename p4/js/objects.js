@@ -196,16 +196,26 @@ function Turret(x, y) {
   this.targetPos = new THREE.Vector3(0,0,0);
   this.lastFired = 0;
 
-  this.updateLaser();
+  this.updateLaser(0);
 }
 Turret.prototype = {
   name: 'Turret',
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
   destroyCost: 250,
-  updateLaser: function() {
+  updateLaser: function(now) {
+    if (!this.lastUpdatedLaser) {
+      this.lastUpdatedLaser = 0;
+    }
+    if (now-this.lastUpdatedLaser <= 0.25) {
+      return;
+    }
+    this.lastUpdatedLaser = now;
 
-    var intersectable = scene.children; //[floor].concat(objects);
+    var intersectable = [].concat(objects);
+    ((wave||{}).monsters||[]).forEach(function(mob) {
+      intersectable.push(mob.object);
+    });
     var dir = this.targetPos.clone().sub(this.object.position).normalize();
     raycaster.set(this.object.position, dir);
     var intersects = raycaster.intersectObjects(intersectable, false);
@@ -265,7 +275,7 @@ Turret.prototype = {
       new Bullet(this.object.position, dir);
     }
 
-    this.updateLaser();
+    this.updateLaser(now);
   },
 };
 function Particle(position, velocity, color, size, collides, onCollide) {
