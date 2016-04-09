@@ -22,7 +22,7 @@ function Prop(entity, map, position, collisionRadius, onMove, onCollide, bouncin
   this.collisionRadius = collisionRadius;
   this.bounciness = bounciness !== undefined ? bounciness : 1;
   this.velocity = new THREE.Vector3().set(0, 0, 0);
-  this.gravity = gravity || new THREE.Vector3().set(0, -0.1, 0);
+  this.gravity = gravity || new THREE.Vector3().set(0, -3, 0);
   this.onMove = onMove;
   this.onCollide = onCollide;
   this.friction = 0.5;
@@ -34,7 +34,7 @@ Prop.prototype = {
   },
   update: function(dt) {
     this.velocity.multiplyScalar(1 - this.friction * dt); // Apply friction to prevent orbiting.
-    this.velocity.add(this.gravity);
+    this.velocity.add(this.gravity.clone().multiplyScalar(dt));
 
     // Bounce if we hit the floor.
     var minY = floorY(this.position.x, this.position.z) + this.collisionRadius / 2;
@@ -212,13 +212,19 @@ Turret.prototype = {
     }
     this.lastUpdatedLaser = now;
 
-    var intersectable = [].concat(objects);
+    var intersectable = [];
     ((wave||{}).monsters||[]).forEach(function(mob) {
       intersectable.push(mob.object);
     });
+    (objects||[]).forEach(function(object) {
+      if (object && object.controller instanceof Bullet) {
+        return;
+      }
+      intersectable.push(object);
+    });
     var dir = this.targetPos.clone().sub(this.object.position).normalize();
     raycaster.set(this.object.position, dir);
-    var intersects = raycaster.intersectObjects(intersectable, false);
+    var intersects = raycaster.intersectObjects(intersectable, true);
     var self = this;
     var distance = 100;
     intersects.slice(0,2).forEach(function(intersect) {
@@ -234,7 +240,7 @@ Turret.prototype = {
     this.laser.position.y = distance/2;
     this.laser.scale.y = distance;
   },
-  interceptPoint: function(enemy) {
+  interceptPoint: function(enemy, delta) {
     var p = enemy.prop.position;
     var x=p.x, y=p.y, z=p.z;
     var v = enemy.prop.velocity;
@@ -243,18 +249,21 @@ Turret.prototype = {
     var d=m.x, e=m.y, f=m.z;
     var s = this.bulletSpeed;
 
+    return p.clone().addScaledVector(v, delta + p.distanceTo(m)/s);
+
+    /*
     // seconds to hit
     var t = (Math.sqrt((2*a*d-2*a*x+2*b*e-2*b*y+2*c*f-2*c*z)^2-4*(-a^2-b^2-c^2+s^2)*(-d^2+2*d*x-e^2+2*e*y-f^2+2*f*z-x^2-y^2-z^2))-2*a*d+2*a*x-2*b*e+2*b*y-2*c*f+2*c*z)/(2*(-a^2-b^2-c^2+s^2));
 
-    var target = p.clone().add(v.clone().multiplyScalar(t));
-    return target;
+    return p.clone().addScaledVector(v,t);
+    */
   },
   update: function(delta, now) {
     var target = nearestEnemy(this.object.position);
     var pos;
     if (target) {
       //pos = target.object.position.clone();
-      pos = this.interceptPoint(target);
+      pos = this.interceptPoint(target, delta);
     } else {
       pos = this.object.position.clone().add(new THREE.Vector3(0,1,0));
     }
