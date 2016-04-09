@@ -187,21 +187,43 @@ function Turret(x, y) {
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
 
-  var geometry = new THREE.BoxGeometry( 0.03, 10000, 0.03 );
+  var geometry = new THREE.BoxGeometry( 0.03, 1, 0.03 );
   var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
-  var laser = new THREE.Mesh( geometry, material );
-  laser.position.y += 5000;
-  barrel.add(laser);
+  this.laser = new THREE.Mesh( geometry, material );
+  barrel.add(this.laser);
 
   // Default values
   this.targetPos = new THREE.Vector3(0,0,0);
   this.lastFired = 0;
+
+  this.updateLaser();
 }
 Turret.prototype = {
   name: 'Turret',
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
   destroyCost: 250,
+  updateLaser: function() {
+
+    var intersectable = scene.children; //[floor].concat(objects);
+    var dir = this.targetPos.clone().sub(this.object.position).normalize();
+    raycaster.set(this.object.position, dir);
+    var intersects = raycaster.intersectObjects(intersectable, false);
+    var self = this;
+    var distance = 100;
+    intersects.slice(0,2).forEach(function(intersect) {
+      var obj = topLevelObject(intersect.object);
+      if (obj === self.object) {
+        return;
+      }
+      if (intersect.distance < distance) {
+        distance = intersect.distance;
+      }
+    });
+
+    this.laser.position.y = distance/2;
+    this.laser.scale.y = distance;
+  },
   interceptPoint: function(enemy) {
     var p = enemy.prop.position;
     var x=p.x, y=p.y, z=p.z;
@@ -242,6 +264,8 @@ Turret.prototype = {
       dir.multiplyScalar(this.bulletSpeed/dir.length());
       new Bullet(this.object.position, dir);
     }
+
+    this.updateLaser();
   },
 };
 function Particle(position, velocity, color, size, collides, onCollide) {

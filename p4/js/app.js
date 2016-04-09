@@ -110,7 +110,7 @@ addHealth(10);
 function init() {
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
+  camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, .1, 10000 );
   camera.position.z = 2;
   camera.position.y = 8;
 
@@ -548,7 +548,7 @@ var cursorObject;
 var selectedObject = null;
 function setSelectedObject(obj) {
   selectedObject = obj;
-  var controller = obj.controller;
+  var controller = obj && obj.controller;
   if (!controller) {
     selectedObject = null;
     obj = null;
