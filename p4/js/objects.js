@@ -26,6 +26,7 @@ function Prop(entity, map, position, collisionRadius, onMove, onCollide, bouncin
   this.onMove = onMove;
   this.onCollide = onCollide;
   this.friction = 0.5;
+  this.velocityTransform = new THREE.Matrix4();
 }
 
 Prop.prototype = {
@@ -91,7 +92,8 @@ Prop.prototype = {
       }
     }
 
-    this.position.addScaledVector(this.velocity, dt);
+    var transformedVelocity = this.velocity.clone().applyMatrix4(this.velocityTransform);
+    this.position.addScaledVector(transformedVelocity, dt);
 
     if (this.onMove) {
       this.onMove(this.position);
@@ -113,10 +115,14 @@ function Wall(x, y) {
   this.fixedZ = y;
 
   var self = this;
-  this.prop = new Prop(this, map, this.object.position.clone(), 0.45, function(pos) {
-    self.prop.position.set(self.fixedX, pos.y, self.fixedZ);
+  this.prop = new Prop(this, map, this.object.position.clone(), 0.5, function(pos) {
     self.object.position.copy(self.prop.position);
   }, function() {}, 0); // Negative bounciness means no momentum transfer.
+  this.prop.velocityTransform = new THREE.Matrix4().set(
+      0, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0);
 
   var sideGeometry = new THREE.BoxGeometry( 0.5, 1, 0.3 );
   var sideMaterial = new THREE.MeshLambertMaterial( { color: WALL_SIDE_COLOR } );
@@ -281,7 +287,8 @@ Turret.prototype = {
       this.lastFired = now;
       var dir = this.targetPos.clone().sub(this.object.position);
       dir.multiplyScalar(this.bulletSpeed/dir.length());
-      new Bullet(this.object.position, dir);
+      // Spawn bullet outside of turret by a small amount to prevent clipping.
+      new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.5), dir);
     }
 
     this.updateLaser(now);
