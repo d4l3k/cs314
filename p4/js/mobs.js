@@ -26,7 +26,6 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
         self.object.position.copy(pos);
       },
       function (entity, dt) {
-        // XXX: don't attack friendlies.
         if (entity.onDamage && !(entity instanceof Monster)) {
           entity.onDamage(self.dps * dt, dt);
         }
@@ -66,7 +65,7 @@ Monster.prototype = {
   healthDamage: 1,
   onDamage: function(damage) {
     this.health = Math.max(0, this.health - damage);
-    if (this.health === 0) {
+    if (this.health <= 0) {
       addMoney(this.cost);
       addScore(this.score);
       this.destroy();

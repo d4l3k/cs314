@@ -471,8 +471,10 @@ function Bullet(position, velocity) {
   var self = this;
   Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2, true, function(collider, dt) {
     if (collider.onDamage) {
-      collider.onDamage(Bullet.prototype.damage, dt, true);
-      self.destroy(); // it's cooler with trick shots tho
+        collider.onDamage(Bullet.prototype.damage, dt, true);
+        
+        if(!(collider instanceof Wall))
+            self.destroy(); // it's cooler with trick shots tho
     }
   }, Particle.CUBE);
   this.maxDistance = 80;
