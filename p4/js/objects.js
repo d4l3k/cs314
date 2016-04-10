@@ -178,9 +178,17 @@ function Turret(x, y) {
   base.position.y = -0.15;
   this.object.add(base);
 
+  var self = this;
   this.prop = new Prop(this, map, this.object.position.clone(), RADIUS, function(pos) {
-    this.object.position.copy(pos);
+    self.object.position.copy(pos);
   });
+  this.prop.bounciness = 0;
+  // Fix on xz-plane.
+  this.prop.velocityTransform = new THREE.Matrix4().set(
+      0, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0);
 
   this.gun = new THREE.Object3D();
   this.object.add(this.gun);
@@ -332,6 +340,8 @@ Turret.prototype = {
       // Spawn bullet outside of turret by a small amount to prevent clipping.
       new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.75), dir);
     }
+
+    this.prop.update(delta);
   },
 };
 var ParticleShader = new THREE.ShaderMaterial({
