@@ -58,6 +58,7 @@ Monster.prototype = {
     }
 
     this.prop.update(dt);
+    this.object.lookAt(this.prop.velocity);
   },
   maxHealth: 25,
   cost: 200,
@@ -93,51 +94,18 @@ Monster.prototype = {
     }
     particle();
   },
-  /**
-   * Called when the world grid has been updated.
-   * Route is recalculated.
-   */
-  gridUpdate: function() {
-    /* XXX: screw collision detection in the grid
-     *      these balls are going to roll
-     *      and they won't stop
-     *      for anybody
-     *      - acomminos
-     *
-    // Recalculate path to objective using BFS.
-    // Guaranteed optimiality under our loveable little grid.
-    var frontier = [[this.gridCell]];
-    var goalPath = null;
-    while (frontier.length > 0) {
-      var path = frontier.shift(); // FIFO
-      var lastNode = path[path.length - 1];
-      // Always fixate on the goal node if there is a path to it.
-      if (lastNode.isGoal()) {
-        goalPath = path;
-        break;
-      }
-      if (lastNode.isDestructible()) {
-        // TODO: pick the closest destructible
-      }
-      // TODO: add n, w, s, e blocks. cycle check in O(n) because computers are fast
-      grid.adjacentsOf(lastNode).forEach(function(adj) {
-        if (path.indexOf(adj)) { // cycle check
-
-        }
-      });
-    }
-    */
-  }
 }
 
 var DebugMonster = function DebugMonster(map, start, target) {
   const radius = 0.5;
   var geometry = new THREE.SphereGeometry(radius, 32);
-  var material = new THREE.MeshPhongMaterial({color: 0xff0000});
+  var texture = THREE.ImageUtils.loadTexture( "textures/globe.png" );
+  var material = new THREE.MeshPhongMaterial({map: texture});
   var mesh = new THREE.Mesh(geometry, material);
   var light = new THREE.PointLight(0xff0000, 0.5, 2);
   mesh.add(light);
   mesh.position.set(5, 1, 0);
+  this.rotation = 0;
   Monster.call(this, mesh, map, 2, 4, 5, start, target, radius);
 }
 
@@ -145,7 +113,8 @@ DebugMonster.prototype = Object.create(Monster.prototype);
 DebugMonster.prototype.constructor = DebugMonster;
 DebugMonster.prototype.update = function(dt) {
   Monster.prototype.update.call(this, dt);
-  this.object.rotateX(5 * dt);
+  this.rotation += 5 * dt;
+  this.object.rotateX(this.rotation);
 }
 
 // Creates a new 'wave'; a phase of the game with a given difficulty.
