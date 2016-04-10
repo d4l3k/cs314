@@ -57,6 +57,7 @@ const sandColor = 0xEDC9AF;
 var objects = []; // A list of all interactable objects in the scene.
 
 var wave;
+var waveNum = 0;
 
 // controls is a list of creatable objects.
 const placeable = [Turret, Wall];
@@ -105,6 +106,11 @@ function addHealth(d) {
 
 addMoney(10000);
 addHealth(10);
+
+function removeWelcome() {
+    document.querySelector("#welcome").classList.add("hidden");
+    document.querySelector("#overlay").classList.remove("hidden");     
+}
 
 function init() {
   scene = new THREE.Scene();
@@ -292,6 +298,9 @@ function init() {
     setSelectedObject(null);
   });
   document.querySelector('#next').addEventListener('click', function() {
+    var waveText = document.querySelector("#waveNum");
+    waveNum++;
+    waveText.innerHTML = waveNum;
     if (!wave.started) {
       wave.start();
     } else {

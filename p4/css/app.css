@@ -60,7 +60,7 @@ h1, h2, h3 {
 .hidden {
   display: none;
 }
-#gameover {
+.message {
   position: fixed;
   top: 50%;
   margin-top: -100px;

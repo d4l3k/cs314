@@ -191,14 +191,14 @@ function Turret(x, y) {
   var barrel = new THREE.Mesh( geometry, material );
   // barrel.position.x = -0.05;
   barrel.position.y = -0.05;
-  barrel.position.z = 0.30;
+  barrel.position.z = 0.35;
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
   
   var geometry = new THREE.BoxGeometry( 0.25, 0.5, 0.3 );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
   var stock = new THREE.Mesh( geometry, material );
-  stock.position.z = 0.20;
+  stock.position.z = 0.10;
   stock.rotateX(Math.PI/2);
   this.gun.add(stock);
   

@@ -1,107 +1,105 @@
 <head>
-  <title>CS314 P4 Project</title>
-  <link rel="stylesheet" href="css/app.css">
-  <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
-  <script id="waterVertexShader" type="x-vertex-shader">
-    varying vec3 world_position;
-    uniform float time;
-    uniform float tideVariance;
+    <title>CS314 P4 Project</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
+    <script id="waterVertexShader" type="x-vertex-shader">
+        varying vec3 world_position;
+        uniform float time;
+        uniform float tideVariance;
 
-    #define TIME_SCALE 1000.0
+        #define TIME_SCALE 1000.0
 
-    void main()
-    {
-      world_position = position;
-      world_position.z += tideVariance * sin(time/TIME_SCALE);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(world_position, 1.0);
-    }
-  </script>
-  <script id="waterFragmentShader" type="x-fragment-shader">
-    varying vec3 world_position;
+        void main() {
+          world_position = position;
+          world_position.z += tideVariance * sin(time/TIME_SCALE);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(world_position, 1.0);
+        }
+    </script>
+    <script id="waterFragmentShader" type="x-fragment-shader">
+        varying vec3 world_position;
 
-    uniform float time;
-    uniform vec3 diffuse;
-    uniform vec3 specular;
-    // Distance cutoff where waves start appearing.
-    uniform float waveThreshold;
-    uniform float alpha;
+        uniform float time;
+        uniform vec3 diffuse;
+        uniform vec3 specular;
+        // Distance cutoff where waves start appearing.
+        uniform float waveThreshold;
+        uniform float alpha;
 
-    #define TIME_SCALE 1000.0
-    #define WAVE_SCALE 0.4
+        #define TIME_SCALE 1000.0
+        #define WAVE_SCALE 0.4
 
-    #include <common>
-    #include <fog_pars_fragment>
+        #include <common>
+        #include <fog_pars_fragment>
 
-    void main()
-    {
-      float timeFactor = time/TIME_SCALE;
-      // Distance from the origin.
-      // Inverse linear falloff is used as dist increases to reduce effect of spcular highlights.
-      float dist = sqrt(pow(world_position.x, 2.0) + pow(world_position.y, 2.0));
-      // Vary intensity about the unit circle- maximizing prettiness.
-      // Waves rotate as a function of time and an angle about the center.
-      float angle = -sin(1.5 * dot(normalize(world_position), vec3(1.0, 0.0, 0.0)) + WAVE_SCALE * timeFactor);
-      // waveFactor determines the amount of specular highlight to show, in range [0, 1].
-      float waveFactor = max(min(waveThreshold/dist, 1.0) * angle * sin(WAVE_SCALE * (dist + timeFactor)), 0.0);
-      gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
-      #include <fog_fragment>
-    }
-  </script>
-  <script id="highlightFragmentShader" type="x-fragment-shader">
-varying vec2 vUv;
+        void main() {
+            float timeFactor = time/TIME_SCALE;
+            // Distance from the origin.
+            // Inverse linear falloff is used as dist increases to reduce effect of spcular highlights.
+            float dist = sqrt(pow(world_position.x, 2.0) + pow(world_position.y, 2.0));
+            // Vary intensity about the unit circle- maximizing prettiness.
+            // Waves rotate as a function of time and an angle about the center.
+            float angle = -sin(1.5 * dot(normalize(world_position), vec3(1.0, 0.0, 0.0)) + WAVE_SCALE * timeFactor);
+            // waveFactor determines the amount of specular highlight to show, in range [0, 1].
+            float waveFactor = max(min(waveThreshold/dist, 1.0) * angle * sin(WAVE_SCALE * (dist + timeFactor)), 0.0);
+            gl_FragColor = vec4(mix(diffuse, specular, pow(waveFactor, 2.0)), alpha);
+            #include <fog_fragment>
+        }
+    </script>
+    <script id="highlightFragmentShader" type="x-fragment-shader">
+        varying vec2 vUv;
 
-uniform sampler2D tDiffuse;
+        uniform sampler2D tDiffuse;
 
-void main() {
-  vec4 col = texture2D( tDiffuse, vUv );
-  col.a = 1.0;
+        void main() {
+            vec4 col = texture2D( tDiffuse, vUv );
+            col.a = 1.0;
 
-  if (col == vec4(1,0,0,1)) {
-  } else if (col == vec4(0,1,0,1)) {
-  } else if (col == vec4(0,0,1,1)) {
-  } else if (col == vec4(1,1,0,1)) {
-  } else if (col == vec4(0,1,1,1)) {
-  } else if (col == vec4(1,0,1,1)) {
-  } else if (col == vec4(1,1,1,1)) {
-  } else {
-    col = vec4(0,0,0,0);
-  }
+            if (col == vec4(1,0,0,1)) {
+            } else if (col == vec4(0,1,0,1)) {
+            } else if (col == vec4(0,0,1,1)) {
+            } else if (col == vec4(1,1,0,1)) {
+            } else if (col == vec4(0,1,1,1)) {
+            } else if (col == vec4(1,0,1,1)) {
+            } else if (col == vec4(1,1,1,1)) {
+            } else {
+                col = vec4(0,0,0,0);
+            }
 
-  gl_FragColor = col;
-}
-  </script>
-  <script id="particleVertexShader" type="x-vertex-shader">
-    uniform float flip;
+            gl_FragColor = col;
+        }
+    </script>
+    <script id="particleVertexShader" type="x-vertex-shader">
+        uniform float flip;
 
-    void main()
-    {
-      mat4 modelView = modelViewMatrix;
+        void main()
+        {
+          mat4 modelView = modelViewMatrix;
 
-      // billboarding matrix
-      modelView[0][0] = flip;
-      modelView[0][1] = 0.0;
-      modelView[0][2] = 0.0;
-      modelView[1][0] = 0.0;
-      modelView[1][1] = flip;
-      modelView[1][2] = 0.0;
-      modelView[2][0] = 0.0;
-      modelView[2][1] = 0.0;
-      modelView[2][2] = 1.0;
+          // billboarding matrix
+          modelView[0][0] = flip;
+          modelView[0][1] = 0.0;
+          modelView[0][2] = 0.0;
+          modelView[1][0] = 0.0;
+          modelView[1][1] = flip;
+          modelView[1][2] = 0.0;
+          modelView[2][0] = 0.0;
+          modelView[2][1] = 0.0;
+          modelView[2][2] = 1.0;
 
-      gl_Position = projectionMatrix * modelView * vec4(position, 1.0);
-    }
-  </script>
-  <script id="particleFragmentShader" type="x-fragment-shader">
-    uniform vec3 color;
+          gl_Position = projectionMatrix * modelView * vec4(position, 1.0);
+        }
+    </script>
+    <script id="particleFragmentShader" type="x-fragment-shader">
+        uniform vec3 color;
 
-    void main()
-    {
-      gl_FragColor = vec4(color, 1.0);
-    }
-  </script>
+        void main()
+        {
+          gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
 </head>
 <body>
-  <div id="overlay">
+  <div id="overlay" class="hidden">
     <div id="info" class="panel hidden">
       <h1 id="title"></h1>
       <p id="desc"></p>
@@ -110,20 +108,27 @@ void main() {
     </div>
     <br>
     <div class="panel">
-      <input type="checkbox" id="musicEnabled">Music</input><br>
+      <input type="checkbox" id="musicEnabled">Music</input><span style="float: right;"> FPS</span><span id="fps" style="float: right;">0</span><br>
       <div id="items" class="well inline">
         <a class="button selected">SELECT</a>
       </div>
       <div>
-        $<span id="money">0</span>,
-        <span id="score">0</span> points,
-        <span id="health">0</span>/10,
-        <span id="fps">0</span> fps
+        Wave: <span id="waveNum">0</span>,
+        Cash $<span id="money">0</span>,
+        Life: <span id="health">0</span>/10,
+        <span id="score">0</span> points
+        
       </div>
       <a id="next" class="button">Next Wave</a>
     </div>
   </div>
-  <div id="gameover" class="hidden">
+  <div id="welcome" class="message">
+        <h1>Welcome to Island Defense</h1>
+        <h2>Protect your cube!</h2>
+        <br>
+        <a onclick="removeWelcome()" class="button">I swear to defend my cube!</a>
+  </div>  
+  <div id="gameover" class="hidden message">
     <h1>Game Over</h1>
     <br>
     <a onclick="window.location.reload()" class="button">Play Again?</a>
