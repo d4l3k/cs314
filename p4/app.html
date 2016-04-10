@@ -104,23 +104,26 @@
       <h1 id="title"></h1>
       <p id="desc"></p>
       <a id="destroy" class="button">Destroy +$<span id="cost"></span></a>
+      <a id="repair" class="button hidden">Repair +$<span id="repaircost"></span></a>
       <a id="unselect" class="button">X</a>
     </div>
     <br>
     <div class="panel">
-      <input type="checkbox" id="musicEnabled">Music</input><span style="float: right;"> FPS</span><span id="fps" style="float: right;">0</span><br>
-      <div id="items" class="well inline">
-        <a class="button selected">SELECT</a>
-      </div>
-      <div>
+     <div>
         Wave: <span id="waveNum">0</span>,
         Cash $<span id="money">0</span>,
         Life: <span id="health">0</span>/10,
-        <span id="score">0</span> points
-        
-      </div>
-      <a id="next" class="button">Next Wave</a>
+        <span id="score">0</span> points        
+        <span style="float: right;"> FPS</span><span id="fps" style="float: right;">0</span><br>
+      </div>      
+      <div id="items" class="well inline">
+        <a class="button selected">SELECT</a>
+      </div>      
+      <a id="next" class="button" style="background-color: #f00;">Next Wave</a>
+      <br>
+      <input type="checkbox" id="musicEnabled">Music</input>
     </div>
+    
   </div>
   <div id="welcome" class="message">
         <h1>Welcome to Island Defense</h1>

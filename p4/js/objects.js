@@ -140,6 +140,7 @@ Wall.prototype = {
   name: 'Wall',
   description: 'A basic wall for stopping monsters.',
   cost: 100,
+  repairCost: 50,
   destroyCost: 25,
   maxHealth: 50,
   update: function(dt) {
@@ -156,8 +157,8 @@ Wall.prototype = {
     if(!isBullet) {
         // console.log(this.health);
         this.health = Math.max(0, this.health - damage);
-        this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
-        this.object.scale.z = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
+        // this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
+        this.object.scale.y = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
         if (this.health <= 0) {
           // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
           map.removeEntity(this);
@@ -257,6 +258,7 @@ Turret.prototype = {
   name: 'Turret',
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
+  repairCost: -1,
   destroyCost: 250,
   setLaserLength: function(length) {
     if (length <= 0) {

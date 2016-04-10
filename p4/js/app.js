@@ -287,6 +287,18 @@ function init() {
   document.querySelector('#info #unselect').addEventListener('click', function() {
     setSelectedObject(null);
   });
+  
+  // repair walls
+  document.querySelector('#info #repair').addEventListener('click', function() {
+    var controller = selectedObject.controller;
+    controller.health = 50;
+    // controller.object.scale.x = 1;
+    controller.object.scale.y = 1;
+    if (!addMoney(-controller.repairCost)) {
+        return;
+    }
+  });
+  
   // destroy object and add money back to user.
   document.querySelector('#info #destroy').addEventListener('click', function() {
     var controller = selectedObject.controller;
@@ -522,6 +534,15 @@ function setSelectedObject(obj) {
   infoDesc.innerText = obj.controller.description;
   var infoCost = document.querySelector('#info #cost');
   infoCost.innerText = obj.controller.destroyCost;
+  
+  var infoRepair = document.querySelector('#info #repaircost');
+  var repairButton = document.querySelector("#info #repair");
+  
+  if(obj.controller.repairCost != -1) {
+        infoRepair.innerText = obj.controller.repairCost;
+        repairButton.classList.remove("hidden");
+  } else
+    repairButton.classList.add("hidden");
 
   infoPane.classList.remove('hidden');
 }
