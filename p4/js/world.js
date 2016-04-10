@@ -54,7 +54,7 @@ Map.prototype = {
         return false;
       if (!e.prop)
         return false;
-      if (e.prop.collisionRadius == 0)
+      if (!e.prop.collisionRadius || e.prop.collisionRadius == 0)
         return false;
       return e.prop.position.distanceTo(newPosition) <= (e.prop.collisionRadius + entity.prop.collisionRadius);
     });

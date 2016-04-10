@@ -70,6 +70,35 @@ void main() {
   gl_FragColor = col;
 }
   </script>
+  <script id="particleVertexShader" type="x-vertex-shader">
+    uniform float flip;
+
+    void main()
+    {
+      mat4 modelView = modelViewMatrix;
+
+      // billboarding matrix
+      modelView[0][0] = flip;
+      modelView[0][1] = 0.0;
+      modelView[0][2] = 0.0;
+      modelView[1][0] = 0.0;
+      modelView[1][1] = flip;
+      modelView[1][2] = 0.0;
+      modelView[2][0] = 0.0;
+      modelView[2][1] = 0.0;
+      modelView[2][2] = 1.0;
+
+      gl_Position = projectionMatrix * modelView * vec4(position, 1.0);
+    }
+  </script>
+  <script id="particleFragmentShader" type="x-fragment-shader">
+    uniform vec3 color;
+
+    void main()
+    {
+      gl_FragColor = vec4(color, 1.0);
+    }
+  </script>
 </head>
 <body>
   <div id="overlay">

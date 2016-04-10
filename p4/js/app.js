@@ -127,7 +127,7 @@ function init() {
   setInterval(function() {
     var dir = new THREE.Vector3(2*Math.random()-1, 4, 2*Math.random()-1);
     dir.multiplyScalar(3/dir.length());
-    new Particle(mesh.position, dir, 0xffffff, 0.1, false);
+    new Particle(mesh.position, dir, 0xffffff, 0.1, false, null, Particle.SQUARE);
   }, 100);
 
   // Setup water material, which depends on the current time.

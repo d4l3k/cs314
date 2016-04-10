@@ -50,7 +50,7 @@ Prop.prototype = {
     for (;;) {
       var newPosition = this.position.clone().addScaledVector(this.velocity, dt);
 
-      if(!this.map) {
+      if(!this.map || !this.collisionRadius) {
         break;
       }
 
@@ -159,10 +159,10 @@ Wall.prototype = {
 };
 
 function Turret(x, y) {
-  const RADIUS = 0.2;
+  const RADIUS = 0.1;
   // Configuration
-  this.targetSpeed = 20; // m/s
-  this.fireRate = 4; // shots/s
+  this.targetSpeed = Math.PI*2; // 2*pi rads/s
+  this.fireRate = 2; // shots/s
   this.bulletSpeed = 30; // m/s
 
   // Geometry
@@ -175,7 +175,7 @@ function Turret(x, y) {
   var geometry = new THREE.BoxGeometry( RADIUS, 0.5, RADIUS );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
   var base = new THREE.Mesh( geometry, material );
-  base.position.y = -0.25;
+  base.position.y = -0.15;
   this.object.add(base);
 
   this.prop = new Prop(this, map, this.object.position.clone(), RADIUS, function(pos) {
@@ -185,17 +185,46 @@ function Turret(x, y) {
   this.gun = new THREE.Object3D();
   this.object.add(this.gun);
 
-  var geometry = new THREE.BoxGeometry( 0.3, 0.75, 0.3 );
+  var geometry = new THREE.CylinderGeometry( 0.07, 0.07, 0.8, 32 );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
   var barrel = new THREE.Mesh( geometry, material );
-  barrel.position.z=0.20;
+  // barrel.position.x = -0.05;
+  barrel.position.y = -0.05;
+  barrel.position.z = 0.30;
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
+  
+  var geometry = new THREE.BoxGeometry( 0.25, 0.5, 0.3 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
+  var stock = new THREE.Mesh( geometry, material );
+  stock.position.z = 0.20;
+  stock.rotateX(Math.PI/2);
+  this.gun.add(stock);
+  
+  var geometry = new THREE.CylinderGeometry( 0.04, 0.04, 0.5, 32 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
+  var scope = new THREE.Mesh( geometry, material );
+  scope.position.z = -0.15;
+  scope.position.y = 0;
+  // scope.rotateX(Math.PI/2);
+  barrel.add(scope);
+  
+  var geometry = new THREE.CylinderGeometry( 0.15, 0.15, 0.15, 32 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
+  var magazine = new THREE.Mesh( geometry, material );
+  magazine.position.x = 0.2;
+  magazine.position.y = 0.1;
+  magazine.rotateX(Math.PI/2);
+  this.gun.add(magazine);
+  
+  var magazine2 = magazine.clone();
+  magazine2.position.x = -0.15;
+  this.gun.add(magazine2);
 
-  var geometry = new THREE.BoxGeometry( 0.03, 1, 0.03 );
+  var geometry = new THREE.BoxGeometry( 0.05, 0.75, 0.05 );
   var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
   this.laser = new THREE.Mesh( geometry, material );
-  barrel.add(this.laser);
+  scope.add(this.laser);
 
   // Default values
   this.targetPos = new THREE.Vector3(0,0,0);
@@ -203,11 +232,19 @@ function Turret(x, y) {
 
   this.updateLaser(0);
 }
+
 Turret.prototype = {
   name: 'Turret',
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
   destroyCost: 250,
+  setLaserLength: function(length) {
+    if (length <= 0) {
+      length = 0.1;
+    }
+    this.laser.position.y = length/2;
+    this.laser.scale.y = length;
+  },
   updateLaser: function(now) {
     if (!this.lastUpdatedLaser) {
       this.lastUpdatedLaser = 0;
@@ -241,9 +278,7 @@ Turret.prototype = {
         distance = intersect.distance;
       }
     });
-
-    this.laser.position.y = distance/2;
-    this.laser.scale.y = distance;
+    this.setLaserLength(distance);
   },
   interceptPoint: function(enemy, delta) {
     var p = enemy.prop.position;
@@ -270,17 +305,25 @@ Turret.prototype = {
       //pos = target.object.position.clone();
       pos = this.interceptPoint(target, delta);
     } else {
-      pos = this.object.position.clone().add(new THREE.Vector3(0,1,0));
+      var dir = this.object.position.clone().normalize();
+      dir.y = 0;
+      pos = this.object.position.clone().add(dir);
     }
     var diff = pos.clone().sub(this.targetPos);
-    var step = this.targetSpeed*delta;
     var length = diff.length();
+    var step = this.targetSpeed*length*delta;
     if (length > step) {
       diff.multiplyScalar(step/length);
     }
     this.targetPos.add(diff);
     var localPos = this.object.worldToLocal(this.targetPos.clone());
     this.gun.lookAt(localPos);
+
+    if (target) {
+      this.updateLaser(now);
+    } else {
+      this.setLaserLength(0);
+    }
 
     if (target && length < 0.5 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
       this.lastFired = now;
@@ -289,24 +332,45 @@ Turret.prototype = {
       // Spawn bullet outside of turret by a small amount to prevent clipping.
       new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.75), dir);
     }
-
-    this.updateLaser(now);
   },
 };
-function Particle(position, velocity, color, size, collides, onCollide) {
-  this.constructor(position, velocity, color, size, collides, onCollide);
-}
-Particle.prototype = {
-  constructor: function(position, velocity, color, size, collides, onCollide){
+var ParticleShader = new THREE.ShaderMaterial({
+  uniforms: {
+    color: { type: 'c', value: null },
+    flip: { type: 'f', value: 1.0 },
+  },
+  vertexShader: document.querySelector('#particleVertexShader').textContent,
+  fragmentShader: document.querySelector('#particleFragmentShader').textContent,
+});
+
+function Particle(position, velocity, color, size, collides, onCollide, type){
     this.velocity = velocity.clone();
     this.timeAlive = 0;
     this.maxLife = 3; // last at most 3 seconds
     this.acceleration = new THREE.Vector3(0,-9.8,0);
     this.collides = collides;
+    if (!type) {
+      type = Particle.TRIANGLE;
+    }
+    this.type = type;
 
-    var geometry = new THREE.BoxGeometry( size, size, size );
-    var material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
-    this.object = new THREE.Mesh( geometry, material );
+    var geometry, material;
+    if (type === Particle.CUBE) {
+      geometry = new THREE.BoxGeometry( size, size, size );
+      material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
+    } else if (type === Particle.SQUARE) {
+      geometry = new THREE.PlaneGeometry(size, size, 1);
+    } else if (type === Particle.TRIANGLE) {
+      geometry = TriangleGeometry.clone();
+      geometry.scale(size/2,size/2,size/2);
+    }
+    if (type === Particle.SQUARE || type === Particle.TRIANGLE) {
+      material = ParticleShader.clone();
+      material.uniforms.color.value = new THREE.Color(color);
+    }
+    this.material = material;
+    this.object = new THREE.Mesh(geometry, material);
+
     this.object.position.copy(position);
     this.object.controller = this;
     scene.add(this.object);
@@ -323,7 +387,22 @@ Particle.prototype = {
             onCollide(entity, dt);
         }, 0.5);
     this.prop.applyForce(velocity);
-  },
+  }
+
+var TriangleShape = new THREE.Shape();
+TriangleShape.moveTo( 0, 1 );
+TriangleShape.lineTo( 1, 1-Math.sqrt(3) );
+TriangleShape.lineTo( -1, 1-Math.sqrt(3) );
+TriangleShape.lineTo( 0, 1 );
+
+var TriangleGeometry = new THREE.ShapeGeometry(TriangleShape);
+
+Particle.TRIANGLE = 1;
+Particle.CUBE = 2;
+Particle.SQUARE = 3;
+
+Particle.prototype = {
+  constructor: Particle,
   update: function(delta, now) {
     if (this.timeAlive > this.maxLife) {
       this.destroy();
@@ -339,6 +418,9 @@ Particle.prototype = {
     }
     this.prop.update(delta);
     this.timeAlive += delta;
+    if (this.type === Particle.TRIANGLE) {
+      this.material.uniforms.flip.value *= -1;
+    }
   },
   destroy: function() {
     scene.remove(this.object);
@@ -356,7 +438,7 @@ function Bullet(position, velocity) {
       collider.onDamage(Bullet.prototype.damage, dt);
       self.destroy(); // it's cooler with trick shots tho
     }
-  }, 1, new THREE.Vector3().set(0, 0, 0));
+  }, Particle.CUBE);
   this.maxDistance = 80;
   this.acceleration = null;
 }
