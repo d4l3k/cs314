@@ -54,11 +54,12 @@ Prop.prototype = {
         break;
       }
 
-      var entity = this.map.collidesWith(this.entity, newPosition);
+      var entity = this.map.collidesWith(this.entity, newPosition)
+                           .find(function(e) { return collidedObjects.indexOf(e) == -1; });
 
-      if (!entity || collidedObjects.indexOf(entity) != -1) {
-        break;
-      }
+      if (!entity)
+        break; // Nothing left to collide against, returning.
+
       collidedObjects.push(entity);
 
       var collider = entity.prop; // By definition, all collidables must have a prop.
@@ -110,9 +111,6 @@ function Wall(x, y) {
   this.object.position.y = cursorElevation() + 0.5;
   this.object.position.z = y;
   this.health = Wall.prototype.maxHealth;
-  // Fix x and z such that the wall doesn't fly around.
-  this.fixedX = x;
-  this.fixedZ = y;
 
   var self = this;
   this.prop = new Prop(this, map, this.object.position.clone(), 0.5, function(pos) {
@@ -155,6 +153,7 @@ Wall.prototype = {
       // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
       map.removeEntity(this);
       scene.remove(this.object);
+      objects.splice(objects.indexOf(this.object), 1);
     }
   }
 };

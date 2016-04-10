@@ -44,12 +44,12 @@ Map.prototype = {
     entity.map = null;
   },
 
-  // Returns the first object in the scene that collides with the provided entity.
+  // Returns objects in the scene that collide with the provided entity.
   collidesWith: function(entity, newPosition) {
     if (!entity.prop)
       return null;
 
-    return this.entities.find(function(e) {
+    return this.entities.filter(function(e) {
       if (e === entity)
         return false;
       if (!e.prop)
