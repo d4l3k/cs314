@@ -154,7 +154,7 @@ Wall.prototype = {
 };
 
 function Turret(x, y) {
-  const RADIUS = 0.2;
+  const RADIUS = 0.1;
   // Configuration
   this.targetSpeed = 20; // m/s
   this.fireRate = 4; // shots/s
@@ -170,7 +170,7 @@ function Turret(x, y) {
   var geometry = new THREE.BoxGeometry( RADIUS, 0.5, RADIUS );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
   var base = new THREE.Mesh( geometry, material );
-  base.position.y = -0.25;
+  base.position.y = -0.15;
   this.object.add(base);
 
   this.prop = new Prop(this, map, this.object.position.clone(), RADIUS, function(pos) {
@@ -180,17 +180,46 @@ function Turret(x, y) {
   this.gun = new THREE.Object3D();
   this.object.add(this.gun);
 
-  var geometry = new THREE.BoxGeometry( 0.3, 0.75, 0.3 );
+  var geometry = new THREE.CylinderGeometry( 0.07, 0.07, 0.8, 32 );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
   var barrel = new THREE.Mesh( geometry, material );
-  barrel.position.z=0.20;
+  // barrel.position.x = -0.05;
+  barrel.position.y = -0.05;
+  barrel.position.z = 0.30;
   barrel.rotateX(Math.PI/2);
   this.gun.add(barrel);
+  
+  var geometry = new THREE.BoxGeometry( 0.25, 0.5, 0.3 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
+  var stock = new THREE.Mesh( geometry, material );
+  stock.position.z = 0.20;
+  stock.rotateX(Math.PI/2);
+  this.gun.add(stock);
+  
+  var geometry = new THREE.CylinderGeometry( 0.04, 0.04, 0.5, 32 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
+  var scope = new THREE.Mesh( geometry, material );
+  scope.position.z = -0.15;
+  scope.position.y = 0;
+  // scope.rotateX(Math.PI/2);
+  barrel.add(scope);
+  
+  var geometry = new THREE.CylinderGeometry( 0.15, 0.15, 0.15, 32 );
+  var material = new THREE.MeshLambertMaterial( { color: TURRET_BARREL_COLOR } );
+  var magazine = new THREE.Mesh( geometry, material );
+  magazine.position.x = 0.2;
+  magazine.position.y = 0.1;
+  magazine.rotateX(Math.PI/2);
+  this.gun.add(magazine);
+  
+  var magazine2 = magazine.clone();
+  magazine2.position.x = -0.15;
+  this.gun.add(magazine2);
 
-  var geometry = new THREE.BoxGeometry( 0.03, 1, 0.03 );
+  var geometry = new THREE.BoxGeometry( 0.05, 0.75, 0.05 );
   var material = new THREE.MeshBasicMaterial( { color: TURRET_LASER_COLOR, fog: false } );
   this.laser = new THREE.Mesh( geometry, material );
-  barrel.add(this.laser);
+  scope.add(this.laser);
 
   // Default values
   this.targetPos = new THREE.Vector3(0,0,0);
@@ -198,6 +227,7 @@ function Turret(x, y) {
 
   this.updateLaser(0);
 }
+
 Turret.prototype = {
   name: 'Turret',
   description: 'Shoots at enemies. Pew pew!',
