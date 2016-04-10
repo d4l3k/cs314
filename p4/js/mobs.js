@@ -84,7 +84,7 @@ Monster.prototype = {
         dir.multiplyScalar(6/dir.length());
         var color = (Math.random() > 0.5) ? 0xff0000 : 0xffff00;
         var p = new Particle(obj.position, dir, color, 0.05);
-        p.maxDistance = 3;
+        p.maxLife = 3;
       }
 
       j += 1;
