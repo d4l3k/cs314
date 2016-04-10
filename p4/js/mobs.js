@@ -136,6 +136,8 @@ var DebugMonster = function DebugMonster(map, start, target) {
   var geometry = new THREE.SphereGeometry(radius, 32);
   var material = new THREE.MeshPhongMaterial({color: 0xff0000});
   var mesh = new THREE.Mesh(geometry, material);
+  var light = new THREE.PointLight(0xff0000, 0.5, 2);
+  mesh.add(light);
   mesh.position.set(5, 1, 0);
   Monster.call(this, mesh, map, 2, 4, 5, start, target, radius);
 }

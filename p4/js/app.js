@@ -1,6 +1,7 @@
 'use strict';
 
 var scene, camera, renderer, composer, glowcomposer;
+var ambientLightDay, ambientLightNight;
 var floor, island, seabed;
 var onRenderFcts = [];
 var map;
@@ -53,6 +54,9 @@ const mapFalloffSigma = 2; // sigma value of gaussianlike decay around island ed
 const seabedElevation = -1;
 
 const sandColor = 0xEDC9AF;
+
+const AMBIENT_DAY = 0x404040;
+const AMBIENT_NIGHT = 0x101040;
 
 var objects = []; // A list of all interactable objects in the scene.
 
@@ -159,15 +163,20 @@ function init() {
 
   initControls();
 
-  var light = new THREE.AmbientLight( 0x404040 );
-  scene.add( light );
+  ambientLightDay = new THREE.AmbientLight(AMBIENT_DAY);
+  scene.add(ambientLightDay);
+  ambientLightNight = new THREE.AmbientLight(AMBIENT_NIGHT);
+
   scene.fog = new THREE.FogExp2( fogColor, 0.02 );
 
-  // FIXME: remove, replace with own light shader
-  var pointLight = new THREE.PointLight(0xffffff, 1, 35);
-  pointLight.position.set(0, 3, 0);
-  pointLight.rotateX(-Math.PI / 2);
-  scene.add(pointLight);
+  var goalLight = new THREE.PointLight(0xffffff, 1, 15);
+  goalLight.position.set(0, 1, 0);
+  goalLight.rotateX(-Math.PI / 2);
+  scene.add(goalLight);
+
+  var sunLight = new THREE.DirectionalLight(0xffffff, 0.4);
+  sunLight.position.set(0, 1, 0);
+  scene.add(sunLight);
 
   initRenderer()
 
@@ -376,10 +385,14 @@ function initControls() {
     begin: function() {
       playBattleMusic();
       waveButton.style.display = 'none';
+      scene.remove(ambientLightDay);
+      scene.add(ambientLightNight);
     },
     end: function() {
       playAmbientMusic();
       waveButton.style.display = '';
+      scene.remove(ambientLightNight);
+      scene.add(ambientLightDay);
     }
   }, 5);
 }
