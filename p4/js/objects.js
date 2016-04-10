@@ -288,7 +288,7 @@ Turret.prototype = {
       var dir = this.targetPos.clone().sub(this.object.position);
       dir.multiplyScalar(this.bulletSpeed/dir.length());
       // Spawn bullet outside of turret by a small amount to prevent clipping.
-      new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.5), dir);
+      new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.75), dir);
     }
 
     this.updateLaser(now);
