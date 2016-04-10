@@ -146,6 +146,13 @@ Wall.prototype = {
     this.prop.update(dt);
   },
   onDamage : function(damage, dt, isBullet) {
+    // Shoot particles out of the wall when it gets damaged.
+    var dir = new THREE.Vector3(2*Math.random()-1, this.object.position.y, 2*Math.random()-1);
+    dir.multiplyScalar(2/dir.length());
+    var color = (Math.random() > 0.5) ? 0xcccccc : 0x333333;
+    var p = new Particle(this.object.position, dir, color, 0.08, false);
+    p.maxLife = 1.5;
+
     if(!isBullet) {
         // console.log(this.health);
         this.health = Math.max(0, this.health - damage);
