@@ -26,8 +26,8 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
         self.object.position.copy(pos);
       },
       function (entity, dt) {
-        // XXX: this unit can only damage walls.
-        if (entity.onDamage && entity instanceof Wall) {
+        // XXX: don't attack friendlies.
+        if (entity.onDamage && !(entity instanceof Monster)) {
           entity.onDamage(self.dps * dt, dt);
         }
       }, 0.3);
