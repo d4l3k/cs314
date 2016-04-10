@@ -162,8 +162,8 @@ Wall.prototype = {
 function Turret(x, y) {
   const RADIUS = 0.2;
   // Configuration
-  this.targetSpeed = 20; // m/s
-  this.fireRate = 4; // shots/s
+  this.targetSpeed = Math.PI*2; // 2*pi rads/s
+  this.fireRate = 2; // shots/s
   this.bulletSpeed = 30; // m/s
 
   // Geometry
@@ -209,6 +209,10 @@ Turret.prototype = {
   description: 'Shoots at enemies. Pew pew!',
   cost: 1000,
   destroyCost: 250,
+  setLaserLength: function(length) {
+    this.laser.position.y = length/2;
+    this.laser.scale.y = length;
+  },
   updateLaser: function(now) {
     if (!this.lastUpdatedLaser) {
       this.lastUpdatedLaser = 0;
@@ -242,9 +246,7 @@ Turret.prototype = {
         distance = intersect.distance;
       }
     });
-
-    this.laser.position.y = distance/2;
-    this.laser.scale.y = distance;
+    this.setLaserLength(distance);
   },
   interceptPoint: function(enemy, delta) {
     var p = enemy.prop.position;
@@ -271,17 +273,25 @@ Turret.prototype = {
       //pos = target.object.position.clone();
       pos = this.interceptPoint(target, delta);
     } else {
-      pos = this.object.position.clone().add(new THREE.Vector3(0,1,0));
+      var dir = this.object.position.clone().normalize();
+      dir.y = 0;
+      pos = this.object.position.clone().add(dir);
     }
     var diff = pos.clone().sub(this.targetPos);
-    var step = this.targetSpeed*delta;
     var length = diff.length();
+    var step = this.targetSpeed*length*delta;
     if (length > step) {
       diff.multiplyScalar(step/length);
     }
     this.targetPos.add(diff);
     var localPos = this.object.worldToLocal(this.targetPos.clone());
     this.gun.lookAt(localPos);
+
+    if (target) {
+      this.updateLaser(now);
+    } else {
+      this.setLaserLength(0);
+    }
 
     if (target && length < 0.5 && (now - this.lastFired) > 1/this.fireRate) { // on target and can fire
       this.lastFired = now;
@@ -290,8 +300,6 @@ Turret.prototype = {
       // Spawn bullet outside of turret by a small amount to prevent clipping.
       new Bullet(this.object.position.clone().addScaledVector(dir.clone().normalize(), 0.75), dir);
     }
-
-    this.updateLaser(now);
   },
 };
 function Particle(position, velocity, color, size, collides, onCollide) {
