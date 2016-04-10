@@ -197,10 +197,10 @@ function Turret(x, y) {
   this.gun = new THREE.Object3D();
   this.object.add(this.gun);
 
-  var geometry = new THREE.BoxGeometry( RADIUS, 0.5, RADIUS );
+  var geometry = new THREE.BoxGeometry( RADIUS, 0.75, RADIUS );
   var material = new THREE.MeshLambertMaterial( { color: TURRET_BASE_COLOR } );
   var base = new THREE.Mesh( geometry, material );
-  base.position.y = 0.15;
+  base.position.y = 0.25;
   this.gun.add(base); 
   
   var geometry = new THREE.BoxGeometry( 0.25, 0.20, 0.75 );
