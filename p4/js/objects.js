@@ -343,6 +343,12 @@ Turret.prototype = {
 
     this.prop.update(delta);
   },
+  onDamage : function(damage, dt) {
+    // Should instakill.
+    map.removeEntity(this);
+    scene.remove(this.object);
+    objects.splice(objects.indexOf(this.object), 1);
+  },
 };
 var ParticleShader = new THREE.ShaderMaterial({
   uniforms: {
