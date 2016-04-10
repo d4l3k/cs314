@@ -50,7 +50,7 @@ Prop.prototype = {
     for (;;) {
       var newPosition = this.position.clone().addScaledVector(this.velocity, dt);
 
-      if(!this.map) {
+      if(!this.map || !this.collisionRadius) {
         break;
       }
 
@@ -210,6 +210,9 @@ Turret.prototype = {
   cost: 1000,
   destroyCost: 250,
   setLaserLength: function(length) {
+    if (length <= 0) {
+      length = 0.1;
+    }
     this.laser.position.y = length/2;
     this.laser.scale.y = length;
   },
@@ -309,25 +312,9 @@ var ParticleShader = new THREE.ShaderMaterial({
   },
   vertexShader: document.querySelector('#particleVertexShader').textContent,
   fragmentShader: document.querySelector('#particleFragmentShader').textContent,
-})
-function Particle(position, velocity, color, size, collides, onCollide) {
-  this.constructor(position, velocity, color, size, collides, onCollide);
-}
+});
 
-var TriangleShape = new THREE.Shape();
-TriangleShape.moveTo( 0, 1 );
-TriangleShape.lineTo( 1, 1-Math.sqrt(3) );
-TriangleShape.lineTo( -1, 1-Math.sqrt(3) );
-TriangleShape.lineTo( 0, 1 );
-
-var TriangleGeometry = new THREE.ShapeGeometry(TriangleShape);
-
-Particle.TRIANGLE = 0;
-Particle.CUBE = 1;
-Particle.SQUARE = 2;
-
-Particle.prototype = {
-  constructor: function(position, velocity, color, size, collides, onCollide, type){
+function Particle(position, velocity, color, size, collides, onCollide, type){
     this.velocity = velocity.clone();
     this.timeAlive = 0;
     this.maxLife = 3; // last at most 3 seconds
@@ -344,11 +331,11 @@ Particle.prototype = {
       material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
     } else if (type === Particle.SQUARE) {
       geometry = new THREE.PlaneGeometry(size, size, 1);
-      material = new THREE.MeshBasicMaterial( { color: color, fog: false } );
     } else if (type === Particle.TRIANGLE) {
       geometry = TriangleGeometry.clone();
-      geometry.scale(size,size,size);
-
+      geometry.scale(size/2,size/2,size/2);
+    }
+    if (type === Particle.SQUARE || type === Particle.TRIANGLE) {
       material = ParticleShader.clone();
       material.uniforms.color.value = new THREE.Color(color);
     }
@@ -371,7 +358,22 @@ Particle.prototype = {
             onCollide(entity, dt);
         }, 0.5);
     this.prop.applyForce(velocity);
-  },
+  }
+
+var TriangleShape = new THREE.Shape();
+TriangleShape.moveTo( 0, 1 );
+TriangleShape.lineTo( 1, 1-Math.sqrt(3) );
+TriangleShape.lineTo( -1, 1-Math.sqrt(3) );
+TriangleShape.lineTo( 0, 1 );
+
+var TriangleGeometry = new THREE.ShapeGeometry(TriangleShape);
+
+Particle.TRIANGLE = 1;
+Particle.CUBE = 2;
+Particle.SQUARE = 3;
+
+Particle.prototype = {
+  constructor: Particle,
   update: function(delta, now) {
     if (this.timeAlive > this.maxLife) {
       this.destroy();
