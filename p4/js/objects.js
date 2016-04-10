@@ -146,7 +146,7 @@ Wall.prototype = {
   update: function(dt) {
     this.prop.update(dt);
   },
-  onDamage : function(damage, dt, isBullet) {
+  onDamage : function(damage, dt) {
     // Shoot particles out of the wall when it gets damaged.
     var dir = new THREE.Vector3(2*Math.random()-1, this.object.position.y, 2*Math.random()-1);
     dir.multiplyScalar(2/dir.length());
@@ -154,18 +154,17 @@ Wall.prototype = {
     var p = new Particle(this.object.position, dir, color, 0.08, false);
     p.maxLife = 1.5;
 
-    if(!isBullet) {
-        // console.log(this.health);
-        this.health = Math.max(0, this.health - damage);
-        // this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
-        this.object.scale.y = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
-        if (this.health <= 0) {
-          // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
-          map.removeEntity(this);
-          scene.remove(this.object);
-          objects.splice(objects.indexOf(this.object), 1);
-        }
-    } 
+    // console.log(this.health);
+    this.health = Math.max(0, this.health - damage);
+    // this.object.scale.x = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
+    this.object.scale.y = Math.max(this.health/Wall.prototype.maxHealth, 0.25);
+    if (this.health <= 0) {
+      // TODO: clean this up, maybe run some destructor callbacks (e.g. for UI)
+      map.removeEntity(this);
+      scene.remove(this.object);
+      objects.splice(objects.indexOf(this.object), 1);
+    }
+
   }
 };
 
@@ -357,13 +356,18 @@ Turret.prototype = {
 
     this.prop.update(delta);
   },
-  onDamage : function(damage, dt, isBullet) {
-    if (!isBullet) {
-        // Should instakill.
-        map.removeEntity(this);
-        scene.remove(this.object);
-        objects.splice(objects.indexOf(this.object), 1);
-    }
+  onDamage : function(damage, dt) {
+    // Shoot particles out of the turret when it gets damaged.
+    var dir = new THREE.Vector3(2*Math.random()-1, this.object.position.y, 2*Math.random()-1);
+    dir.multiplyScalar(2/dir.length());
+    var color = (Math.random() > 0.5) ? 0xcccccc : 0x333333;
+    var p = new Particle(this.object.position, dir, color, 0.08, false);
+    p.maxLife = 1.5;  
+      
+    // Should instakill.
+    map.removeEntity(this);
+    scene.remove(this.object);
+    objects.splice(objects.indexOf(this.object), 1);
   },
 };
 var ParticleShader = new THREE.ShaderMaterial({
@@ -473,10 +477,10 @@ function Bullet(position, velocity) {
   var self = this;
   Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2, true, function(collider, dt) {
     if (collider.onDamage) {
-        collider.onDamage(Bullet.prototype.damage, dt, true);
-        
-        if(!(collider instanceof Wall))
+        if(collider instanceof Monster) {
+            collider.onDamage(Bullet.prototype.damage, dt);
             self.destroy(); // it's cooler with trick shots tho
+        }            
     }
   }, Particle.CUBE);
   this.maxDistance = 80;
