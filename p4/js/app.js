@@ -71,7 +71,6 @@ placeable.forEach(function(control) {
   document.querySelector('#items').appendChild(button);
 });
 
-init();
 
 var mouse = new THREE.Vector2(10000,10000), raycaster = new THREE.Raycaster();
 
@@ -128,7 +127,7 @@ function init() {
   setInterval(function() {
     var dir = new THREE.Vector3(2*Math.random()-1, 4, 2*Math.random()-1);
     dir.multiplyScalar(3/dir.length());
-    new Particle(mesh.position, dir, 0xffffff, 0.1, false);
+    new Particle(mesh.position, dir, 0xffffff, 0.1, false, null, Particle.SQUARE);
   }, 100);
 
   // Setup water material, which depends on the current time.
@@ -164,60 +163,9 @@ function init() {
   pointLight.rotateX(-Math.PI / 2);
   scene.add(pointLight);
 
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  renderer.autoClear = false;
-
-
-  // composers
-  var renderPass = new THREE.RenderPass(scene, camera);
-
-  // glow composer
-  glowcomposer = new THREE.EffectComposer(renderer);
-  glowcomposer.addPass(renderPass);
-  var highlightPass = new HighlightPass();
-  glowcomposer.addPass(highlightPass);
-  var bloomPass = new THREE.BloomPass(2, 25, 4, 256);
-  glowcomposer.addPass(bloomPass);
-
-  var finalshader = {
-    uniforms: {
-      tDiffuse: { type: "t", value: 0, texture: null }, // The base scene buffer
-      tGlow: { type: "t", value: 1, texture: null } // The glow scene buffer
-    },
-    vertexShader: [
-      "varying vec2 vUv;",
-      "void main() {",
-      "vUv = vec2( uv.x, uv.y );",
-      "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-      "}"
-    ].join("\n"),
-
-    fragmentShader: [
-      "uniform sampler2D tDiffuse;",
-      "uniform sampler2D tGlow;",
-      "varying vec2 vUv;",
-      "void main() {",
-      "vec4 texel = texture2D( tDiffuse, vUv );",
-      "vec4 glow = texture2D( tGlow, vUv );",
-      "gl_FragColor = texel + glow;",
-      "}"
-    ].join("\n")
-  };
-  finalshader.uniforms[ "tGlow" ].value = glowcomposer.renderTarget1;
-
-
-  // main composer
-  composer = new THREE.EffectComposer(renderer);
-  composer.addPass(renderPass);
-  var finalPass = new THREE.ShaderPass( finalshader );
-  finalPass.needsSwap = true;
-  finalPass.renderToScreen = true;
-  composer.addPass(finalPass);
+  initRenderer()
 
   initDayNight();
-
-  document.body.appendChild( renderer.domElement );
 
 
   // setup mouse handlers
@@ -628,6 +576,87 @@ function cursorElevation() {
   return cursor.position.y + 0.5;
 }
 
+// Lazy pass calls the pass every n times to avoid duplicating work.
+function LazyPass(pass, every, params) {
+  this.pass = pass;
+  this.every = every;
+  this.count = 0;
+
+  if (!params) {
+    params = {};
+  }
+
+  this.enabled = pass.enabled;
+  this.clear = pass.clear;
+  this.needsSwap = pass.needsSwap;
+
+	var width = params.width || window.innerWidth || 1;
+	var height = params.height || window.innerHeight || 1;
+
+	this.renderTarget = new THREE.WebGLRenderTarget(width, height);
+
+  var copyShader = new THREE.ShaderMaterial(THREE.CopyShader).clone();
+  this.copyPass = new THREE.ShaderPass(copyShader);
+};
+LazyPass.prototype = {
+  render: function ( renderer, writeBuffer, readBuffer, delta, maskActive ) {
+    if (this.count == 0) {
+      this.pass.render(renderer, this.renderTarget, readBuffer, delta, maskActive);
+      this.copyPass.render(renderer, writeBuffer, this.renderTarget, delta, maskActive);
+    }
+    this.count = (this.count + 1) % this.every;
+  },
+}
+
+
+var combineShader = {
+  uniforms: {
+    tDiffuse: { type: "t", value: 0, texture: null },
+    tGlow: { type: "t", value: 0, texture: null }
+  },
+  vertexShader: [
+    "varying vec2 vUv;",
+    "void main() {",
+    "vUv = vec2(uv);",
+    "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+    "}"
+  ].join("\n"),
+  fragmentShader: [
+    "uniform sampler2D tDiffuse;",
+    "uniform sampler2D tGlow;",
+    "varying vec2 vUv;",
+    "void main() {",
+    "gl_FragColor = texture2D(tDiffuse, vUv) + texture2D(tGlow, vUv);",
+    "}"
+  ].join("\n")
+};
+
+function initRenderer() {
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
+  // composers
+  var renderPass = new THREE.RenderPass(scene, camera);
+  var lazyPass = new LazyPass(renderPass, 1);
+
+  // glow composer
+  glowcomposer = new THREE.EffectComposer(renderer);
+  glowcomposer.addPass(lazyPass);
+  var highlightPass = new HighlightPass();
+  glowcomposer.addPass(highlightPass);
+  var bloomPass = new THREE.BloomPass(2, 25, 4, 256);
+  glowcomposer.addPass(bloomPass);
+
+  // main composer
+  composer = new THREE.EffectComposer(renderer);
+  composer.addPass(lazyPass);
+  combineShader.uniforms.tGlow.value = glowcomposer.renderTarget1;
+  var combinePass = new THREE.ShaderPass(combineShader);
+  combinePass.renderToScreen = true;
+  composer.addPass(combinePass);
+
+  document.body.appendChild( renderer.domElement );
+}
 
 var delays = [];
 var fpsCounter = document.querySelector("#fps");
@@ -682,7 +711,9 @@ function render(nowMsec) {
     camera.position.y += cameraDelta * (camera.position.y < cameraElevation ? 1 : -1);
   }
 
-  renderer.clear();
+  //renderer.clear();
   glowcomposer.render(deltaMsec/1000);
   composer.render(deltaMsec/1000);
 }
+
+init();
