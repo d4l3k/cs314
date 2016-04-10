@@ -77,20 +77,22 @@ Monster.prototype = {
 
     // explosion effects
     var obj = this.object;
-    var j = 0;
+    //var j = 0;
     function particle() {
       for (var i=0; i<50; i++) {
         var dir = new THREE.Vector3(2*Math.random()-1, Math.random()*4, 2*Math.random()-1);
         dir.multiplyScalar(6/dir.length());
-        var color = (Math.random() > 0.5) ? 0xff0000 : 0xffff00;
-        var p = new Particle(obj.position, dir, color, 0.05);
+        var color = (Math.random() > 0.5) ? 0x333333 : 0x666666;
+        var p = new Particle(obj.position, dir, color, 0.1);
         p.maxLife = 3;
       }
 
+      /*
       j += 1;
       if (j < 5) {
         setTimeout(particle, 1);
       }
+      */
     }
     particle();
   },
