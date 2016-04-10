@@ -369,6 +369,7 @@ function Particle(position, velocity, color, size, collides, onCollide, type){
       type = Particle.TRIANGLE;
     }
     this.type = type;
+    this.destroyed = false;
 
     var geometry, material;
     if (type === Particle.CUBE) {
@@ -422,6 +423,7 @@ Particle.prototype = {
   update: function(delta, now) {
     if (this.timeAlive > this.maxLife) {
       this.destroy();
+      return;
     }
     /*
     if (this.acceleration) {
@@ -439,6 +441,10 @@ Particle.prototype = {
     }
   },
   destroy: function() {
+    if (this.destroyed)
+      return;
+    this.destroyed = true;
+
     scene.remove(this.object);
 
     // remove from objects array
@@ -458,7 +464,7 @@ function Bullet(position, velocity) {
   this.maxDistance = 80;
   this.acceleration = null;
 }
-Bullet.prototype = {
+Bullet.prototype =  {
   damage: 2,
   update: function(delta, now) {
     Particle.prototype.update.call(this, delta, now);
