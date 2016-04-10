@@ -26,11 +26,10 @@ var Monster = function(model, map, acceleration, maxSpeed, dps, start, target, c
         self.object.position.copy(pos);
       },
       function (entity, dt) {
-        // XXX: this unit can only damage walls.
-        if (entity.onDamage ) { // && entity instanceof Wall
+        if (entity.onDamage && !(entity instanceof Monster)) {
           entity.onDamage(self.dps * dt, dt);
         }
-      }, 1); // XXX: Increase bounciness to prevent unwanted collision.
+      }, 0.3);
   this.target = target;
   this.dps = dps;
   this.health = this.maxHealth;

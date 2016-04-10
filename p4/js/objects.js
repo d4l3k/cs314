@@ -146,6 +146,13 @@ Wall.prototype = {
     this.prop.update(dt);
   },
   onDamage : function(damage, dt, isBullet) {
+    // Shoot particles out of the wall when it gets damaged.
+    var dir = new THREE.Vector3(2*Math.random()-1, this.object.position.y, 2*Math.random()-1);
+    dir.multiplyScalar(2/dir.length());
+    var color = (Math.random() > 0.5) ? 0xcccccc : 0x333333;
+    var p = new Particle(this.object.position, dir, color, 0.08, false);
+    p.maxLife = 1.5;
+
     if(!isBullet) {
         // console.log(this.health);
         this.health = Math.max(0, this.health - damage);
@@ -376,6 +383,7 @@ function Particle(position, velocity, color, size, collides, onCollide, type){
       type = Particle.TRIANGLE;
     }
     this.type = type;
+    this.destroyed = false;
 
     var geometry, material;
     if (type === Particle.CUBE) {
@@ -429,6 +437,7 @@ Particle.prototype = {
   update: function(delta, now) {
     if (this.timeAlive > this.maxLife) {
       this.destroy();
+      return;
     }
     /*
     if (this.acceleration) {
@@ -446,6 +455,10 @@ Particle.prototype = {
     }
   },
   destroy: function() {
+    if (this.destroyed)
+      return;
+    this.destroyed = true;
+
     scene.remove(this.object);
 
     // remove from objects array
@@ -458,14 +471,16 @@ function Bullet(position, velocity) {
   var self = this;
   Particle.prototype.constructor.call(this, position, velocity, BULLET_COLOR, 0.2, true, function(collider, dt) {
     if (collider.onDamage) {
-      collider.onDamage(Bullet.prototype.damage, dt, true);
-      self.destroy(); // it's cooler with trick shots tho
+        collider.onDamage(Bullet.prototype.damage, dt, true);
+        
+        if(!(collider instanceof Wall))
+            self.destroy(); // it's cooler with trick shots tho
     }
   }, Particle.CUBE);
   this.maxDistance = 80;
   this.acceleration = null;
 }
-Bullet.prototype = {
+Bullet.prototype =  {
   damage: 2,
   update: function(delta, now) {
     Particle.prototype.update.call(this, delta, now);
