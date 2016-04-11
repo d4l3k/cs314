@@ -16,6 +16,7 @@ Advanced functionality items:
     - A custom shader is used for the water that surrounds the island.
 - Particle systems
     - The physics system manages collisions, velocity, position, and acceleration of particles, which spawn on object destruction, damage, and as bullets.
+    - Each particle has a lifetime as well.
 - Procedural modeling
     - The island terrain is procedurally generated as a lattice with uniform elevation noise, with a parametric gaussian-like falloff around the edges.
 - Collision detection
